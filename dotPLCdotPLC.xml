@@ -1,0 +1,2916 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>dotPLC</name>
+    </assembly>
+    <members>
+        <member name="T:dotPLC.Initial.Ethernet">
+            <summary>
+             Provides client connection for TCP network service.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Ethernet._tcpclient">
+            <summary>
+            _tcpclient
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Ethernet._stream">
+            <summary>
+            _stream
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Ethernet._connected">
+            <summary>
+            _connected
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Ethernet._receiveTimeout">
+            <summary>
+            _receiveTimeout
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Ethernet._sendTimeout">
+            <summary>
+            _sendTimeout
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Ethernet.BufferSize">
+            <summary>
+            BufferSize
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Ethernet.SendBuffer">
+            <summary>
+            SendBuffer
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Ethernet.ReceveiBuffer">
+            <summary>
+            ReceveiBuffer
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Ethernet.sWhitespace">
+            <summary>
+            Remove whitespace.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Initial.Ethernet"></see> class.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Initial.Ethernet.IPAddress">
+            <summary>
+            IP Address of the server.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Initial.Ethernet.Connected">
+            <summary>
+            Gets a value indicating whether a connection to the server has been established.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Initial.Ethernet.ReceiveTimeout">
+            <summary>
+            Gets or sets the amount of time that a write operation blocks waiting for data to the server.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Initial.Ethernet.SendTimeout">
+            <summary>
+            Gets or sets the amount of time that a read operation blocks waiting for data from the server.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ConvertOctalToDecimal(System.Int32)">
+            <summary>
+            Chuyển đổi octal thành decimal
+            </summary>
+            <param name="oct">số oct</param>
+            <returns>số decimal</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ConvertDecimalToOctal(System.Int32)">
+            <summary>
+            Chuyển đổi Octal thành Decimal
+            </summary>
+            <param name="dec">số dec</param>
+            <returns>số oct</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ConvertByteToBoolArray(System.Byte)">
+            <summary>
+            Chuyển đổi 1 byte thành bit 
+            </summary>
+            <param name="b">giá trị của byte</param>
+            <returns>8 bit</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ConvertWordToBoolArray(System.Int16)">
+            <summary>
+            Chuyển đổi word (2byte) thành 16bit
+            </summary>
+            <param name="word">word 2byte</param>
+            <returns>16 bit</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ConvertMultipleWordToBoolArray(System.Int16[],System.Int32)">
+            <summary>
+            Chuyển đổi nhiều Word thành nhiều bit
+            </summary>
+            <param name="word">word</param>
+            <param name="size">số lượng</param>
+            <returns>mảng bit</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ConvertBoolArrayToByteArray(System.Boolean[])">
+            <summary>
+            Chuyển đổi mảng bit thành mảng byte
+            </summary>
+            <param name="coils">mảng bit</param>
+            <returns>Mảng byte</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ConvertMultipleByteToBoolArray(System.Byte[],System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Chuyển đổi nhiều byte thành nhiều bit
+            </summary>
+            <param name="data">mảng byte</param>
+            <param name="startindex">địa chỉ bắt đầu</param>
+            <param name="length">độ dài</param>
+            <param name="size">kích thước</param>
+            <returns>Mảng bit</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ConvertBoolArrayToByteArraySLMP(System.Boolean[])">
+            <summary>
+            Chuyển đổi mảng bit thành mảng byte  theo tiêu chuẩn SLMP
+            </summary>
+            <param name="coils">mảng bit</param>
+            <returns>mảng byte</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.CmdRemoteControl(dotPLC.Mitsubishi.RemoteControl)">
+            <summary>
+            Nhận mảng byte từ chế độ RemoteControl
+            </summary>
+            <param name="mode">RemoteControl mode</param>
+            <returns>mảng byte</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ConvertStringToByteArrray(System.String)">
+            <summary>
+            Chuyển đổi chuỗi hex thành byte, Vd: FF55 => thành 0xFF, 0X55
+            </summary>
+            <param name="hex">chuỗi hex</param>
+            <returns>mảng byte</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ConvertByteArrayToBoolArray(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="data"></param>
+            <param name="startindex"></param>
+            <param name="size"></param>
+            <returns></returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.SetupBuffer">
+            <summary>
+            Thiết lập byte ban đầu
+            </summary>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.SettingDevice(System.String,System.Byte@,System.Byte@,System.Byte@,System.Byte@)">
+            <summary>
+            Phân tích label thành Device(1 byte) và Index (Mảng byte)
+            </summary>
+            <param name="label">Label name</param>
+            <param name="device">Device</param>
+            <param name="low_num">byte[0]</param>
+            <param name="mid_num">byte[1]</param>
+            <param name="high_num">byte[2]</param>
+            <returns>index</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.GetNameDevice(System.String)">
+            <summary>
+            Lấy byte đại diện cho device
+            </summary>
+            <param name="device">device</param>
+            <returns>byte đại diện cho device</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.SettingDevice(System.String,System.String@,System.Int32@)">
+            <summary>
+            Phân tích label thành device và index
+            </summary>
+            <param name="label">label name</param>
+            <param name="device">device</param>
+            <param name="num">index</param>
+            <returns>Trả về true nếu thành công;nếu không,false</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.SettingLabel(System.String,System.Int32,System.String@)">
+            <summary>
+            Ghép device và index thành label
+            </summary>
+            <param name="device">device</param>
+            <param name="num">index</param>
+            <param name="label">label name</param>
+            <returns>Trả về true nếu thành công;nếu không,false</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.IsSizeMatch(System.String,System.Int32)">
+            <summary>
+            Kiểm tra Device và Index có phù hợp không
+            </summary>
+            <param name="device">device</param>
+            <param name="num">index</param>
+            <returns>Trả về true nếu thành công;nếu không,false</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.isOctal(System.Int32)">
+            <summary>
+            Kiểm tra index có phải là octal không
+            </summary>
+            <param name="n">index</param>
+            <returns>Trả về true nếu thành công;nếu không,false</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.Connect">
+            <summary>
+            Establish connection to the server.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.Close">
+            <summary>
+            Close connection to the server.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.WriteDevice(System.String,System.Boolean)">
+            <summary>
+            Write a single value to the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.WriteDevice(System.String,System.Int16)">
+            <summary>
+            Write a single value to the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.WriteDevice(System.String,System.Int32)">
+            <summary>
+            Write a single value to the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.WriteDevice(System.String,System.Single)">
+            <summary>
+            Write a single value to the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.WriteDevice``1(System.String,``0)">
+            <summary>
+            Write a single value to the server.
+            </summary>
+            <typeparam name="T">The data type of value.</typeparam>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.WriteDeviceBlock``1(System.String,``0[])">
+            <summary>
+            Write multiple values to the server in a batch. 
+            </summary>
+            <typeparam name="T">The data type of value. (EX: <see cref="T:System.Boolean"></see>, <see cref="T:System.Int16"/>, <see cref="T:System.Single"/>, etc.)</typeparam>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.WriteDeviceBlock(System.String,System.Boolean[])">
+            <summary>
+             Write multiple values to the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.WriteDeviceBlock(System.String,System.Int16[])">
+            <summary>
+             Write multiple values to the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.WriteDeviceBlock(System.String,System.Int32[])">
+            <summary>
+             Write multiple values to the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.WriteDeviceBlock(System.String,System.Single[])">
+            <summary>
+             Write multiple values to the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.WriteDeviceRandom(dotPLC.Mitsubishi.Types.Bit[])">
+            <summary>
+            Write multiple values to the server randomly.
+            </summary>
+            <param name="bits"><see cref="T:dotPLC.Mitsubishi.Types.Bit"/> values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.WriteDeviceRandom(dotPLC.Mitsubishi.Types.Word[])">
+            <summary>
+            Write multiple values to the server randomly.
+            </summary>
+            <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.WriteDeviceRandom(dotPLC.Mitsubishi.Types.DWord[])">
+            <summary>
+            Write multiple values to the server randomly.
+            </summary>
+            <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.WriteDeviceRandom(dotPLC.Mitsubishi.Types.Float[])">
+            <summary>
+            Write multiple values to the server randomly.
+            </summary>
+            <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ReadDevice``1(System.String)">
+            <summary>
+            Read a single value from the server.
+            </summary>
+            <typeparam name="T">The data type of value. (EX: <see cref="T:System.Boolean"></see>, <see cref="T:System.Int16"/>, <see cref="T:System.Single"/>, etc.)</typeparam>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returned <typeparamref name="T"/> value.</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ReadSingleCoil(System.String)">
+            <summary>
+            Read a single value from the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returned value.</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ReadSingleRegister(System.String)">
+            <summary>
+            Read a single value from the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returned value.</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ReadSingleDouble(System.String)">
+            <summary>
+            Read a single value from the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returned value.</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ReadSingleFloat(System.String)">
+            <summary>
+            Read a single value from the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returned value.</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ReadDeviceBlock``1(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch.
+            </summary>
+            <typeparam name="T">The data type of value. (EX: <see cref="T:System.Boolean"></see>, <see cref="T:System.Int16"/>, <see cref="T:System.Single"/>, etc.)</typeparam>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned <typeparamref name="T"/>[] values.</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ReadMultipleCoils(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned values.</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ReadMultipleRegisters(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned values.</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ReadMultipleDoubles(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned values.</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ReadMultipleFloats(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned values.</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.WriteText(System.String,System.String)">
+            <summary>
+            Write text to the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="text">Text to be written.</param>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ReadText(System.String,System.Int32)">
+            <summary>
+            Read text from the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of text to be read.</param>
+            <returns>Returns text of the specified size.</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.GetCpuName">
+            <summary>
+            Read the model character string of the server.
+            </summary>
+            <returns>The model character string of the server.</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ReadDeviceRandom(dotPLC.Mitsubishi.Types.Bit[])">
+            <summary>
+            Read multiple values from the server randomly.
+            </summary>
+            <param name="bits"><see cref="T:dotPLC.Mitsubishi.Types.Bit"/> values to be read.</param>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ReadDeviceRandom(dotPLC.Mitsubishi.Types.Word[])">
+            <summary>
+            Read multiple values from the server randomly.
+            </summary>
+            <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be read.</param>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ReadDeviceRandom(dotPLC.Mitsubishi.Types.DWord[])">
+            <summary>
+            Read multiple values from the server randomly.
+            </summary>
+            <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be read.</param>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ReadDeviceRandom(dotPLC.Mitsubishi.Types.Float[])">
+            <summary>
+            Read multiple values from the server randomly.
+            </summary>
+            <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be read.</param>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ReadDeviceRandom(dotPLC.Mitsubishi.Types.Bit[],dotPLC.Mitsubishi.Types.Word[],dotPLC.Mitsubishi.Types.DWord[],dotPLC.Mitsubishi.Types.Float[])">
+            <summary>
+            Read multiple values from the server randomly. <see langword="[RECOMMENDED]"></see>
+            </summary>
+            <param name="bits"><see cref="T:dotPLC.Mitsubishi.Types.Bit"/> values to be read.</param>
+            <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be read.</param>
+            <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be read.</param>
+            <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be read.</param>
+        </member>
+        <member name="T:dotPLC.Initial.TaskQueue">
+            <summary>
+            Represents first-in, first-out asynchronous operations.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.TaskQueue.Sentinel">
+            <summary>
+            Sentinel has a blocking role so that at a time only one immutable operation can be performed.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.TaskQueue.prev">
+            <summary>
+            Returns the result when an asynchronous operation completes.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Initial.TaskQueue.Enqueue(System.Func{System.Threading.Tasks.Task})">
+            <summary>
+            Add asynchronous operations to TaskQueue.
+            </summary>
+            <param name="action">An asynchronous operation.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Initial.TaskQueue.Enqueue``1(System.Func{System.Threading.Tasks.Task{``0}})">
+            <summary>
+            Add asynchronous operations to TaskQueue.
+            </summary>
+            <typeparam name="T">The data type of value.</typeparam>
+            <param name="action">An asynchronous operation.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            Returned <typeparamref name="T"/> value.</returns>
+        </member>
+        <member name="T:dotPLC.Initial.TroubleshootingEventArgs">
+            <summary>
+            Provides data for the Trouble event.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Initial.TroubleshootingEventArgs.ErrorCode">
+            <summary>
+            Gets a error code of the server.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Initial.TroubleshootingEventArgs.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Initial.TroubleshootingEventArgs"></see> class.
+            </summary>
+            <param name="errorCode">A error code of the server.</param>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.AutoReconnect">
+            <summary>
+            Specifies auto-reconnect mode when connection is lost.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.AutoReconnect.None">
+            <summary>
+            Disable auto-reconnect to the server.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.AutoReconnect.Limit">
+            <summary>
+            Enable auto-reconnect to the server, with a limit interval for the attempt to reconnect to the server.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.AutoReconnect.Forever">
+            <summary>
+            Enable auto-reconnect to the server.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.AutoReconnect.JustDetectDisconnected">
+            <summary>
+            Just enable detect disconnections
+            </summary>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.CpuStatus">
+            <summary>
+            Specifies the remote control for GX Simulator3.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.CpuStatus.RUN">
+            <summary>
+            Remote RUN.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.CpuStatus.PAUSE">
+            <summary>
+            Remote PAUSE.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.CpuStatus.STOP">
+            <summary>
+            Remote STOP.
+            </summary>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.Memory">
+            <summary>
+            Represents a data memory area of the PLC.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.D">
+            <summary>
+            D device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.SW">
+            <summary>
+            SW device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.W">
+            <summary>
+            W device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.TN">
+            <summary>
+            TN device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.SD">
+            <summary>
+            SD device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.R">
+            <summary>
+            R device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.Z">
+            <summary>
+            Z device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.LZ">
+            <summary>
+            LZ device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.CN">
+            <summary>
+            CN device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.LCN">
+            <summary>
+            LCN device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.SN">
+            <summary>
+            SN device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.STN">
+            <summary>
+            STN device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.X">
+            <summary>
+            X device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.Y">
+            <summary>
+            Y device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.M">
+            <summary>
+            M device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.L">
+            <summary>
+            L device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.F">
+            <summary>
+            F device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.B">
+            <summary>
+            B device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.S">
+            <summary>
+            S device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.SS">
+            <summary>
+            SS device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.SC">
+            <summary>
+            SC device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.TC">
+            <summary>
+            TC device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.TS">
+            <summary>
+            TS device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.CS">
+            <summary>
+            CS device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.CC">
+            <summary>
+            CC device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.SB">
+            <summary>
+            SB device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.SM">
+            <summary>
+            SM device memory.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Memory.BL">
+            <summary>
+            BL device memory.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Memory.ConvertBoolArrayToByte(System.Boolean[])">
+            <summary>
+            Convert bool array to a byte.
+            </summary>
+            <param name="source">Bool array.</param>
+            <returns>Returned byte.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Memory.ConvertByteToBoolArray(System.Byte)">
+            <summary>
+            Convert a byte to bool array.[8-bit]
+            </summary>
+            <param name="b">A byte.</param>
+            <returns>Returned bool array.[8-bit]</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Memory.Clear">
+            <summary>
+            Clear data memory area of the PLC.
+            </summary>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.RemoteControl">
+            <summary>
+            Specifies the remote control for the server.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.RemoteControl.RUN_FORCE">
+            <summary>
+            Remote RUN.
+            </summary>
+            <remarks>Forced execution allowed (Remote RUN can be executed when other device
+            executes Remote STOP or Remote PAUSE.)</remarks>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.RemoteControl.RUN">
+            <summary>
+            Remote RUN.
+            </summary>
+            <remarks>Forced execution not allowed (Remote RUN cannot be executed when other device 
+            executes Remote STOP or Remote PAUSE.)</remarks>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.RemoteControl.STOP_FORCE">
+            <summary>
+            Remote STOP.
+            </summary>
+            <remarks>Forced execution allowed (Remote RUN can be executed when other device
+            executes Remote STOP or Remote PAUSE.)</remarks>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.RemoteControl.STOP">
+            <summary>
+            Remote STOP.
+            </summary>
+            <remarks>Forced execution not allowed (Remote RUN cannot be executed when other device
+            executes Remote STOP or Remote PAUSE.) </remarks>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.RemoteControl.PAUSE">
+            <summary>
+            Remote PAUSE.
+            </summary>
+             /// <remarks>Forced execution not allowed (Remote RUN cannot be executed when other device
+            executes Remote STOP or Remote PAUSE.) </remarks>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.RemoteControl.PAUSE_FORCE">
+            <summary>
+            Remote PAUSE.
+            </summary>
+            /// <remarks>Forced execution allowed (Remote RUN can be executed when other device
+            executes Remote STOP or Remote PAUSE.)</remarks>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.RemoteControl.CLEAR_ERROR">
+            <summary>
+            Remote CLEAR ERROR.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.RemoteControl.RESET">
+            <summary>
+            Remote RESET.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.RemoteControl.CLEAR_LATCH">
+            <summary>
+            Remote CLEAR LATCH.
+            </summary>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.Simulator3">
+            <summary>
+            Provides client connection for TCP network service to connect to GX Simulator3.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Simulator3.data_ping">
+            <summary>
+            Data to ping to Gx Simulator3.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Simulator3.ping">
+            <summary>
+            Ping
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Simulator3.str_Spacket_1_48">
+            <summary>
+            str_Spacket for settup connect.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Simulator3.str_Spacket_2_97">
+            <summary>
+            str_Spacket for settup connect.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Simulator3.str_Spacket_3_95">
+            <summary>
+            str_Spacket for settup connect.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Simulator3.str_Spacket_4_117">
+            <summary>
+            str_Spacket for settup connect.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Simulator3.str_Spacket_5_117">
+            <summary>
+            str_Spacket for settup connect.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Simulator3.str_Spacket_6_117">
+            <summary>
+            str_Spacket for settup connect.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Simulator3.str_Spacket_7_117">
+            <summary>
+            str_Spacket for settup connect.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Simulator3.str_Spacket_8_117">
+            <summary>
+            str_Spacket for settup connect.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Simulator3.str_Spacket_9_117">
+            <summary>
+            str_Spacket for settup connect.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Simulator3.str_Spacket_10_113">
+            <summary>
+            str_Spacket for settup connect.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Simulator3.ds_byte_to_connect">
+            <summary>
+            ds_byte_to_connect
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Simulator3.ds_string_byte">
+            <summary>
+            ds_string_byte
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Simulator3"></see> class.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Simulator3.Port">
+            <summary>
+            Port number of GX Simulator3, default is 5511.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.WriteDevice(System.String,System.Boolean)">
+            <summary>
+            Write a single value to the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.WriteDevice(System.String,System.Int16)">
+            <summary>
+            Write a single value to the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.WriteDevice(System.String,System.Int32)">
+            <summary>
+            Write a single value to the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.WriteDevice(System.String,System.Single)">
+            <summary>
+            Write a single value to the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.WriteDeviceBlock(System.String,System.Int16[])">
+            <summary>
+             Write multiple values to the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.WriteDeviceBlock(System.String,System.Int32[])">
+            <summary>
+             Write multiple values to the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.WriteDeviceBlock(System.String,System.Single[])">
+            <summary>
+             Write multiple values to the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.WriteDeviceBlock(System.String,System.Boolean[])">
+            <summary>
+             Write multiple values to the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.WriteText(System.String,System.String)">
+            <summary>
+            Write text to the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="text">Text to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.WriteDeviceRandom(dotPLC.Mitsubishi.Types.Word[])">
+            <summary>
+            Write multiple values to the server randomly.
+            </summary>
+            <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.WriteDeviceRandom(dotPLC.Mitsubishi.Types.DWord[])">
+            <summary>
+            Write multiple values to the server randomly.
+            </summary>
+            <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.WriteDeviceRandom(dotPLC.Mitsubishi.Types.Float[])">
+            <summary>
+            Write multiple values to the server randomly.
+            </summary>
+            <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.WriteDeviceRandom(dotPLC.Mitsubishi.Types.Bit[])">
+            <summary>
+            Write multiple values to the server randomly.
+            </summary>
+            <param name="bits"><see cref="T:dotPLC.Mitsubishi.Types.Bit"/> values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.WriteDeviceRandomSub(dotPLC.Mitsubishi.Types.Bit[])">
+            <summary>
+            Write multiple values to the server randomly.
+            </summary>
+            <param name="bits"><see cref="T:dotPLC.Mitsubishi.Types.Bit"/> values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.WriteDeviceRandom(dotPLC.Mitsubishi.Types.Bit[],dotPLC.Mitsubishi.Types.Word[],dotPLC.Mitsubishi.Types.DWord[],dotPLC.Mitsubishi.Types.Float[])">
+            <summary>
+            Write multiple values to the server randomly.
+            </summary>
+            <param name="bits"><see cref="T:dotPLC.Mitsubishi.Types.Bit"/> values to be written.</param>
+            <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be written.</param>
+            <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be written.</param>
+            <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.ReadSingleCoil(System.String)">
+            <summary>
+            Read a single value from the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returned value.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.ReadSingleRegister(System.String)">
+            <summary>
+            Read a single value from the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returned value.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.ReadSingleDouble(System.String)">
+            <summary>
+            Read a single value from the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returned value.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.ReadSingleFloat(System.String)">
+            <summary>
+            Read a single value from the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returned value.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.ReadMultipleCoils(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned values.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.ReadMultipleRegisters(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned values.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.ReadMultipleDoubles(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned values.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.ReadMultipleFloats(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned values.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.ReadText(System.String,System.Int32)">
+            <summary>
+            Read text from the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of text to be read.</param>
+            <returns>Returns text of the specified size.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.GetCpuName">
+            <summary>
+            Read the model character string of the server.
+            </summary>
+            <returns>The model character string of the server.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.ReadDeviceRandom(dotPLC.Mitsubishi.Types.Bit[])">
+            <summary>
+            Read multiple values from the server randomly.
+            </summary>
+            <param name="bits"><see cref="T:dotPLC.Mitsubishi.Types.Bit"/> values to be read.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.ReadDeviceRandom(dotPLC.Mitsubishi.Types.Word[])">
+            <summary>
+            Read multiple values from the server randomly.
+            </summary>
+            <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be read.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.ReadDeviceRandom(dotPLC.Mitsubishi.Types.DWord[])">
+            <summary>
+            Read multiple values from the server randomly.
+            </summary>
+            <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be read.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.ReadDeviceRandom(dotPLC.Mitsubishi.Types.Float[])">
+            <summary>
+            Read multiple values from the server randomly.
+            </summary>
+            <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be read.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.ReadDeviceRandom(dotPLC.Mitsubishi.Types.Bit[],dotPLC.Mitsubishi.Types.Word[],dotPLC.Mitsubishi.Types.DWord[],dotPLC.Mitsubishi.Types.Float[])">
+            <summary>
+            Read multiple values from the server randomly. <see langword="[RECOMMENDED]"></see>
+            </summary>
+            <param name="bits"><see cref="T:dotPLC.Mitsubishi.Types.Bit"/> values to be read.</param>
+            <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be read.</param>
+            <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be read.</param>
+            <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be read.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.Connect">
+            <summary>
+            Establish connection to GX Simulator3.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.Close">
+            <summary>
+            Close connection to GX Simulator3.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.SetCpuStatus(dotPLC.Mitsubishi.CpuStatus)">
+            <summary>
+            To perform remote RUN/STOP/PAUSE of GX Simulator3.
+            </summary>
+            <param name="status">Specifies a <see cref="T:dotPLC.Mitsubishi.CpuStatus"></see> mode.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.SetupBuffer">
+            <summary>
+            Setup byte ban đầu
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.SettingDevice(System.String,System.Byte@,System.Byte@,System.Byte@,System.Byte@)">
+            <summary>
+            Tách Label name
+            </summary>
+            <param name="label">Label name</param>
+            <param name="device">device</param>
+            <param name="low_num">byte[0]</param>
+            <param name="mid_num">byte[1]</param>
+            <param name="high_num">byte[2]</param>
+            <returns>Return index of device.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.GetNameDevice(System.String)">
+            <summary>
+            Lấy byte của tên device
+            </summary>
+            <param name="device">device name</param>
+            <returns>byte của device</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.IsCoil(System.Byte)">
+            <summary>
+            Kiểm tra xem device có phải là Coil không
+            </summary>
+            <param name="device"></param>
+            <returns>Trả về true nếu thành công;nếu không,false</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.DataForConnect">
+            <summary>
+            Settup dữ liệu kết nối (10 lần)
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.ToByteArray(System.String)">
+            <summary>
+            Chuyển chuỗi hex sang mảng byte
+            </summary>
+            <param name="HexString">chuỗi hex</param>
+            <returns>Mảng byte</returns>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.SLMPClient">
+            <summary>
+            Provides client connection for TCP network service via Seamless Message Protocol (SLMP).
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.SLMPClient"></see> class.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.#ctor(System.String,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.SLMPClient"></see> class which determines the ip-address and the port number.
+            </summary>
+            <param name="ipaddress">IP Address of the server.</param>
+            <param name="port">Port number of the server.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.#ctor(dotPLC.Mitsubishi.AutoReconnect)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.SLMPClient"></see> class which determines AutoReconnect mode.
+            </summary>
+            <param name="autoReconnect">Auto-reconnect mode when connection is lost from the server.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.#ctor(System.String,System.Int32,dotPLC.Mitsubishi.AutoReconnect)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.SLMPClient"></see> class which determines the ip-address, the port number and AutoReconnect mode.
+            </summary>
+            <param name="ipaddress">IP Address of the server</param>
+            <param name="port">Port number of the server.</param>
+            <param name="autoReconnect">Auto-reconnect mode when connection is lost from the server.</param>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPClient._cancellationTokenSource">
+            <summary>
+            CancellationTokenSource auto-reconnect
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPClient.isReconnecting">
+            <summary>
+            isReconnecting
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPClient._isSafe">
+            <summary>
+            _isSafe
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPClient._reconnectLimitTimer">
+            <summary>
+            _reconnectLimitTimer
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPClient._breakTimer">
+            <summary>
+            _breakTimer
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPClient._selfTestTimer">
+            <summary>
+            _selfTestTimer
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPClient._queue">
+            <summary>
+            _queue
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPClient._breakInterval">
+            <summary>
+            _breakInterval
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPClient._selfTestCheckInterval">
+            <summary>
+            _selfTestCheckInterval
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPClient._reconnectLimitInterval">
+            <summary>
+            _reconnectLimitInterval
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPClient._autoReconnect">
+            <summary>
+            _autoReconnect
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPClient._selfTestConnectionString">
+            <summary>
+            _selfTestConnectionString
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPClient.Labels">
+            <summary>
+            Labels
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPClient.dsWordBaseBits">
+            <summary>
+            dsWordBaseBits
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPClient._getCpuName">
+            <summary>
+            _getCpuName
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.SLMPClient.Port">
+            <summary>
+            Port number of the server.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.SLMPClient.AutoReconnect">
+            <summary>
+            Auto-reconnect mode when the connection is lost from the server.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.SLMPClient.LimitInterval">
+             <summary>
+            The interval from when the connection is lost to the server is detected
+            , expressed in milliseconds, at which attempt to auto-reconnect to the server will be stopped.<para></para>
+             Note: Only works when the auto-reconnect mode is <see cref="F:dotPLC.Mitsubishi.AutoReconnect.Limit"/>
+             </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.SLMPClient.BreakInterval">
+             <summary>
+            The interval since the last communication with the server
+            , expressed in milliseconds, at which the established connection with the server is checked.
+             </summary>
+        </member>
+        <member name="E:dotPLC.Mitsubishi.SLMPClient.Trouble">
+            <summary>
+            Occurs when communication in trouble.
+            </summary>
+        </member>
+        <member name="E:dotPLC.Mitsubishi.SLMPClient.LostConnect">
+            <summary>
+            Occurs when an established connection is lost.
+            </summary>
+        </member>
+        <member name="E:dotPLC.Mitsubishi.SLMPClient.Reconnected">
+            <summary>
+            Occurs when reconnecting to the server successfully.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.SetupBuffer">
+            <summary>
+            SetupBuffer
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.SelfTestCheckConnection(System.String)">
+            <summary>
+            check connection for auto-reconnect
+            </summary>
+            <param name="loopbackMessage">loopbackMessage</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.StreamData(System.Int32,System.Int32)">
+            <summary>
+            Read and Write data
+            </summary>
+            <param name="writeLenght"></param>
+            <param name="readLenght"></param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.StreamDataAsync(System.Int32,System.Int32)">
+            <summary>
+            Read and Write data as async.
+            </summary>
+            <param name="writeLenght">writeLenght</param>
+            <param name="readLenght">readLenght</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReconnectAsync">
+            <summary>
+            Auto-Reconnect
+            </summary>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.SettingDevice(System.String,System.Byte@,System.Byte@,System.Byte@,System.Byte@)">
+            <summary>
+            split label name
+            </summary>
+            <param name="label">label</param>
+            <param name="device">device</param>
+            <param name="low_num">low_num</param>
+            <param name="mid_num">mid_num</param>
+            <param name="high_num">high_num</param>
+            <returns>index</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.GetNameDevice(System.String)">
+            <summary>
+            GetNameDevice
+            </summary>
+            <param name="device"></param>
+            <returns></returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient._selfTestTimer_Elapsed(System.Object,System.Timers.ElapsedEventArgs)">
+            <summary>
+            _selfTestTimer_Elapsed
+            </summary>
+            <param name="sender">sender</param>
+            <param name="e">ElapsedEventArgs</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient._breakTimer_Elapsed(System.Object,System.Timers.ElapsedEventArgs)">
+            <summary>
+            _breakTimer_Elapsed
+            </summary>
+            <param name="sender">sender</param>
+            <param name="e">ElapsedEventArgs</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient._reconnectLimitTimer_Elapsed(System.Object,System.Timers.ElapsedEventArgs)">
+            <summary>
+            _reconnectLimitTimer_Elapsed
+            </summary>
+            <param name="sender">sender</param>
+            <param name="e">ElapsedEventArgs</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.Connect">
+            <summary>
+            Establish connection to the server.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.Connect(System.String,System.Int32)">
+            <summary>
+            Establish connection to the server using the specified ip-address and port number.
+            </summary>
+            <param name="ipaddress">IP Address of the server.</param>
+            <param name="port">Port number of the server.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ConnectAsync">
+            <summary>
+            Establish connection to the server as an asynchronous operation.
+            </summary>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ConnectAsync(System.String,System.Int32)">
+            <summary>
+            Establish connection to the server using the specified ip-address and port number as an asynchronous operation.
+            </summary>
+            <param name="ipaddress">IP Address of the server.</param>
+            <param name="port">Port number of the server.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.Close">
+            <summary>
+            Close connection to the server.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDevice(System.String,System.Boolean)">
+            <summary>
+            Write single value to the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDevice(System.String,System.Int16)">
+            <summary>
+            Write single value to the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDevice(System.String,System.Int32)">
+            <summary>
+            Write single value to the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDevice(System.String,System.Single)">
+            <summary>
+            Write single value to the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceAsync(System.String,System.Boolean)">
+            <summary>
+            Write single value to the server as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceAsync(System.String,System.Int16)">
+            <summary>
+            Write single value to the server as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceAsync(System.String,System.Int32)">
+            <summary>
+            Write single value to the server as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceAsync(System.String,System.Single)">
+            <summary>
+            Write single value to the server as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceAsync``1(System.String,``0)">
+            <summary>
+            Write single value to the server as an asynchronous operation.
+            </summary>
+            <typeparam name="T">The data type of value. (EX: <see cref="T:System.Boolean"></see>, <see cref="T:System.Int16"/>, <see cref="T:System.Single"/>, etc.)</typeparam>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceBlock(System.String,System.Boolean[])">
+            <summary>
+             Write multiple values to the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceBlock(System.String,System.Int16[])">
+            <summary>
+             Write multiple values to the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceBlock(System.String,System.Int32[])">
+            <summary>
+             Write multiple values to the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceBlock(System.String,System.Single[])">
+            <summary>
+             Write multiple values to the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceBlockAsync(System.String,System.Boolean[])">
+            <summary>
+            Write multiple values to the server in a batch as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceBlockAsync(System.String,System.Int16[])">
+            <summary>
+            Write multiple values to the server in a batch as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceBlockAsync(System.String,System.Int32[])">
+            <summary>
+            Write multiple values to the server in a batch as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceBlockAsync(System.String,System.Single[])">
+            <summary>
+            Write multiple values to the server in a batch as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceBlockAsync``1(System.String,``0[])">
+            <summary>
+            Write multiple values to the server in a batch as an asynchronous operation.
+            </summary>
+            <typeparam name="T">The data type of value. (EX: <see cref="T:System.Boolean"></see>, <see cref="T:System.Int16"/>, <see cref="T:System.Single"/>, etc.)</typeparam>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceRandom(dotPLC.Mitsubishi.Types.Bit[])">
+            <summary>
+            Write multiple values to the server randomly.
+            </summary>
+            <param name="bits"><see cref="T:dotPLC.Mitsubishi.Types.Bit"/> values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceRandom(dotPLC.Mitsubishi.Types.Word[])">
+            <summary>
+            Write multiple values to the server randomly.
+            </summary>
+            <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceRandom(dotPLC.Mitsubishi.Types.DWord[])">
+            <summary>
+            Write multiple values to the server randomly.
+            </summary>
+            <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceRandom(dotPLC.Mitsubishi.Types.Float[])">
+            <summary>
+            Write multiple values to the server randomly.
+            </summary>
+            <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceRandom(dotPLC.Mitsubishi.Types.Word[],dotPLC.Mitsubishi.Types.DWord[],dotPLC.Mitsubishi.Types.Float[])">
+            <summary>
+            Write multiple values to the server randomly.
+            </summary>
+            <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be written.</param>
+            <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be written.</param>
+            <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceRandomAsync(dotPLC.Mitsubishi.Types.Bit[])">
+            <summary>
+            Write multiple values to the server randomly as an asynchronous operation.
+            </summary>
+            <param name="bits"><see cref="T:dotPLC.Mitsubishi.Types.Bit"/> values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceRandomAsync(dotPLC.Mitsubishi.Types.Word[])">
+            <summary>
+            Write multiple values to the server randomly as an asynchronous operation.
+            </summary>
+            <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceRandomAsync(dotPLC.Mitsubishi.Types.DWord[])">
+            <summary>
+            Write multiple values to the server randomly as an asynchronous operation.
+            </summary>
+            <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceRandomAsync(dotPLC.Mitsubishi.Types.Float[])">
+            <summary>
+            Write multiple values to the server randomly as an asynchronous operation.
+            </summary>
+            <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceRandomAsync(dotPLC.Mitsubishi.Types.Word[],dotPLC.Mitsubishi.Types.DWord[],dotPLC.Mitsubishi.Types.Float[])">
+            <summary>
+            Write multiple values to the server randomly as an asynchronous operation.
+            </summary>
+            <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be written.</param>
+            <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be written.</param>
+            <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadSingleCoil(System.String)">
+            <summary>
+            Read a single value from the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returned value.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadSingleRegister(System.String)">
+            <summary>
+            Read a single value from the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returned value.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadSingleDouble(System.String)">
+            <summary>
+            Read a single value from the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returned value.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadSingleFloat(System.String)">
+            <summary>
+            Read a single value from the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returned value.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadSingleCoilAsync(System.String)">
+            <summary>
+            Read a single value from the server as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"/> is <see cref="T:System.Boolean"/></returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadSingleRegisterAsync(System.String)">
+            <summary>
+            Read a single value from the server as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"/> is <see cref="T:System.Int16"/></returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadSingleDoubleAsync(System.String)">
+            <summary>
+            Read a single value from the server as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"/> is <see cref="T:System.Int32"/></returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadSingleFloatAsync(System.String)">
+            <summary>
+            Read a single value from the server as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"/> is <see cref="T:System.Single"/></returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadDeviceAsync``1(System.String)">
+            <summary>
+            Read a single value from the server as an asynchronous operation.
+            </summary>
+            <typeparam name="T">The data type of value. (EX: <see cref="T:System.Boolean"></see>, <see cref="T:System.Int16"/>, <see cref="T:System.Single"/>, etc.)</typeparam>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            Returned <typeparamref name="T"/> value.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadMultipleCoils(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned values.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadMultipleRegisters(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned values.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadMultipleDoubles(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned values.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadMultipleFloats(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned values.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadMultipleCoilsAsync(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"></see> is <see cref="T:System.Boolean"></see>[].</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadMultipleRegistersAsync(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"></see> is <see cref="T:System.Int16"></see>[].</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadMultipleDoublesAsync(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"></see> is <see cref="T:System.Int32"></see>[].</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadMultipleFloatsAsync(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"></see> is <see cref="T:System.Single"></see>[].</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadDeviceBlockAsync``1(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch as an asynchronous operation.
+            </summary>
+            <typeparam name="T">The data type of value. (EX: <see cref="T:System.Boolean"></see>, <see cref="T:System.Int16"/>, <see cref="T:System.Single"/>, etc.)</typeparam>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            Returned <typeparamref name="T"/>[] values.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadDeviceRandom(dotPLC.Mitsubishi.Types.Bit[])">
+            <summary>
+            Read multiple values from the server randomly.
+            </summary>
+            <param name="bits"><see cref="T:dotPLC.Mitsubishi.Types.Bit"/> values to be read.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadDeviceRandom(dotPLC.Mitsubishi.Types.Word[])">
+            <summary>
+            Read multiple values from the server randomly.
+            </summary>
+            <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be read.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadDeviceRandom(dotPLC.Mitsubishi.Types.DWord[])">
+            <summary>
+            Read multiple values from the server randomly.
+            </summary>
+            <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be read.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadDeviceRandom(dotPLC.Mitsubishi.Types.Float[])">
+            <summary>
+            Read multiple values from the server randomly.
+            </summary>
+            <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be read.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadDeviceRandom(dotPLC.Mitsubishi.Types.Bit[],dotPLC.Mitsubishi.Types.Word[],dotPLC.Mitsubishi.Types.DWord[],dotPLC.Mitsubishi.Types.Float[])">
+            <summary>
+            Read multiple values from the server randomly. <see langword="[RECOMMENDED]"></see>
+            <example>
+            <para>For example:</para>
+            <code>
+            - <see cref="T:dotPLC.Mitsubishi.Types.Bit"/>[] bits = <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.Bit"/>[] { <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.Bit"/>("X0"), <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.Bit"/>("M10")};
+            - <see cref="T:dotPLC.Mitsubishi.Types.Word"/>[] words = <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.Word"/>[] { <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.Word"/>("D0"), <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.Word"/>("SD5"), <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.Word"/>("SD10")};
+            - <see cref="T:dotPLC.Mitsubishi.Types.DWord"/>[] dwords = <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.DWord"/>[] { <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.DWord"/>("D20"), <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.DWord"/>("SD20")};
+            - <see cref="T:dotPLC.Mitsubishi.Types.Float"/>[] floats = <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.Float"/>[] { <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.Float"/>("D30")};
+            ReadDeviceRandom(null, words, null, floats);
+            ReadDeviceRandom(bits, words, dwords, floats);
+            </code>
+            </example>
+            </summary>
+            <param name="bits"><see cref="T:dotPLC.Mitsubishi.Types.Bit"/> values to be read.</param>
+            <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be read.</param>
+            <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be read.</param>
+            <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be read.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadDeviceRandomAsync(dotPLC.Mitsubishi.Types.Bit[])">
+            <summary>
+            Read multiple values from the server randomly as an asynchronous operation.
+            </summary>
+            <param name="bits"><see cref="T:dotPLC.Mitsubishi.Types.Bit"/> values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadDeviceRandomAsync(dotPLC.Mitsubishi.Types.Word[])">
+            <summary>
+            Read multiple values from the server randomly as an asynchronous operation.
+            </summary>
+            <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadDeviceRandomAsync(dotPLC.Mitsubishi.Types.DWord[])">
+            <summary>
+            Read multiple values from the server randomly as an asynchronous operation.
+            </summary>
+            <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadDeviceRandomAsync(dotPLC.Mitsubishi.Types.Float[])">
+            <summary>
+            Read multiple values from the server randomly as an asynchronous operation.
+            </summary>
+            <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadDeviceRandomAsync(dotPLC.Mitsubishi.Types.Bit[],dotPLC.Mitsubishi.Types.Word[],dotPLC.Mitsubishi.Types.DWord[],dotPLC.Mitsubishi.Types.Float[])">
+            <summary>
+            Read multiple values from the server randomly as an asynchronous operation. <see langword="[RECOMMENDED]"></see>
+            </summary>
+            <param name="bits"><see cref="T:dotPLC.Mitsubishi.Types.Bit"/> values to be read.</param>
+            <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be read.</param>
+            <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be read.</param>
+            <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.SelfTest(System.String)">
+            <summary>
+            To test whether the communication function between the client and the server operates normally or not.
+            </summary>
+            <param name="loopbackMessage">The order of character strings for up to 960 1-byte characters ("0" to "9", "A" to "F") is sent from the head.</param>
+            <returns>Returns <see cref="T:System.Boolean"></see> indicates that true is normal, false is abnormal.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.GetCpuName">
+            <summary>
+            Read the model character string of the server.
+            </summary>
+            <returns>The model character string of the server.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.RemoteLock(System.String)">
+            <summary>
+            Changes the remote password from unlocked status to locked status. (Communication to the device is disabled.)
+            </summary>
+            <param name="password">Specifies a remote password.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.RemoteUnlock(System.String)">
+            <summary>
+            Changes the remote password from locked status to unlocked status. (Enables communication to the device.)
+            </summary>
+            <param name="password">Specifies a remote password.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.RemoteControl(dotPLC.Mitsubishi.RemoteControl)">
+            <summary>
+            To perform a remote operation of the server. (EX: RUN/PAUSE/STOP/CLEAR/RESET...)
+            </summary>
+            <param name="mode">Specifies a <see cref="T:dotPLC.Mitsubishi.RemoteControl"></see> mode. (EX: RUN/PAUSE/STOP/CLEAR/RESET...)</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.SelfTestAsync(System.String)">
+            <summary>
+            To test whether the communication function between the client and the server operates normally or not.
+            </summary>
+            <param name="loopbackMessage">The order of character strings for up to 960 1-byte characters ("0" to "9", "A" to "F") is sent from the head.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"/> is <see cref="T:System.Boolean"/> indicates that true is normal, false is abnormal.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.GetCpuNameAsync">
+            <summary>
+            Read the model character string of the server as an asynchronous operation.
+            </summary>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            Value is the model character string of the server.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.RemoteLockAsync(System.String)">
+            <summary>
+            Changes the remote password from unlocked status to locked status as an asynchronous operation. (Communication to the device is disabled.)
+            </summary>
+            <param name="password">Specifies a remote password.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.RemoteUnlockAsync(System.String)">
+            <summary>
+            Changes the remote password from locked status to unlocked status as an asynchronous operation. (Enables communication to the device.)
+            </summary>
+            <param name="password">Specifies a remote password.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.RemoteControlAsync(dotPLC.Mitsubishi.RemoteControl)">
+            <summary>
+            To perform a remote operation of the server as an asynchronous operation. (EX: RUN/PAUSE/STOP/CLEAR/RESET...)
+            </summary>
+            <param name="mode">Specifies a <see cref="T:dotPLC.Mitsubishi.RemoteControl"></see> mode. (EX: RUN/PAUSE/STOP/CLEAR/RESET...)</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteText(System.String,System.String)">
+            <summary>
+            Write text to the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="text">Text to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadText(System.String,System.Int32)">
+            <summary>
+            Read text from the server.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of text to be read.</param>
+            <returns>Returns text of the specified size.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteTextAsync(System.String,System.String)">
+            <summary>
+            Write text to the server as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="text">Text to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadTextAsync(System.String,System.Int32)">
+            <summary>
+            Read text from the server as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of text to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            Value is text of the specified size.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceSubAsync(System.String,System.Boolean)">
+            <summary>
+            Write single value to the server as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceSubAsync(System.String,System.Int16)">
+            <summary>
+            Write single value to the server as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceSubAsync(System.String,System.Int32)">
+            <summary>
+            Write single value to the server as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceSubAsync(System.String,System.Single)">
+            <summary>
+            Write single value to the server as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceBlockSubAsync(System.String,System.Boolean[])">
+            <summary>
+            Write multiple values to the server in a batch as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceBlockSubAsync(System.String,System.Int16[])">
+            <summary>
+            Write multiple values to the server in a batch as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceBlockSubAsync(System.String,System.Int32[])">
+            <summary>
+            Write multiple values to the server in a batch as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceBlockSubAsync(System.String,System.Single[])">
+            <summary>
+            Write multiple values to the server in a batch as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceRandomSubAsync(dotPLC.Mitsubishi.Types.Bit[])">
+            <summary>
+            Write multiple values to the server randomly as an asynchronous operation.
+            </summary>
+            <param name="bits"><see cref="T:dotPLC.Mitsubishi.Types.Bit"/> values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceRandomSubAsync(dotPLC.Mitsubishi.Types.Word[])">
+            <summary>
+            Write multiple values to the server randomly as an asynchronous operation.
+            </summary>
+            <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceRandomSubAsync(dotPLC.Mitsubishi.Types.DWord[])">
+            <summary>
+            Write multiple values to the server randomly as an asynchronous operation.
+            </summary>
+            <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceRandomSubAsync(dotPLC.Mitsubishi.Types.Float[])">
+            <summary>
+            Write multiple values to the server randomly as an asynchronous operation.
+            </summary>
+            <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceRandomSubAsync(dotPLC.Mitsubishi.Types.Word[],dotPLC.Mitsubishi.Types.DWord[],dotPLC.Mitsubishi.Types.Float[])">
+            <summary>
+            Write multiple values to the server randomly as an asynchronous operation.
+            </summary>
+            <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be written.</param>
+            <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be written.</param>
+            <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteTextSubAsync(System.String,System.String)">
+            <summary>
+            Write text to the server as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="text">Text to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadSingleCoilSubAsync(System.String)">
+            <summary>
+            Read a single value from the server as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"/> is <see cref="T:System.Boolean"/></returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadRegisterSubAsync(System.String)">
+            <summary>
+            Read a single value from the server as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"/> is <see cref="T:System.Int16"/></returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadDoubleSubAsync(System.String)">
+            <summary>
+            Read a single value from the server as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"/> is <see cref="T:System.Int32"/></returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadFloatSubAsync(System.String)">
+            <summary>
+            Read a single value from the server as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"/> is <see cref="T:System.Single"/></returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadMultipleCoilsSubAsync(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"></see> is <see cref="T:System.Boolean"></see>[].</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadRegistersAsync(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"></see> is <see cref="T:System.Int16"></see>[].</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadMultipleDoubleSubAsync(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"></see> is <see cref="T:System.Int32"></see>[].</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadFloatsAsync(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"></see> is <see cref="T:System.Single"></see>[].</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadRandomSubAsync(dotPLC.Mitsubishi.Types.Bit[])">
+            <summary>
+            Read multiple values from the server randomly as an asynchronous operation.
+            </summary>
+            <param name="bits"><see cref="T:dotPLC.Mitsubishi.Types.Bit"/> values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadRandomSubAsync(dotPLC.Mitsubishi.Types.Word[])">
+            <summary>
+            Read multiple values from the server randomly as an asynchronous operation.
+            </summary>
+            <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadRandomSubAsync(dotPLC.Mitsubishi.Types.DWord[])">
+            <summary>
+            Read multiple values from the server randomly as an asynchronous operation.
+            </summary>
+            <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadRandomSubAsync(dotPLC.Mitsubishi.Types.Float[])">
+            <summary>
+            Read multiple values from the server randomly as an asynchronous operation.
+            </summary>
+            <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadRandomSubAsync(dotPLC.Mitsubishi.Types.Bit[],dotPLC.Mitsubishi.Types.Word[],dotPLC.Mitsubishi.Types.DWord[],dotPLC.Mitsubishi.Types.Float[])">
+            <summary>
+            Read multiple values from the server randomly as an asynchronous operation.
+            </summary>
+            <param name="bits"><see cref="T:dotPLC.Mitsubishi.Types.Bit"/> values to be read.</param>
+            <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be read.</param>
+            <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be read.</param>
+            <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadTextSubAsync(System.String,System.Int32)">
+            <summary>
+            Read text from the server as an asynchronous operation.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of text to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            Value is text of the specified size.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.SelfTestSubAsync(System.String)">
+            <summary>
+            To test whether the communication function between the client and the server operates normally or not.
+            </summary>
+            <param name="loopbackMessage">The order of character strings for up to 960 1-byte characters ("0" to "9", "A" to "F") is sent from the head.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"/> is <see cref="T:System.Boolean"/> indicates that true is normal, false is abnormal.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.GetCpuNameSubAsync">
+            <summary>
+            Read the model character string of the server as an asynchronous operation.
+            </summary>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            Value is the model character string of the server.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.RemoteLockSubAsync(System.String)">
+            <summary>
+            Changes the remote password from unlocked status to locked status as an asynchronous operation. (Communication to the device is disabled.)
+            </summary>
+            <param name="password">Specifies a remote password.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.RemoteUnlockSubAsync(System.String)">
+            <summary>
+            Changes the remote password from locked status to unlocked status as an asynchronous operation. (Enables communication to the device.)
+            </summary>
+            <param name="password">Specifies a remote password.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.RemoteControlSubAsync(dotPLC.Mitsubishi.RemoteControl)">
+            <summary>
+            To perform a remote operation of the server as an asynchronous operation. (EX: RUN/PAUSE/STOP/CLEAR/RESET...)
+            </summary>
+            <param name="mode">Specifies a <see cref="T:dotPLC.Mitsubishi.RemoteControl"></see> mode. (EX: RUN/PAUSE/STOP/CLEAR/RESET...)</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.SLMPServer">
+            <summary>
+            Provides server for connections from TCP network clients via Seamless Message Protocol (SLMP).
+            </summary>
+        </member>
+        <member name="E:dotPLC.Mitsubishi.SLMPServer.ChangeStatus">
+            <summary>
+            Occurs when receiving a server state change packet from the client.
+            </summary>
+        </member>
+        <member name="E:dotPLC.Mitsubishi.SLMPServer.Error">
+            <summary>
+            Occurs when an incorrect packet is received from the client.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPServer.server">
+            <summary>
+            Server
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.SLMPServer.IPAddress">
+            <summary>
+            When making a server TCP listen socket, will listen to this IP address.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.SLMPServer.CPUName">
+            <summary>
+            The model character string of the server.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.SLMPServer.Port">
+            <summary>
+            TCP port to listen.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPServer.mainThread">
+            <summary>
+            mainThread
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.SLMPServer.Memory">
+            <summary>
+            Data memory area of the server.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPServer._lsClient">
+            <summary>
+            List of all clients connected to the server.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.SLMPServer.ListClients">
+            <summary>
+            List of all clients connected to the server.
+            </summary>
+        </member>
+        <member name="E:dotPLC.Mitsubishi.SLMPServer.LostConnect">
+            <summary>
+            Occurs when connection to a client is lost.
+            </summary>
+        </member>
+        <member name="E:dotPLC.Mitsubishi.SLMPServer.NewConnect">
+            <summary>
+            Occurs when establishing a connection with a client.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.SLMPServer"></see> class.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.SLMPClient"></see> class which determines the port number.
+            </summary>
+            <param name="port">TCP port to listen.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.#ctor(System.Net.IPAddress,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.SLMPClient"></see> class which determines the ip-address and the port number.
+            </summary>
+            <param name="ipaddress">When making a server TCP listen socket, will listen to this IP address.</param>
+            <param name="port">TCP port to listen.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.ParameterSetting(System.Byte[])">
+            <summary>
+            ParameterSetting 
+            </summary>
+            <param name="buffer">buffer</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.Stop">
+            <summary>
+            Closes the server.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.Start">
+            <summary>
+            Starts listening for incoming connection requests.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.ReadWriteData(System.Object)">
+            <summary>
+            Read and Write data with client.
+            </summary>
+            <param name="obj">Represents the client.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.GetRegisters(System.String)">
+            <summary>
+            Get register memory of device.
+            </summary>
+            <param name="device">Device.</param>
+            <returns>Array byte.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.GetCoils(System.String)">
+            <summary>
+            Get coil memory of device.
+            </summary>
+            <param name="device">Device.</param>
+            <returns>Array coil.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.GetRegisters(System.Byte)">
+            <summary>
+            Get register memory of device.
+            </summary>
+            <param name="device">Device.</param>
+            <returns>Array byte.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.GetCoils(System.Byte)">
+            <summary>
+            Get coil memory of device.
+            </summary>
+            <param name="device">Device.</param>
+            <returns>Array coil.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.ConvertBoolArrayToArrayByte(System.Int32,System.Int32,System.Boolean[])">
+            <summary>
+            Convert bool[] to byte[].
+            </summary>
+            <param name="num_of_points">Number of points.</param>
+            <param name="num_head_decive">Number of head device.</param>
+            <param name="coils">Array coil.</param>
+            <returns>Array byte.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.IsCoil(System.Byte)">
+            <summary>
+            Check if it's a coil
+            </summary>
+            <param name="device">Device.</param>
+            <returns>Returns true if successful; otherwise, false.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.ConvertBoolArrayToByteWithIndex(System.Boolean[],System.Int32)">
+            <summary>
+            ConvertBoolArrayToByteWithIndex
+            </summary>
+            <param name="source">source</param>
+            <param name="startIndex">startIndex</param>
+            <returns>A byte.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.ConvertByteArrayToBoolArray(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            ConvertByteArrayToBoolArray
+            </summary>
+            <param name="data">data</param>
+            <param name="startindex">startindex</param>
+            <param name="size">size</param>
+            <returns>Array bool.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.ReadDeviceBit(System.Byte[],System.Byte[],System.Net.Sockets.NetworkStream)">
+            <summary>
+            ReadDeviceBit
+            </summary>
+            <param name="ReceiveBuffer">ReceiveBuffer</param>
+            <param name="SendBuffer">SendBuffer</param>
+            <param name="stream">stream</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.ReadDeviceWord(System.Byte[],System.Byte[],System.Net.Sockets.NetworkStream)">
+            <summary>
+            ReadDeviceWord
+            </summary>
+            <param name="ReceiveBuffer">ReceiveBuffer</param>
+            <param name="SendBuffer">SendBuffer</param>
+            <param name="stream">stream</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.WriteDeviceBit(System.Byte[],System.Byte[],System.Net.Sockets.NetworkStream)">
+            <summary>
+            WriteDeviceBit
+            </summary>
+            <param name="ReceiveBuffer">ReceiveBuffer</param>
+            <param name="SendBuffer">SendBuffer</param>
+            <param name="stream">stream</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.WriteDeviceWord(System.Byte[],System.Byte[],System.Net.Sockets.NetworkStream)">
+            <summary>
+            WriteDeviceWord
+            </summary>
+            <param name="ReceiveBuffer">ReceiveBuffer</param>
+            <param name="SendBuffer">SendBuffer</param>
+            <param name="stream">stream</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.ReadDeviceRandom(System.Byte[],System.Byte[],System.Net.Sockets.NetworkStream)">
+            <summary>
+            ReadDeviceRandom
+            </summary>
+            <param name="ReceiveBuffer">ReceiveBuffer</param>
+            <param name="SendBuffer">SendBuffer</param>
+            <param name="stream">stream</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.WriteDeviceRandomBit(System.Byte[],System.Byte[],System.Net.Sockets.NetworkStream)">
+            <summary>
+            WriteDeviceRandomBit
+            </summary>
+            <param name="ReceiveBuffer">ReceiveBuffer</param>
+            <param name="SendBuffer">SendBuffer</param>
+            <param name="stream">stream</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.WriteDeviceRandomWord(System.Byte[],System.Byte[],System.Net.Sockets.NetworkStream)">
+            <summary>
+            WriteDeviceRandomWord
+            </summary>
+            <param name="ReceiveBuffer">ReceiveBuffer</param>
+            <param name="SendBuffer">SendBuffer</param>
+            <param name="stream">stream</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.GetCPUName(System.Byte[],System.Byte[],System.Net.Sockets.NetworkStream)">
+            <summary>
+            GetCPUName
+            </summary>
+            <param name="ReceiveBuffer">ReceiveBuffer</param>
+            <param name="SendBuffer">SendBuffer</param>
+            <param name="stream">stream</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.SelfTest(System.Byte[],System.Byte[],System.Net.Sockets.NetworkStream)">
+            <summary>
+            SelfTest
+            </summary>
+            <param name="ReceiveBuffer">ReceiveBuffer</param>
+            <param name="SendBuffer">SendBuffer</param>
+            <param name="stream">stream</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.ResponseNoData(System.Byte[],System.Net.Sockets.NetworkStream)">
+            <summary>
+            Send acknowledgment packet to client with no data.
+            </summary>
+            <param name="sendbuffer">sendbuffer</param>
+            <param name="stream">stream</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.ResponseData(System.Byte[],System.Byte[],System.Net.Sockets.NetworkStream)">
+            <summary>
+            Send response data to the client according to the SLMP protocol.
+            </summary>
+            <param name="ReceiveBuffer">ReceiveBuffer</param>
+            <param name="SendBuffer">SendBuffer</param>
+            <param name="stream">stream</param>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.Command">
+            <summary>
+            Describes the command code.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Command.DEVICE_READ">
+            <summary>
+            0x0401
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Command.DEVICE_WRITE">
+            <summary>
+            0x1401
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Command.DEVICE_READ_RANDOM">
+            <summary>
+            0x0403
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Command.DEVICE_WRITE_RANDOM">
+            <summary>
+            0x1402
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Command.DEVICE_READ_BLOCK">
+            <summary>
+            0x0406
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Command.DEVICE_WRITE_BLOCK">
+            <summary>
+            0x1406
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Command.GET_CPU_NAME">
+            <summary>
+            0x0101
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Command.SELF_TEST">
+            <summary>
+            0x0619
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Command.REMOTE_RUN">
+            <summary>
+            0x1001
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Command.REMOTE_STOP">
+            <summary>
+            0x1002
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Command.REMOTE_PAUSE">
+            <summary>
+            0x1003
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Command.REMOTE_RESET">
+            <summary>
+            0x1006
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Command.CLEAR_LACTCH">
+            <summary>
+            0x1005
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Command.CLEAR_ERROR">
+            <summary>
+            0x1617
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Command.LOCK">
+            <summary>
+            0x1631
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Command.UNLOCK">
+            <summary>
+            0x1630
+            </summary>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.Subcommand">
+            <summary>
+            Describes the subcommand code.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Subcommand.BIT">
+            <summary>
+            0x0001;
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Subcommand.WORD">
+            <summary>
+            0x0000
+            </summary>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.ConnectEventArgs">
+            <summary>
+            Provides data for the LostConnect and NewConnect events.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.ConnectEventArgs.SocketClient">
+            <summary>
+            Gets a client.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.ConnectEventArgs.#ctor(System.Net.Sockets.TcpClient)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.ConnectEventArgs"></see> class.
+            </summary>
+            <param name="client">A client when connection is established or connection is lost. </param>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.StatusEventArgs">
+            <summary>
+            Provides data for the ChangeStatus event.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.StatusEventArgs.Command">
+            <summary>
+            Gets a command code.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.StatusEventArgs.Subcommand">
+            <summary>
+            Gets a subcommand code.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.StatusEventArgs.#ctor(dotPLC.Mitsubishi.Subcommand,dotPLC.Mitsubishi.Command)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.StatusEventArgs"></see> class.
+            </summary>
+            <param name="subcommand">A subcommand code.</param>
+            <param name="command">A command code.</param>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.ErrorEventArgs">
+            <summary>
+            Provides data for the Error event.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.ErrorEventArgs.Command">
+            <summary>
+            Gets a command code.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.ErrorEventArgs.Subcommand">
+            <summary>
+            Gets a subcommand code.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.ErrorEventArgs.#ctor(dotPLC.Mitsubishi.Subcommand,dotPLC.Mitsubishi.Command)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.ErrorEventArgs"></see> class.
+            </summary>
+            <param name="subcommand">A subcommand code.</param>
+            <param name="command">A command code.</param>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.Types.Bit">
+            <summary>
+            Implements a <see cref="T:dotPLC.Mitsubishi.Types.Bit"/> device.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Types.Bit.#ctor">
+            <summary>
+            Initializes a new instance of <see cref="T:dotPLC.Mitsubishi.Types.Bit"></see> device.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Types.Bit.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of <see cref="T:dotPLC.Mitsubishi.Types.Bit"></see> device which determines label name.
+            </summary>
+            <param name="label">Label name. (EX: M0,Y2...)</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Types.Bit.#ctor(System.String,System.Boolean)">
+            <summary>
+            Initializes a new instance of <see cref="T:dotPLC.Mitsubishi.Types.Bit"></see> device which determines label name and value.
+            </summary>
+            <param name="label">Label name. (EX: M0,Y2...)</param>
+            <param name="value">True or false.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Types.Bit.#ctor(System.String,System.Int32,System.Boolean)">
+            <summary>
+            Initializes a new instance of <see cref="T:dotPLC.Mitsubishi.Types.Bit"></see> device which determines device, index and value.
+            </summary>
+            <param name="device">Device name. (EX: X,M,Y...)</param>
+            <param name="index">Index of device</param>
+            <param name="value">True or false.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Types.Bit.#ctor(System.String,System.Int32)">
+            <summary>
+            Initializes a new instance of <see cref="T:dotPLC.Mitsubishi.Types.Bit"></see> device which determines device, index and value.
+            </summary>
+            <param name="device">Device name. (EX: X,M,Y...)</param>
+            <param name="index">Index of device</param>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Types.Bit.Label">
+            <summary>
+            Gets or sets label name of device.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Types.Bit.Index">
+            <summary>
+            Gets or sets index of device.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Types.Bit.Device">
+            <summary>
+            Gets or sets device name.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Types.Bit.Value">
+            <summary>
+            Gets or sets value of device.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Types.Bit._label">
+            <summary>
+            label
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Types.Bit._index">
+            <summary>
+            index
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Types.Bit._device">
+            <summary>
+            device
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Types.Bit.sWhitespace">
+            <summary>
+            Clear space.
+            </summary>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.Types.DWord">
+            <summary>
+            Implements a <see cref="T:dotPLC.Mitsubishi.Types.DWord"/> [32-bit data] device.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Types.DWord._label">
+            <summary>
+            label
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Types.DWord._index">
+            <summary>
+            index
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Types.DWord._device">
+            <summary>
+            device
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Types.DWord.#ctor">
+            <summary>
+            Initializes a new instance of <see cref="T:dotPLC.Mitsubishi.Types.DWord"></see> [32-bit data] device.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Types.DWord.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of <see cref="T:dotPLC.Mitsubishi.Types.DWord"></see> [32-bit data] device which determines label name.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Types.DWord.#ctor(System.String,System.Int32)">
+            <summary>
+            Initializes a new instance of <see cref="T:dotPLC.Mitsubishi.Types.DWord"></see> [32-bit data] device which determines label name and [signed 32-bit] value.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">Signed 32-bit data.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Types.DWord.#ctor(System.String,System.UInt32)">
+            <summary>
+            Initializes a new instance of <see cref="T:dotPLC.Mitsubishi.Types.DWord"></see> [32-bit data] device which determines label name and [unsigned 32-bit] value.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">Unsigned 32-bit data.</param>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Types.DWord.Label">
+            <summary>
+            Gets or sets label name of device. (EX: D0, Y2, M10, etc.)
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Types.DWord.Index">
+            <summary>
+            index
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Types.DWord.Device">
+            <summary>
+            device
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Types.DWord._value">
+            <summary>
+            value
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Types.DWord._valueU">
+            <summary>
+            value
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Types.DWord.sWhitespace">
+            <summary>
+            Clear space.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Types.DWord.Value">
+            <summary>
+            Gets or sets [signed 32-bit] value of device.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Types.DWord.ValueU">
+            <summary>
+            Gets or sets [unsigned 32-bit] value of device.
+            </summary>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.Types.Float">
+            <summary>
+            Implements a <see cref="T:dotPLC.Mitsubishi.Types.Float"/> [single-precision 32-bit] device
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Types.Float._label">
+            <summary>
+            label
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Types.Float._index">
+            <summary>
+            index
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Types.Float._device">
+            <summary>
+            device
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Types.Float.sWhitespace">
+            <summary>
+            Clear space.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Types.Float.#ctor">
+            <summary>
+            Initializes a new instance of <see cref="T:dotPLC.Mitsubishi.Types.Float"></see> [single-precision 32-bit] device.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Types.Float.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of <see cref="T:dotPLC.Mitsubishi.Types.Float"></see> [single-precision 32-bit] device which determines label name.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Types.Float.#ctor(System.String,System.Single)">
+            <summary>
+            Initializes a new instance of <see cref="T:dotPLC.Mitsubishi.Types.Float"></see> [single-precision 32-bit] device which determines label name and value.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">[Single-precision 32-bit] real number.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Types.Float.#ctor(System.String,System.Int32,System.Single)">
+            <summary>
+            Initializes a new instance of <see cref="T:dotPLC.Mitsubishi.Types.Float"></see> [single-precision 32-bit] device which determines device, index and value.
+            </summary>
+            <param name="device">device</param>
+            <param name="index">index</param>
+            <param name="value">value</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Types.Float.#ctor(System.String,System.Int32)">
+            <summary>
+            Initializes a new instance of <see cref="T:dotPLC.Mitsubishi.Types.Float"></see> [single-precision 32-bit] device which determines device and index.
+            </summary>
+            <param name="device">device</param>
+            <param name="index">index</param>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Types.Float.Label">
+            <summary>
+            Gets or sets label name of device. (EX: D0, Y2, M10, etc.)
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Types.Float.Index">
+            <summary>
+            index
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Types.Float.Device">
+            <summary>
+            device
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Types.Float.Value">
+            <summary>
+            Gets or sets [single-precision 32-bit] value of device.
+            </summary>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.Types.Word">
+            <summary>
+            Implements a <see cref="T:dotPLC.Mitsubishi.Types.Bit"/> [16-bit data] device.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Types.Word._label">
+            <summary>
+            label
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Types.Word._index">
+            <summary>
+            index
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Types.Word._device">
+            <summary>
+            device
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Types.Word.#ctor">
+            <summary>
+            Initializes a new instance of <see cref="T:dotPLC.Mitsubishi.Types.Word"></see> [16-bit data] device.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Types.Word.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of <see cref="T:dotPLC.Mitsubishi.Types.Word"></see> [16-bit data] device which determines label name.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Types.Word.#ctor(System.String,System.Int16)">
+            <summary>
+            Initializes a new instance of <see cref="T:dotPLC.Mitsubishi.Types.Word"></see> [16-bit data] device which determines label name and [signed 16-bit] value.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">Signed 16-bit data.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Types.Word.#ctor(System.String,System.UInt16)">
+            <summary>
+            Initializes a new instance of <see cref="T:dotPLC.Mitsubishi.Types.Word"></see> device which determines label name and [unsigned 16-bit] value.
+            </summary>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">Unsigned 16-bit data.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Types.Word.Create(System.String,System.Int32)">
+            <summary>
+            Creates device and index
+            </summary>
+            <param name="device">device</param>
+            <param name="index">index</param>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Types.Word.Label">
+            <summary>
+            Gets or sets label name of device. (EX: D0, Y2, M10, etc.)
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Types.Word.Index">
+            <summary>
+            index
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Types.Word.Device">
+            <summary>
+            device
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Types.Word._value">
+            <summary>
+            value short
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Types.Word.sWhitespace">
+            <summary>
+            Clear space.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.Types.Word._valueU">
+            <summary>
+            value ushort
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Types.Word.Value">
+            <summary>
+            Gets or sets [signed 16-bit] value of device.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.Types.Word.ValueU">
+            <summary>
+            Gets or sets [unsigned 16-bit] value of device.
+            </summary>
+        </member>
+    </members>
+</doc>

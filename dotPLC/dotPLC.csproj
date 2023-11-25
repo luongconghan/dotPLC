@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net472;net45;net461</TargetFrameworks>
+    <Authors>Luong Cong Han</Authors>
+    <Company>Luong Cong Han</Company>
+    <Description>A .NET Library for Mitsubishi Connectivity</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Luong Cong Han 2023</Copyright>
+    <PackageProjectUrl>https://github.com/luongconghan/dotplc</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/luongconghan/dotplc</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>dotPLC, PLC, SLMP, Mitsubishi, GXSimulator3</PackageTags>
+    <PackageIconUrl />
+    <PackageId>dotPLC</PackageId>
+    <Product>dotPLC</Product>
+    <PackageIcon>dotPLC32x32png.png</PackageIcon>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Version>1.1.2</Version>
+    <PackageReadmeFile></PackageReadmeFile>
+    <PackageReleaseNotes>Change SelfTestCheckInterval value.</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>E:\dotPLC\dotPLC\dotPLC.xml</DocumentationFile>
+    <WarningLevel>3</WarningLevel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="dotPLC32x32png.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="C:\Users\Dell Latitude 3540\OneDrive\Documents\My Code\SourceCode\dotPLC\dotPLC\dotPLC32x32png.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>
