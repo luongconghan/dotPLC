@@ -5,8 +5,8 @@ A .NET Library for Mitsubishi Connectivity
 dotPLC is a library to support communication with Mitsubishi PLC, GX Simulator3, includes:
 | Protocol        | Object       |
 |-----------------|--------------|
-| SLMP for Client | TCPClient3E  |
-| SLMP for Server | TCPServer3E  |
+| SLMP for Client | SLMPClient   |
+| SLMP for Server | SLMPServer   |
 | GX Simulator3   | Simulator3   |
 
 ## Contact
@@ -14,7 +14,7 @@ dotPLC is a library to support communication with Mitsubishi PLC, GX Simulator3,
 |---------|--------------------------------------------|
 | Author  | Luong Cong Han                             |
 | E-mail  | luongconghan.dev@gmail.com                 |
-| Youtube | https://www.youtube.com/luongconghan       |
+| Youtube | https://www.youtube.com/@dotPLC_           |
 | Blog    | https://sites.google.com/view/luongconghan |
 
 ## License
