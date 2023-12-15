@@ -14,7 +14,7 @@ dotPLC is a library to support communication with Mitsubishi PLC, GX Simulator3,
 |---------|--------------------------------------------|
 | Author  | Luong Cong Han                             |
 | E-mail  | luongconghan.dev@gmail.com                 |
-| Youtube | <https://www.youtube.com/@dotPLC_>         |
+| Youtube | <https://www.youtube.com/@luongconghan1998>|
 | Blog    | https://sites.google.com/view/luongconghan |
 
 ## License
