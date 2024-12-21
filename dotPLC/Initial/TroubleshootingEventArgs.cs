@@ -4,7 +4,7 @@ using System;
 namespace dotPLC.Initial
 {
     /// <summary>
-    /// Provides data for the Trouble event.
+    /// Provides data for the Trouble event of communication.
     /// </summary>
     public class TroubleshootingEventArgs : EventArgs
     {

@@ -24,19 +24,19 @@
             _connected
             </summary>
         </member>
-        <member name="F:dotPLC.Initial.Ethernet._receiveTimeout">
+        <member name="F:dotPLC.Initial.Ethernet._isConnectStart">
+            <summary>
+            _connected
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Ethernet._readTimeout">
             <summary>
             _receiveTimeout
             </summary>
         </member>
-        <member name="F:dotPLC.Initial.Ethernet._sendTimeout">
+        <member name="F:dotPLC.Initial.Ethernet._writeTimeout">
             <summary>
             _sendTimeout
-            </summary>
-        </member>
-        <member name="F:dotPLC.Initial.Ethernet.DefaultTimeout">
-            <summary>
-            DefaultTimeout
             </summary>
         </member>
         <member name="F:dotPLC.Initial.Ethernet.BufferSize">
@@ -64,9 +64,19 @@
             Initializes a new instance of the <see cref="T:dotPLC.Initial.Ethernet"></see> class.
             </summary>
         </member>
+        <member name="P:dotPLC.Initial.Ethernet.Port">
+            <summary>
+            Gets or sets the port number of the server.
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Ethernet._iPAddress">
+            <summary>
+            Gets or sets the IP-Address of the server.
+            </summary>
+        </member>
         <member name="P:dotPLC.Initial.Ethernet.IPAddress">
             <summary>
-            IP Address of the server.
+             Gets or sets the IP-Address of the server.
             </summary>
         </member>
         <member name="P:dotPLC.Initial.Ethernet.Connected">
@@ -74,12 +84,12 @@
             Gets a value indicating whether a connection to the server has been established.
             </summary>
         </member>
-        <member name="P:dotPLC.Initial.Ethernet.ReceiveTimeout">
+        <member name="P:dotPLC.Initial.Ethernet.ReadTimeout">
             <summary>
             Gets or sets the amount of time that a write operation blocks waiting for data to the server.
             </summary>
         </member>
-        <member name="P:dotPLC.Initial.Ethernet.SendTimeout">
+        <member name="P:dotPLC.Initial.Ethernet.WriteTimeout">
             <summary>
             Gets or sets the amount of time that a read operation blocks waiting for data from the server.
             </summary>
@@ -122,7 +132,14 @@
         </member>
         <member name="M:dotPLC.Initial.Ethernet.ConvertBoolArrayToByteArray(System.Boolean[])">
             <summary>
-            Chuyển đổi mảng bit thành mảng byte
+            Chuyển đổi mảng bit thành mảng byte -Theo số lượng word 21 coil =>4byte
+            </summary>
+            <param name="coils">mảng bit</param>
+            <returns>Mảng byte</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Ethernet.ConvertBoolArrayToByteArrayOdd(System.Boolean[])">
+            <summary>
+            Chuyển đổi mảng bit thành mảng byte -Theo số lượng coil 21 coil =>3byte
             </summary>
             <param name="coils">mảng bit</param>
             <returns>Mảng byte</returns>
@@ -183,13 +200,6 @@
             <param name="high_num">byte[2]</param>
             <returns>index</returns>
         </member>
-        <member name="M:dotPLC.Initial.Ethernet.GetNameDevice(System.String)">
-            <summary>
-            Lấy byte đại diện cho device
-            </summary>
-            <param name="device">device</param>
-            <returns>byte đại diện cho device</returns>
-        </member>
         <member name="M:dotPLC.Initial.Ethernet.SettingDevice(System.String,System.String@,System.Int32@)">
             <summary>
             Phân tích label thành device và index
@@ -208,12 +218,12 @@
             <param name="label">label name</param>
             <returns>Trả về true nếu thành công;nếu không,false</returns>
         </member>
-        <member name="M:dotPLC.Initial.Ethernet.IsSizeMatch(System.String,System.Int32)">
+        <member name="M:dotPLC.Initial.Ethernet.CheckDeviceAndAddressMatch(System.String,System.Int32)">
             <summary>
             Kiểm tra Device và Index có phù hợp không
             </summary>
             <param name="device">device</param>
-            <param name="num">index</param>
+            <param name="devicenum">devicenum</param>
             <returns>Trả về true nếu thành công;nếu không,false</returns>
         </member>
         <member name="M:dotPLC.Initial.Ethernet.isOctal(System.Int32)">
@@ -228,40 +238,24 @@
             Establish connection to the server.
             </summary>
         </member>
-        <member name="M:dotPLC.Initial.Ethernet.Close">
+        <member name="M:dotPLC.Initial.Ethernet.Disconnect">
             <summary>
             Close connection to the server.
             </summary>
         </member>
-        <member name="M:dotPLC.Initial.Ethernet.WriteDevice(System.String,System.Boolean)">
+        <member name="M:dotPLC.Initial.Ethernet.ValidateIPv4(System.String)">
             <summary>
-            Write a single value to the server.
+            validating an IP Address
             </summary>
-            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-            <param name="value">A single value to be written.</param>
+            <param name="ipString">Ip-address.</param>
+            <returns>Validate if true, Invalidate if false.</returns>
         </member>
-        <member name="M:dotPLC.Initial.Ethernet.WriteDevice(System.String,System.Int16)">
+        <member name="T:dotPLC.Initial.IMitsubishiFuntion">
             <summary>
-            Write a single value to the server.
+             Represents the function of an Mitsubishi communication operation.
             </summary>
-            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-            <param name="value">A single value to be written.</param>
         </member>
-        <member name="M:dotPLC.Initial.Ethernet.WriteDevice(System.String,System.Int32)">
-            <summary>
-            Write a single value to the server.
-            </summary>
-            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-            <param name="value">A single value to be written.</param>
-        </member>
-        <member name="M:dotPLC.Initial.Ethernet.WriteDevice(System.String,System.Single)">
-            <summary>
-            Write a single value to the server.
-            </summary>
-            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-            <param name="value">A single value to be written.</param>
-        </member>
-        <member name="M:dotPLC.Initial.Ethernet.WriteDevice``1(System.String,``0)">
+        <member name="M:dotPLC.Initial.IMitsubishiFuntion.WriteDevice``1(System.String,``0)">
             <summary>
             Write a single value to the server.
             </summary>
@@ -269,7 +263,7 @@
             <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
             <param name="value">A single value to be written.</param>
         </member>
-        <member name="M:dotPLC.Initial.Ethernet.WriteDeviceBlock``1(System.String,``0[])">
+        <member name="M:dotPLC.Initial.IMitsubishiFuntion.WriteDeviceBlock``1(System.String,``0[])">
             <summary>
             Write multiple values to the server in a batch. 
             </summary>
@@ -277,59 +271,31 @@
             <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
             <param name="values">Values to be written.</param>
         </member>
-        <member name="M:dotPLC.Initial.Ethernet.WriteDeviceBlock(System.String,System.Boolean[])">
-            <summary>
-             Write multiple values to the server in a batch.
-            </summary>
-            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-            <param name="values">Values to be written.</param>
-        </member>
-        <member name="M:dotPLC.Initial.Ethernet.WriteDeviceBlock(System.String,System.Int16[])">
-            <summary>
-             Write multiple values to the server in a batch.
-            </summary>
-            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-            <param name="values">Values to be written.</param>
-        </member>
-        <member name="M:dotPLC.Initial.Ethernet.WriteDeviceBlock(System.String,System.Int32[])">
-            <summary>
-             Write multiple values to the server in a batch.
-            </summary>
-            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-            <param name="values">Values to be written.</param>
-        </member>
-        <member name="M:dotPLC.Initial.Ethernet.WriteDeviceBlock(System.String,System.Single[])">
-            <summary>
-             Write multiple values to the server in a batch.
-            </summary>
-            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-            <param name="values">Values to be written.</param>
-        </member>
-        <member name="M:dotPLC.Initial.Ethernet.WriteDeviceRandom(dotPLC.Mitsubishi.Types.Bit[])">
+        <member name="M:dotPLC.Initial.IMitsubishiFuntion.WriteDeviceRandom(dotPLC.Mitsubishi.Types.Bit[])">
             <summary>
             Write multiple values to the server randomly.
             </summary>
             <param name="bits"><see cref="T:dotPLC.Mitsubishi.Types.Bit"/> values to be written.</param>
         </member>
-        <member name="M:dotPLC.Initial.Ethernet.WriteDeviceRandom(dotPLC.Mitsubishi.Types.Word[])">
+        <member name="M:dotPLC.Initial.IMitsubishiFuntion.WriteDeviceRandom(dotPLC.Mitsubishi.Types.Word[])">
             <summary>
             Write multiple values to the server randomly.
             </summary>
             <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be written.</param>
         </member>
-        <member name="M:dotPLC.Initial.Ethernet.WriteDeviceRandom(dotPLC.Mitsubishi.Types.DWord[])">
+        <member name="M:dotPLC.Initial.IMitsubishiFuntion.WriteDeviceRandom(dotPLC.Mitsubishi.Types.DWord[])">
             <summary>
             Write multiple values to the server randomly.
             </summary>
             <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be written.</param>
         </member>
-        <member name="M:dotPLC.Initial.Ethernet.WriteDeviceRandom(dotPLC.Mitsubishi.Types.Float[])">
+        <member name="M:dotPLC.Initial.IMitsubishiFuntion.WriteDeviceRandom(dotPLC.Mitsubishi.Types.Float[])">
             <summary>
             Write multiple values to the server randomly.
             </summary>
             <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be written.</param>
         </member>
-        <member name="M:dotPLC.Initial.Ethernet.ReadDevice``1(System.String)">
+        <member name="M:dotPLC.Initial.IMitsubishiFuntion.ReadDevice``1(System.String)">
             <summary>
             Read a single value from the server.
             </summary>
@@ -337,35 +303,7 @@
             <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
             <returns>Returned <typeparamref name="T"/> value.</returns>
         </member>
-        <member name="M:dotPLC.Initial.Ethernet.ReadSingleCoil(System.String)">
-            <summary>
-            Read a single value from the server.
-            </summary>
-            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-            <returns>Returned value.</returns>
-        </member>
-        <member name="M:dotPLC.Initial.Ethernet.ReadSingleRegister(System.String)">
-            <summary>
-            Read a single value from the server.
-            </summary>
-            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-            <returns>Returned value.</returns>
-        </member>
-        <member name="M:dotPLC.Initial.Ethernet.ReadSingleDouble(System.String)">
-            <summary>
-            Read a single value from the server.
-            </summary>
-            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-            <returns>Returned value.</returns>
-        </member>
-        <member name="M:dotPLC.Initial.Ethernet.ReadSingleFloat(System.String)">
-            <summary>
-            Read a single value from the server.
-            </summary>
-            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-            <returns>Returned value.</returns>
-        </member>
-        <member name="M:dotPLC.Initial.Ethernet.ReadDeviceBlock``1(System.String,System.Int32)">
+        <member name="M:dotPLC.Initial.IMitsubishiFuntion.ReadDeviceBlock``1(System.String,System.Int32)">
             <summary>
             Read multiple values from the server in a batch.
             </summary>
@@ -374,46 +312,14 @@
             <param name="size">Number of values to be read.</param>
             <returns>Returned <typeparamref name="T"/>[] values.</returns>
         </member>
-        <member name="M:dotPLC.Initial.Ethernet.ReadMultipleCoils(System.String,System.Int32)">
-            <summary>
-            Read multiple values from the server in a batch.
-            </summary>
-            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-            <param name="size">Number of values to be read.</param>
-            <returns>Returned values.</returns>
-        </member>
-        <member name="M:dotPLC.Initial.Ethernet.ReadMultipleRegisters(System.String,System.Int32)">
-            <summary>
-            Read multiple values from the server in a batch.
-            </summary>
-            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-            <param name="size">Number of values to be read.</param>
-            <returns>Returned values.</returns>
-        </member>
-        <member name="M:dotPLC.Initial.Ethernet.ReadMultipleDoubles(System.String,System.Int32)">
-            <summary>
-            Read multiple values from the server in a batch.
-            </summary>
-            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-            <param name="size">Number of values to be read.</param>
-            <returns>Returned values.</returns>
-        </member>
-        <member name="M:dotPLC.Initial.Ethernet.ReadMultipleFloats(System.String,System.Int32)">
-            <summary>
-            Read multiple values from the server in a batch.
-            </summary>
-            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-            <param name="size">Number of values to be read.</param>
-            <returns>Returned values.</returns>
-        </member>
-        <member name="M:dotPLC.Initial.Ethernet.WriteText(System.String,System.String)">
+        <member name="M:dotPLC.Initial.IMitsubishiFuntion.WriteText(System.String,System.String)">
             <summary>
             Write text to the server.
             </summary>
             <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
             <param name="text">Text to be written.</param>
         </member>
-        <member name="M:dotPLC.Initial.Ethernet.ReadText(System.String,System.Int32)">
+        <member name="M:dotPLC.Initial.IMitsubishiFuntion.ReadText(System.String,System.Int32)">
             <summary>
             Read text from the server.
             </summary>
@@ -421,37 +327,37 @@
             <param name="size">Number of text to be read.</param>
             <returns>Returns text of the specified size.</returns>
         </member>
-        <member name="M:dotPLC.Initial.Ethernet.GetCpuName">
+        <member name="M:dotPLC.Initial.IMitsubishiFuntion.GetCpuName">
             <summary>
             Read the model character string of the server.
             </summary>
             <returns>The model character string of the server.</returns>
         </member>
-        <member name="M:dotPLC.Initial.Ethernet.ReadDeviceRandom(dotPLC.Mitsubishi.Types.Bit[])">
+        <member name="M:dotPLC.Initial.IMitsubishiFuntion.ReadDeviceRandom(dotPLC.Mitsubishi.Types.Bit[])">
             <summary>
             Read multiple values from the server randomly.
             </summary>
             <param name="bits"><see cref="T:dotPLC.Mitsubishi.Types.Bit"/> values to be read.</param>
         </member>
-        <member name="M:dotPLC.Initial.Ethernet.ReadDeviceRandom(dotPLC.Mitsubishi.Types.Word[])">
+        <member name="M:dotPLC.Initial.IMitsubishiFuntion.ReadDeviceRandom(dotPLC.Mitsubishi.Types.Word[])">
             <summary>
             Read multiple values from the server randomly.
             </summary>
             <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be read.</param>
         </member>
-        <member name="M:dotPLC.Initial.Ethernet.ReadDeviceRandom(dotPLC.Mitsubishi.Types.DWord[])">
+        <member name="M:dotPLC.Initial.IMitsubishiFuntion.ReadDeviceRandom(dotPLC.Mitsubishi.Types.DWord[])">
             <summary>
             Read multiple values from the server randomly.
             </summary>
             <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be read.</param>
         </member>
-        <member name="M:dotPLC.Initial.Ethernet.ReadDeviceRandom(dotPLC.Mitsubishi.Types.Float[])">
+        <member name="M:dotPLC.Initial.IMitsubishiFuntion.ReadDeviceRandom(dotPLC.Mitsubishi.Types.Float[])">
             <summary>
             Read multiple values from the server randomly.
             </summary>
             <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be read.</param>
         </member>
-        <member name="M:dotPLC.Initial.Ethernet.ReadDeviceRandom(dotPLC.Mitsubishi.Types.Bit[],dotPLC.Mitsubishi.Types.Word[],dotPLC.Mitsubishi.Types.DWord[],dotPLC.Mitsubishi.Types.Float[])">
+        <member name="M:dotPLC.Initial.IMitsubishiFuntion.ReadDeviceRandom(dotPLC.Mitsubishi.Types.Bit[],dotPLC.Mitsubishi.Types.Word[],dotPLC.Mitsubishi.Types.DWord[],dotPLC.Mitsubishi.Types.Float[])">
             <summary>
             Read multiple values from the server randomly. <see langword="[RECOMMENDED]"></see>
             </summary>
@@ -459,6 +365,211 @@
             <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be read.</param>
             <param name="dwords"><see cref="T:dotPLC.Mitsubishi.Types.DWord"/> values to be read.</param>
             <param name="floats"><see cref="T:dotPLC.Mitsubishi.Types.Float"/> values to be read.</param>
+        </member>
+        <member name="M:dotPLC.Initial.IModbusFuntionCode.ReadCoils(System.Int32,System.Int32)">
+            <summary>
+            Read Coils from a slave (FC01).
+            </summary>
+            <param name="startingAddress">First address to be read.</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned <see cref="T:System.Boolean"/>[] values.</returns>
+        </member>
+        <member name="M:dotPLC.Initial.IModbusFuntionCode.ReadDiscreteInputs(System.Int32,System.Int32)">
+            <summary>
+            Read Discrete Inputs from a slave (FC02).
+            </summary>
+            <param name="startingAddress">First address to be read.</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned <see cref="T:System.Boolean"/>[] values.</returns>
+        </member>
+        <member name="M:dotPLC.Initial.IModbusFuntionCode.ReadHoldingRegisters(System.Int32,System.Int32)">
+            <summary>
+            Read Holding Registers from a slave (FC03).
+            </summary>
+            <param name="startingAddress">First address to be read.</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned <see cref="T:System.Int16"/>[] values.</returns>
+        </member>
+        <member name="M:dotPLC.Initial.IModbusFuntionCode.ReadInputRegisters(System.Int32,System.Int32)">
+            <summary>
+            Read Input Registers from a slave (FC04).
+            </summary>
+            <param name="startingAddress">First address to be read.</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned <see cref="T:System.Int16"/>[] values.</returns>
+        </member>
+        <member name="M:dotPLC.Initial.IModbusFuntionCode.WriteSingleCoil(System.Int32,System.Boolean)">
+            <summary>
+            Write Single Coil to a slave (FC05).
+            </summary>
+            <param name="startingAddress">Address to be written.</param>
+            <param name="value">A single value to be written.</param>
+        </member>
+        <member name="M:dotPLC.Initial.IModbusFuntionCode.WriteSingleRegister(System.Int32,System.Int16)">
+            <summary>
+            Write Single Register to a slave (FC06).
+            </summary>
+            <param name="startingAddress">First address to be written.</param>
+            <param name="value">A value to be written.</param>
+        </member>
+        <member name="M:dotPLC.Initial.IModbusFuntionCode.WriteMultipleCoils(System.Int32,System.Boolean[])">
+            <summary>
+            Write Multiple Coils to a slave (FC15).
+            </summary>
+            <param name="startingAddress">First address to be written.</param>
+            <param name="values">Values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Initial.IModbusFuntionCode.WriteMultipleRegisters(System.Int32,System.Int16[])">
+            <summary>
+            Write Multiple Registers to a slave (FC16).
+            </summary>
+            <param name="startingAddress">First address to be written.</param>
+            <param name="values">Values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Initial.IModbusFuntionCode.ReadWriteMultipleRegisters(System.Int32,System.Int32,System.Int32,System.Int16[])">
+            <summary>
+            Read/Write Multiple Registers to a slave (FC23).
+            </summary>
+            <param name="startingAddressRead">First address to be read.</param>
+            <param name="sizeRead">Number of values to be read.</param>
+            <param name="startingAddressWrite">First address to be written.</param>
+            <param name="values">Values to be written.</param>
+            <returns>Returned <see cref="T:System.Int16"/>[] values.</returns>
+        </member>
+        <member name="F:dotPLC.Initial.Serial._serialport">
+            <summary>
+            _serialport
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Serial._serialcomport">
+            <summary>
+            _serialcomport
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Serial._baudrate">
+            <summary>
+            field
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Serial._parity">
+            <summary>
+            field
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Serial._stopBits">
+            <summary>
+            field
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Serial._readtimeout">
+            <summary>
+            field
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Serial._writetimeout">
+            <summary>
+            field
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Serial._connecttimeout">
+            <summary>
+            field
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Serial._connected">
+            <summary>
+            field
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Serial.SendBuffer">
+            <summary>
+            field
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Serial.ReceveiBuffer">
+            <summary>
+            field
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Serial._isDataReceived">
+            <summary>
+            field
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Serial._bytesToRead">
+            <summary>
+            field
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Serial._ticksWait">
+            <summary>
+            field
+            </summary>
+        </member>
+        <member name="F:dotPLC.Initial.Serial._spinWait">
+            <summary>
+            field
+            </summary>
+        </member>
+        <member name="M:dotPLC.Initial.Serial.CalculateCRC(System.Byte[],System.Int32)">
+            <summary>
+            Calculate Modbus CRC 
+            </summary>
+            <param name="data">data</param>
+            <param name="count">count</param>
+            <returns>short</returns>
+        </member>
+        <member name="M:dotPLC.Initial.Serial.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Initial.Serial"></see> class.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Initial.Serial.ConvertBoolArrayToByteArrayOdd(System.Boolean[])">
+            <summary>
+            Chuyển đổi mảng bit thành mảng byte -Theo số lượng coil 21 coil =>3byte
+            </summary>
+            <param name="coils">mảng bit</param>
+            <returns>Mảng byte</returns>
+        </member>
+        <member name="P:dotPLC.Initial.Serial.Baudrate">
+            <summary>
+            Gets or sets the serial baud rate.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Initial.Serial.Parity">
+            <summary>
+            Gets or sets the parity-checking protocol.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Initial.Serial.StopBits">
+            <summary>
+            Gets or sets the standard number of stopbits per byte.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Initial.Serial.SerialPort">
+            <summary>
+            Gets or sets the port for communications, including but not limited to all available COM ports.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Initial.Serial.UnitIdentifier">
+            <summary>
+            Gets or sets the unit identifier.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Initial.Serial.ConnectTimeout">
+            <summary>
+            Gets or sets the amount of time that a connect operation blocks waiting from the slave.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Initial.Serial.Connect">
+            <summary>
+            Establish connection to a slave.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Initial.Serial.Disconnect">
+            <summary>
+            Close connection to a slave.
+            </summary>
         </member>
         <member name="T:dotPLC.Initial.TaskQueue">
             <summary>
@@ -493,7 +604,7 @@
         </member>
         <member name="T:dotPLC.Initial.TroubleshootingEventArgs">
             <summary>
-            Provides data for the Trouble event.
+            Provides data for the Trouble event of communication.
             </summary>
         </member>
         <member name="P:dotPLC.Initial.TroubleshootingEventArgs.ErrorCode">
@@ -527,6 +638,11 @@
             Enable auto-reconnect to the server.
             </summary>
         </member>
+        <member name="F:dotPLC.Mitsubishi.AutoReconnect.JustDetectDisconnected">
+            <summary>
+            Just enable detect disconnections
+            </summary>
+        </member>
         <member name="T:dotPLC.Mitsubishi.CpuStatus">
             <summary>
             Specifies the remote control for GX Simulator3.
@@ -546,6 +662,306 @@
             <summary>
             Remote STOP.
             </summary>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.Exceptions.MitsubishiException">
+            <summary>
+            Represents errors that occur during Mitsubishi Communication execution.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.MitsubishiException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.MitsubishiException"></see> class.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.MitsubishiException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.MitsubishiException"></see> class with the name of the parameter that causes this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.MitsubishiException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.MitsubishiException"></see> class with a specified error message and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.MitsubishiException.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.MitsubishiException"></see> class with a specified error message and the name of the parameter that causes this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="paramName">The name of the parameter that caused the current exception.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.MitsubishiException.#ctor(System.String,System.String,System.Exception)">
+            <summary>
+             Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.MitsubishiException"></see> class with a specified error message, the parameter name, and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="paramName">The name of the parameter that caused the current exception.</param>
+            <param name="innerException"> The exception that is the cause of the current exception. If the innerException parameter is not a null reference, the current exception is raised in a catch block that handles the inner exception.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.MitsubishiException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.MitsubishiException"></see> class using the specified serialization data and context.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to be used for deserialization.</param>
+            <param name="context">The destination to be used for deserialization.</param>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.Exceptions.ConnectionException">
+            <summary>
+            The exception that is thrown when connection to the server failed.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.ConnectionException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.ConnectionException"></see> class.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.ConnectionException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.ConnectionException"></see> class with the name of the parameter that causes this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.ConnectionException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.ConnectionException"></see> class with a specified error message and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.ConnectionException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.ConnectionException"></see> class using the specified serialization data and context.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to be used for deserialization.</param>
+            <param name="context">The destination to be used for deserialization.</param>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.Exceptions.InvalidDeviceLabelNameException">
+            <summary>
+            The exception that is thrown when device label is invalid.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.InvalidDeviceLabelNameException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.InvalidDeviceLabelNameException"></see> class.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.InvalidDeviceLabelNameException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.InvalidDeviceLabelNameException"></see> class with the name of the parameter that causes this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.InvalidDeviceLabelNameException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.InvalidDeviceLabelNameException"></see> class with a specified error message and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.InvalidDeviceLabelNameException.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.InvalidDeviceLabelNameException"></see> class with a specified error message and the name of the parameter that causes this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="paramName">The name of the parameter that caused the current exception.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.InvalidDeviceLabelNameException.#ctor(System.String,System.String,System.Exception)">
+            <summary>
+             Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.InvalidDeviceLabelNameException"></see> class with a specified error message, the parameter name, and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="paramName">The name of the parameter that caused the current exception.</param>
+            <param name="innerException"> The exception that is the cause of the current exception. If the innerException parameter is not a null reference, the current exception is raised in a catch block that handles the inner exception.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.InvalidDeviceLabelNameException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.InvalidDeviceLabelNameException"></see> class using the specified serialization data and context.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to be used for deserialization.</param>
+            <param name="context">The destination to be used for deserialization.</param>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.Exceptions.DeviceAddressOutOfRangeException">
+            <summary>
+             The exception that is thrown when the address of device is outside the allowable range of mitsubishi memory.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.DeviceAddressOutOfRangeException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.DeviceAddressOutOfRangeException"></see> class.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.DeviceAddressOutOfRangeException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.DeviceAddressOutOfRangeException"></see> class with the name of the parameter that causes this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.DeviceAddressOutOfRangeException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.DeviceAddressOutOfRangeException"></see> class with a specified error message and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.DeviceAddressOutOfRangeException.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.DeviceAddressOutOfRangeException"></see> class with a specified error message and the name of the parameter that causes this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="paramName">The name of the parameter that caused the current exception.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.DeviceAddressOutOfRangeException.#ctor(System.String,System.String,System.Exception)">
+            <summary>
+             Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.DeviceAddressOutOfRangeException"></see> class with a specified error message, the parameter name, and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="paramName">The name of the parameter that caused the current exception.</param>
+            <param name="innerException"> The exception that is the cause of the current exception. If the innerException parameter is not a null reference, the current exception is raised in a catch block that handles the inner exception.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.DeviceAddressOutOfRangeException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.DeviceAddressOutOfRangeException"></see> class using the specified serialization data and context.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to be used for deserialization.</param>
+            <param name="context">The destination to be used for deserialization.</param>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.Exceptions.InvalidDataTypeException">
+            <summary>
+             The exception thrown when using data type that is not compatible with the PLC.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.InvalidDataTypeException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.InvalidDataTypeException"></see> class.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.InvalidDataTypeException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.InvalidDataTypeException"></see> class with the name of the parameter that causes this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.InvalidDataTypeException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.InvalidDataTypeException"></see> class with a specified error message and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.InvalidDataTypeException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.InvalidDataTypeException"></see> class using the specified serialization data and context.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to be used for deserialization.</param>
+            <param name="context">The destination to be used for deserialization.</param>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.Exceptions.SocketNotOpenedException">
+            <summary>
+             The exception thrown when tcp client not opened.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.SocketNotOpenedException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.SocketNotOpenedException"></see> class.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.SocketNotOpenedException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.SocketNotOpenedException"></see> class with the name of the parameter that causes this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.SocketNotOpenedException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.SocketNotOpenedException"></see> class with a specified error message and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.SocketNotOpenedException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.SocketNotOpenedException"></see> class using the specified serialization data and context.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to be used for deserialization.</param>
+            <param name="context">The destination to be used for deserialization.</param>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.Exceptions.QuantityOutOfRangeException">
+            <summary>
+             The exception thrown when number of devices processed per communication is outside the allowable range.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.QuantityOutOfRangeException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.QuantityOutOfRangeException"></see> class.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.QuantityOutOfRangeException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.QuantityOutOfRangeException"></see> class with the name of the parameter that causes this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.QuantityOutOfRangeException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.QuantityOutOfRangeException"></see> class with a specified error message and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.QuantityOutOfRangeException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.QuantityOutOfRangeException"></see> class using the specified serialization data and context.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to be used for deserialization.</param>
+            <param name="context">The destination to be used for deserialization.</param>
+        </member>
+        <member name="T:dotPLC.Mitsubishi.Exceptions.SizeOutOfRangeException">
+            <summary>
+            The exception thrown when number of points processed per communication is outside the allowable range.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.SizeOutOfRangeException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.SizeOutOfRangeException"></see> class.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.SizeOutOfRangeException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.SizeOutOfRangeException"></see> class with the name of the parameter that causes this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.SizeOutOfRangeException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.SizeOutOfRangeException"></see> class with a specified error message and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.SizeOutOfRangeException.#ctor(System.String,System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.SizeOutOfRangeException"></see> class with a specified error message and the name of the parameter that causes this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="paramName">The name of the parameter that caused the current exception.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.SizeOutOfRangeException.#ctor(System.String,System.String,System.Exception)">
+            <summary>
+             Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.SizeOutOfRangeException"></see> class with a specified error message, the parameter name, and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="paramName">The name of the parameter that caused the current exception.</param>
+            <param name="innerException"> The exception that is the cause of the current exception. If the innerException parameter is not a null reference, the current exception is raised in a catch block that handles the inner exception.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Exceptions.SizeOutOfRangeException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.Exceptions.SizeOutOfRangeException"></see> class using the specified serialization data and context.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to be used for deserialization.</param>
+            <param name="context">The destination to be used for deserialization.</param>
         </member>
         <member name="T:dotPLC.Mitsubishi.Memory">
             <summary>
@@ -855,7 +1271,7 @@
         </member>
         <member name="P:dotPLC.Mitsubishi.Simulator3.Port">
             <summary>
-            Port number of GX Simulator3, default is 5511.
+            Gets the port number of GX Simulator3, default is 5511.
             </summary>
         </member>
         <member name="M:dotPLC.Mitsubishi.Simulator3.WriteDevice(System.String,System.Boolean)">
@@ -1072,7 +1488,7 @@
             Establish connection to GX Simulator3.
             </summary>
         </member>
-        <member name="M:dotPLC.Mitsubishi.Simulator3.Close">
+        <member name="M:dotPLC.Mitsubishi.Simulator3.Disconnect">
             <summary>
             Close connection to GX Simulator3.
             </summary>
@@ -1099,7 +1515,7 @@
             <param name="high_num">byte[2]</param>
             <returns>Return index of device.</returns>
         </member>
-        <member name="M:dotPLC.Mitsubishi.Simulator3.GetNameDevice(System.String)">
+        <member name="M:dotPLC.Mitsubishi.Simulator3.GetNameDeviceAndCheckAddress(System.String,System.Int32)">
             <summary>
             Lấy byte của tên device
             </summary>
@@ -1125,6 +1541,39 @@
             <param name="HexString">chuỗi hex</param>
             <returns>Mảng byte</returns>
         </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.WriteDevice``1(System.String,``0)">
+            <summary>
+            Write a single value to the server.
+            </summary>
+            <typeparam name="T">The data type of value.</typeparam>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.WriteDeviceBlock``1(System.String,``0[])">
+            <summary>
+            Write multiple values to the server in a batch. 
+            </summary>
+            <typeparam name="T">The data type of value. (EX: <see cref="T:System.Boolean"></see>, <see cref="T:System.Int16"/>, <see cref="T:System.Single"/>, etc.)</typeparam>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.ReadDeviceBlock``1(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch.
+            </summary>
+            <typeparam name="T">The data type of value. (EX: <see cref="T:System.Boolean"></see>, <see cref="T:System.Int16"/>, <see cref="T:System.Single"/>, etc.)</typeparam>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned <typeparamref name="T"/>[] values.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.Simulator3.ReadDevice``1(System.String)">
+            <summary>
+            Read a single value from the server.
+            </summary>
+            <typeparam name="T">The data type of value. (EX: <see cref="T:System.Boolean"></see>, <see cref="T:System.Int16"/>, <see cref="T:System.Single"/>, etc.)</typeparam>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returned <typeparamref name="T"/> value.</returns>
+        </member>
         <member name="T:dotPLC.Mitsubishi.SLMPClient">
             <summary>
             Provides client connection for TCP network service via Seamless Message Protocol (SLMP).
@@ -1142,13 +1591,39 @@
             <param name="ipaddress">IP Address of the server.</param>
             <param name="port">Port number of the server.</param>
         </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.#ctor(dotPLC.Mitsubishi.AutoReconnect)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.SLMPClient"></see> class which determines AutoReconnect mode.
+            </summary>
+            <param name="autoReconnect">Auto-reconnect mode when connection is lost from the server.</param>
+        </member>
         <member name="M:dotPLC.Mitsubishi.SLMPClient.#ctor(System.String,System.Int32,dotPLC.Mitsubishi.AutoReconnect)">
             <summary>
-            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.SLMPClient"></see> class which determines the ip-address, the port number and autoReconnect mode.
+            Initializes a new instance of the <see cref="T:dotPLC.Mitsubishi.SLMPClient"></see> class which determines the ip-address, the port number and AutoReconnect mode.
             </summary>
             <param name="ipaddress">IP Address of the server</param>
             <param name="port">Port number of the server.</param>
             <param name="autoReconnect">Auto-reconnect mode when connection is lost from the server.</param>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPClient._selfTestConnectionString">
+            <summary>
+            _selfTestConnectionString
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPClient.Labels">
+            <summary>
+            Labels
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPClient.dsWordBaseBits">
+            <summary>
+            dsWordBaseBits
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPClient._getCpuName">
+            <summary>
+            _getCpuName
+            </summary>
         </member>
         <member name="F:dotPLC.Mitsubishi.SLMPClient._cancellationTokenSource">
             <summary>
@@ -1163,6 +1638,11 @@
         <member name="F:dotPLC.Mitsubishi.SLMPClient._isSafe">
             <summary>
             _isSafe
+            </summary>
+        </member>
+        <member name="F:dotPLC.Mitsubishi.SLMPClient._isSafeMethod">
+            <summary>
+            _isSafeMethod
             </summary>
         </member>
         <member name="F:dotPLC.Mitsubishi.SLMPClient._reconnectLimitTimer">
@@ -1205,52 +1685,22 @@
             _autoReconnect
             </summary>
         </member>
-        <member name="F:dotPLC.Mitsubishi.SLMPClient._selfTestConnectionString">
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReconnectAsync">
             <summary>
-            _selfTestConnectionString
+            Auto-Reconnect
             </summary>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
         </member>
-        <member name="F:dotPLC.Mitsubishi.SLMPClient.Labels">
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.StreamData(System.Int32,System.Int32)">
             <summary>
-            Labels
+            Read and Write data
             </summary>
+            <param name="writeLenght"></param>
+            <param name="readLenght"></param>
         </member>
-        <member name="F:dotPLC.Mitsubishi.SLMPClient.dsWordBaseBits">
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.InnerClose">
             <summary>
-            dsWordBaseBits
-            </summary>
-        </member>
-        <member name="F:dotPLC.Mitsubishi.SLMPClient._getCpuName">
-            <summary>
-            _getCpuName
-            </summary>
-        </member>
-        <member name="P:dotPLC.Mitsubishi.SLMPClient.Port">
-            <summary>
-            Port number of the server.
-            </summary>
-        </member>
-        <member name="P:dotPLC.Mitsubishi.SLMPClient.AutoReconnect">
-            <summary>
-            Auto-reconnect mode when the connection is lost from the server.
-            </summary>
-        </member>
-        <member name="P:dotPLC.Mitsubishi.SLMPClient.LimitInterval">
-             <summary>
-            The interval from when the connection is lost to the server is detected
-            , expressed in milliseconds, at which attempt to auto-reconnect to the server will be stopped.<para></para>
-             Note: Only works when the auto-reconnect mode is <see cref="F:dotPLC.Mitsubishi.AutoReconnect.Limit"/>
-             </summary>
-        </member>
-        <member name="P:dotPLC.Mitsubishi.SLMPClient.BreakInterval">
-             <summary>
-            The interval since the last communication with the server
-            , expressed in milliseconds, at which the established connection with the server is checked.
-             </summary>
-        </member>
-        <member name="E:dotPLC.Mitsubishi.SLMPClient.Trouble">
-            <summary>
-            Occurs when communication in trouble.
+            Close Connect Inner
             </summary>
         </member>
         <member name="E:dotPLC.Mitsubishi.SLMPClient.LostConnect">
@@ -1261,6 +1711,29 @@
         <member name="E:dotPLC.Mitsubishi.SLMPClient.Reconnected">
             <summary>
             Occurs when reconnecting to the server successfully.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.SLMPClient.AutoReconnect">
+            <summary>
+            Gets or sets the Auto-reconnect mode when the connection is lost.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.SLMPClient.LimitInterval">
+             <summary>
+            Gets or sets the interval from when the connection is lost to the server is detected
+            , expressed in milliseconds, at which attempt to auto-reconnect to the server will be stopped.<para></para>
+             Note: Only works when the auto-reconnect mode is <see cref="F:dotPLC.Mitsubishi.AutoReconnect.Limit"/>
+             </summary>
+        </member>
+        <member name="P:dotPLC.Mitsubishi.SLMPClient.BreakInterval">
+             <summary>
+            Gets or sets the interval since the last communication with the server
+            , expressed in milliseconds, at which the established connection with the server is checked.
+             </summary>
+        </member>
+        <member name="E:dotPLC.Mitsubishi.SLMPClient.Trouble">
+            <summary>
+            Occurs when communication in trouble.
             </summary>
         </member>
         <member name="M:dotPLC.Mitsubishi.SLMPClient.SetupBuffer">
@@ -1274,25 +1747,12 @@
             </summary>
             <param name="loopbackMessage">loopbackMessage</param>
         </member>
-        <member name="M:dotPLC.Mitsubishi.SLMPClient.StreamData(System.Int32,System.Int32)">
-            <summary>
-            Read and Write data
-            </summary>
-            <param name="writeLenght"></param>
-            <param name="readLenght"></param>
-        </member>
         <member name="M:dotPLC.Mitsubishi.SLMPClient.StreamDataAsync(System.Int32,System.Int32)">
             <summary>
             Read and Write data as async.
             </summary>
             <param name="writeLenght">writeLenght</param>
             <param name="readLenght">readLenght</param>
-            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
-        </member>
-        <member name="M:dotPLC.Mitsubishi.SLMPClient.Reconnect">
-            <summary>
-            Auto-Reconnect
-            </summary>
             <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
         </member>
         <member name="M:dotPLC.Mitsubishi.SLMPClient.SettingDevice(System.String,System.Byte@,System.Byte@,System.Byte@,System.Byte@)">
@@ -1306,7 +1766,7 @@
             <param name="high_num">high_num</param>
             <returns>index</returns>
         </member>
-        <member name="M:dotPLC.Mitsubishi.SLMPClient.GetNameDevice(System.String)">
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.GetNameDeviceAndCheckAddress(System.String,System.Int32)">
             <summary>
             GetNameDevice
             </summary>
@@ -1327,9 +1787,9 @@
             <param name="sender">sender</param>
             <param name="e">ElapsedEventArgs</param>
         </member>
-        <member name="M:dotPLC.Mitsubishi.SLMPClient._reconnectTimer_Elapsed(System.Object,System.Timers.ElapsedEventArgs)">
+        <member name="M:dotPLC.Mitsubishi.SLMPClient._reconnectLimitTimer_Elapsed(System.Object,System.Timers.ElapsedEventArgs)">
             <summary>
-            _reconnectTimer_Elapsed
+            _reconnectLimitTimer_Elapsed
             </summary>
             <param name="sender">sender</param>
             <param name="e">ElapsedEventArgs</param>
@@ -1360,7 +1820,7 @@
             <param name="port">Port number of the server.</param>
             <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
         </member>
-        <member name="M:dotPLC.Mitsubishi.SLMPClient.Close">
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.Disconnect">
             <summary>
             Close connection to the server.
             </summary>
@@ -1746,17 +2206,6 @@
         <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadDeviceRandom(dotPLC.Mitsubishi.Types.Bit[],dotPLC.Mitsubishi.Types.Word[],dotPLC.Mitsubishi.Types.DWord[],dotPLC.Mitsubishi.Types.Float[])">
             <summary>
             Read multiple values from the server randomly. <see langword="[RECOMMENDED]"></see>
-            <example>
-            <para>For example:</para>
-            <code>
-            - <see cref="T:dotPLC.Mitsubishi.Types.Bit"/>[] bits = <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.Bit"/>[] { <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.Bit"/>("X0"), <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.Bit"/>("M10")};
-            - <see cref="T:dotPLC.Mitsubishi.Types.Word"/>[] words = <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.Word"/>[] { <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.Word"/>("D0"), <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.Word"/>("SD5"), <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.Word"/>("SD10")};
-            - <see cref="T:dotPLC.Mitsubishi.Types.DWord"/>[] dwords = <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.DWord"/>[] { <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.DWord"/>("D20"), <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.DWord"/>("SD20")};
-            - <see cref="T:dotPLC.Mitsubishi.Types.Float"/>[] floats = <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.Float"/>[] { <see href="new"/> <see cref="T:dotPLC.Mitsubishi.Types.Float"/>("D30")};
-            ReadDeviceRandom(null, words, null, floats);
-            ReadDeviceRandom(bits, words, dwords, floats);
-            </code>
-            </example>
             </summary>
             <param name="bits"><see cref="T:dotPLC.Mitsubishi.Types.Bit"/> values to be read.</param>
             <param name="words"><see cref="T:dotPLC.Mitsubishi.Types.Word"/> values to be read.</param>
@@ -1899,6 +2348,39 @@
             <param name="size">Number of text to be read.</param>
             <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
             Value is text of the specified size.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDevice``1(System.String,``0)">
+            <summary>
+            Write a single value to the server.
+            </summary>
+            <typeparam name="T">The data type of value.</typeparam>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="value">A single value to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceBlock``1(System.String,``0[])">
+            <summary>
+            Write multiple values to the server in a batch. 
+            </summary>
+            <typeparam name="T">The data type of value. (EX: <see cref="T:System.Boolean"></see>, <see cref="T:System.Int16"/>, <see cref="T:System.Single"/>, etc.)</typeparam>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="values">Values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadDevice``1(System.String)">
+            <summary>
+            Read a single value from the server.
+            </summary>
+            <typeparam name="T">The data type of value. (EX: <see cref="T:System.Boolean"></see>, <see cref="T:System.Int16"/>, <see cref="T:System.Single"/>, etc.)</typeparam>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <returns>Returned <typeparamref name="T"/> value.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPClient.ReadDeviceBlock``1(System.String,System.Int32)">
+            <summary>
+            Read multiple values from the server in a batch.
+            </summary>
+            <typeparam name="T">The data type of value. (EX: <see cref="T:System.Boolean"></see>, <see cref="T:System.Int16"/>, <see cref="T:System.Single"/>, etc.)</typeparam>
+            <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned <typeparamref name="T"/>[] values.</returns>
         </member>
         <member name="M:dotPLC.Mitsubishi.SLMPClient.WriteDeviceSubAsync(System.String,System.Boolean)">
             <summary>
@@ -2278,6 +2760,13 @@
             </summary>
             <param name="device">Device.</param>
             <returns>Array coil.</returns>
+        </member>
+        <member name="M:dotPLC.Mitsubishi.SLMPServer.ValidateIPv4(System.String)">
+            <summary>
+            validating an IP Address
+            </summary>
+            <param name="ipString">Ip-address.</param>
+            <returns>Validate if true, Invalidate if false.</returns>
         </member>
         <member name="M:dotPLC.Mitsubishi.SLMPServer.GetRegisters(System.Byte)">
             <summary>
@@ -2904,6 +3393,605 @@
         <member name="P:dotPLC.Mitsubishi.Types.Word.ValueU">
             <summary>
             Gets or sets [unsigned 16-bit] value of device.
+            </summary>
+        </member>
+        <member name="T:dotPLC.Modbus.Exceptions.ModbusException">
+            <summary>
+            Exception to be thrown if Modbus Server returns error code "Function Code not executed (0x04)"
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.ModbusException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.StartingAddressInvalidException"></see> class.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.ModbusException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.StartingAddressInvalidException"></see> class with the name of the parameter that causes this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.ModbusException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.StartingAddressInvalidException"></see> class with a specified error message and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.ModbusException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.StartingAddressInvalidException"></see> class using the specified serialization data and context.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to be used for deserialization.</param>
+            <param name="context">The destination to be used for deserialization.</param>
+        </member>
+        <member name="T:dotPLC.Modbus.Exceptions.SocketNotOpenedException">
+            <summary>
+             The exception thrown when tcp client not opened.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.SocketNotOpenedException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.SocketNotOpenedException"></see> class.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.SocketNotOpenedException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.SocketNotOpenedException"></see> class with the name of the parameter that causes this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.SocketNotOpenedException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.SocketNotOpenedException"></see> class with a specified error message and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.SocketNotOpenedException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.SocketNotOpenedException"></see> class using the specified serialization data and context.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to be used for deserialization.</param>
+            <param name="context">The destination to be used for deserialization.</param>
+        </member>
+        <member name="T:dotPLC.Modbus.Exceptions.SerialPortNotOpenedException">
+             <summary>
+            Represents errors that occur when serial port is not opened
+             </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.SerialPortNotOpenedException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.SerialPortNotOpenedException"></see> class.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.SerialPortNotOpenedException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.SerialPortNotOpenedException"></see> class with the name of the parameter that causes this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.SerialPortNotOpenedException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.SerialPortNotOpenedException"></see> class with a specified error message and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.SerialPortNotOpenedException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.SerialPortNotOpenedException"></see> class using the specified serialization data and context.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to be used for deserialization.</param>
+            <param name="context">The destination to be used for deserialization.</param>
+        </member>
+        <member name="T:dotPLC.Modbus.Exceptions.ConnectionException">
+            <summary>
+            The exception that is thrown when connection to the server modbus failed.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.ConnectionException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.ConnectionException"></see> class.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.ConnectionException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.ConnectionException"></see> class with the name of the parameter that causes this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.ConnectionException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.ConnectionException"></see> class with a specified error message and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.ConnectionException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.ConnectionException"></see> class using the specified serialization data and context.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to be used for deserialization.</param>
+            <param name="context">The destination to be used for deserialization.</param>
+        </member>
+        <member name="T:dotPLC.Modbus.Exceptions.FunctionCodeNotSupportedException">
+            <summary>
+            Exception to be thrown if Modbus Server returns error code "Function code not supported"
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.FunctionCodeNotSupportedException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.FunctionCodeNotSupportedException"></see> class.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.FunctionCodeNotSupportedException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.FunctionCodeNotSupportedException"></see> class with the name of the parameter that causes this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.FunctionCodeNotSupportedException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.FunctionCodeNotSupportedException"></see> class with a specified error message and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.FunctionCodeNotSupportedException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.FunctionCodeNotSupportedException"></see> class using the specified serialization data and context.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to be used for deserialization.</param>
+            <param name="context">The destination to be used for deserialization.</param>
+        </member>
+        <member name="T:dotPLC.Modbus.Exceptions.SizeInvalidException">
+            <summary>
+            Exception to be thrown if Modbus Server returns error code "Size invalid"
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.SizeInvalidException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.SizeInvalidException"></see> class.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.SizeInvalidException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.SizeInvalidException"></see> class with the name of the parameter that causes this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.SizeInvalidException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.SizeInvalidException"></see> class with a specified error message and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.SizeInvalidException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.SizeInvalidException"></see> class using the specified serialization data and context.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to be used for deserialization.</param>
+            <param name="context">The destination to be used for deserialization.</param>
+        </member>
+        <member name="T:dotPLC.Modbus.Exceptions.StartingAddressInvalidException">
+            <summary>
+            Exception to be thrown if Modbus Server returns error code "starting adddress and quantity invalid"
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.StartingAddressInvalidException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.StartingAddressInvalidException"></see> class.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.StartingAddressInvalidException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.StartingAddressInvalidException"></see> class with the name of the parameter that causes this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.StartingAddressInvalidException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.StartingAddressInvalidException"></see> class with a specified error message and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.StartingAddressInvalidException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.StartingAddressInvalidException"></see> class using the specified serialization data and context.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to be used for deserialization.</param>
+            <param name="context">The destination to be used for deserialization.</param>
+        </member>
+        <member name="T:dotPLC.Modbus.Exceptions.CRCCheckFailedException">
+            <summary>
+            Exception to be thrown if CRC Check failed
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.CRCCheckFailedException.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.CRCCheckFailedException"></see> class.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.CRCCheckFailedException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.CRCCheckFailedException"></see> class with the name of the parameter that causes this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.CRCCheckFailedException.#ctor(System.String,System.Exception)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.CRCCheckFailedException"></see> class with a specified error message and a reference to the inner exception that is the cause of this exception.
+            </summary>
+            <param name="message">The error message that explains the reason for the exception.</param>
+            <param name="innerException">The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic) if no inner exception is specified.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.Exceptions.CRCCheckFailedException.#ctor(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.Exceptions.CRCCheckFailedException"></see> class using the specified serialization data and context.
+            </summary>
+            <param name="info">The <see cref="T:System.Runtime.Serialization.SerializationInfo"></see> to be used for deserialization.</param>
+            <param name="context">The destination to be used for deserialization.</param>
+        </member>
+        <member name="T:dotPLC.Modbus.ModbusRtuClient">
+            <summary>
+            Provides client connection for Modbus RTU.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.ModbusRtuClient"></see> class.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.ModbusRtuClient"></see> class which determines the serial port.
+            </summary>
+            <param name="serialPort">The serial port.</param>
+        </member>
+        <member name="F:dotPLC.Modbus.ModbusRtuClient._queue">
+            <summary>
+            _queue
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.CheckAndThrowExceptionCode(System.Byte[],System.Byte,System.Int32,System.Boolean)">
+            <summary>
+            CheckAndThrowExceptionCode
+            </summary>
+            <param name="buffer">buffer</param>
+            <param name="address">address</param>
+            <param name="crcCount">crcCount</param>
+            <param name="isDataReceived">isDataReceived</param>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.ReadCoils(System.Int32,System.Int32)">
+            <summary>
+            Read Coils from a slave (FC01).
+            </summary>
+            <param name="startingAddress">First address to be read.</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned <see cref="T:System.Boolean"/>[] values.</returns>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.ReadDiscreteInputs(System.Int32,System.Int32)">
+            <summary>
+            Read Discrete Inputs from a slave (FC02).
+            </summary>
+            <param name="startingAddress">First address to be read.</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned <see cref="T:System.Boolean"/>[] values.</returns>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.ReadHoldingRegisters(System.Int32,System.Int32)">
+            <summary>
+            Read Holding Registers from a slave (FC03).
+            </summary>
+            <param name="startingAddress">First address to be read.</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned <see cref="T:System.Int16"/>[] values.</returns>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.ReadInputRegisters(System.Int32,System.Int32)">
+            <summary>
+            Read Input Registers from a slave (FC04).
+            </summary>
+            <param name="startingAddress">First address to be read.</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned <see cref="T:System.Int16"/>[] values.</returns>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.ReadWriteMultipleRegisters(System.Int32,System.Int32,System.Int32,System.Int16[])">
+            <summary>
+            Read/Write Multiple Registers to a slave (FC23).
+            </summary>
+            <param name="startingAddressRead">First address to be read.</param>
+            <param name="sizeRead">Number of values to be read.</param>
+            <param name="startingAddressWrite">First address to be written.</param>
+            <param name="values">Values to be written.</param>
+            <returns>Returned <see cref="T:System.Int16"/>[] values.</returns>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.WriteMultipleCoils(System.Int32,System.Boolean[])">
+            <summary>
+            Write Multiple Coils to a slave (FC15).
+            </summary>
+            <param name="startingAddress">First address to be written.</param>
+            <param name="values">Values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.WriteMultipleRegisters(System.Int32,System.Int16[])">
+            <summary>
+            Write Multiple Registers to a slave (FC16).
+            </summary>
+            <param name="startingAddress">First address to be written.</param>
+            <param name="values">Values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.WriteSingleCoil(System.Int32,System.Boolean)">
+            <summary>
+            Write Single Coil to a slave (FC05).
+            </summary>
+            <param name="startingAddress">Address to be written.</param>
+            <param name="value">A single value to be written.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.WriteSingleRegister(System.Int32,System.Int16)">
+            <summary>
+            Write Single Register to a slave (FC06).
+            </summary>
+            <param name="startingAddress">First address to be written.</param>
+            <param name="value">A value to be written.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.SetupBuffer">
+            <summary>
+            SetupBuffer
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.CheckModbusPacket(System.Byte[],System.Int32)">
+            <summary>
+            CheckModbusPacket
+            </summary>
+            <param name="readBuffer">readBuffer</param>
+            <param name="length">length</param>
+            <returns>bool</returns>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.DataReceivedHandler(System.Object,System.IO.Ports.SerialDataReceivedEventArgs)">
+            <summary>
+            DataReceivedHandler
+            </summary>
+            <param name="sender">sender</param>
+            <param name="e">e</param>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.ReadCoilsAsync(System.Int32,System.Int32)">
+            <summary>
+            Read Coils from a slave as an asynchronous operation (FC01).
+            </summary>
+            <param name="startingAddress">First address to be read.</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"></see> is <see cref="T:System.Boolean"></see>[].</returns>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.ReadDiscreteInputsAsync(System.Int32,System.Int32)">
+            <summary>
+            Read Discrete Inputs from a slave as an asynchronous operation (FC02).
+            </summary>
+            <param name="startingAddress">First address to be read.</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"></see> is <see cref="T:System.Boolean"></see>[].</returns>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.ReadHoldingRegistersAsync(System.Int32,System.Int32)">
+            <summary>
+            Read Holding Registers from a slave as an asynchronous operation (FC03).
+            </summary>
+            <param name="startingAddress">First address to be read.</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"></see> is <see cref="T:System.Int16"></see>[].</returns>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.ReadInputRegistersAsync(System.Int32,System.Int32)">
+            <summary>
+            Read Input Registers from a slave as an asynchronous operation (FC04).
+            </summary>
+            <param name="startingAddress">First address to be read.</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"></see> is <see cref="T:System.Int16"></see>[].</returns>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.ReadWriteMultipleRegistersAsync(System.Int32,System.Int32,System.Int32,System.Int16[])">
+            <summary>
+            Read/Write Multiple Registers to a slave as an asynchronous operation (FC23).
+            </summary>
+            <param name="startingAddressRead">First address to be read.</param>
+            <param name="sizeRead">Number of values to be read.</param>
+            <param name="startingAddressWrite">First address to be written.</param>
+            <param name="values">Values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task`1"></see> represents an asynchronous operation that can return a value.
+            <see href="TResult"></see> is <see cref="T:System.Int16"></see>[].</returns>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.WriteMultipleCoilsAsync(System.Int32,System.Boolean[])">
+            <summary>
+            Write Multiple Coils to a slave as an asynchronous operation (FC15).
+            </summary>
+            <param name="startingAddress">First address to be written.</param>
+            <param name="values">Values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.WriteMultipleRegistersAsync(System.Int32,System.Int16[])">
+            <summary>
+            Write Multiple Registers to a slave as an asynchronous operation (FC16).
+            </summary>
+            <param name="startingAddress">First address to be written.</param>
+            <param name="values">Values to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.WriteSingleCoilAsync(System.Int32,System.Boolean)">
+            <summary>
+            Write Single Coil to a slave as an asynchronous operation (FC05).
+            </summary>
+            <param name="startingAddress">Address to be written.</param>
+            <param name="value">A single value to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusRtuClient.WriteSingleRegisterAsync(System.Int32,System.Int16)">
+            <summary>
+            Write Single Register to a slave as an asynchronous operation (FC06).
+            </summary>
+            <param name="startingAddress">First address to be written.</param>
+            <param name="value">A value to be written.</param>
+            <returns>Returns <see cref="T:System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        </member>
+        <member name="T:dotPLC.Modbus.ModbusTcpClient">
+            <summary>
+            Provides client connection for Modbus TCP.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusTcpClient.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.ModbusTcpClient"></see> class.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusTcpClient.#ctor(System.String,System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:dotPLC.Modbus.ModbusTcpClient"></see> class which determines the ip-address and the port number.
+            </summary>
+            <param name="ipaddress">IP Address of the server.</param>
+            <param name="port">Port number of the server.</param>
+        </member>
+        <member name="F:dotPLC.Modbus.ModbusTcpClient._transactionID">
+            <summary>
+            _transactionID
+            </summary>
+        </member>
+        <member name="P:dotPLC.Modbus.ModbusTcpClient.UnitIdentifier">
+            <summary>
+            Gets or sets the unit identifier.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusTcpClient.CheckAndThrowExceptionCode(System.Byte[],System.Byte)">
+            <summary>
+            CheckAndThrowExceptionCode
+            </summary>
+            <param name="buffer">buffer</param>
+            <param name="address">address</param>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusTcpClient.StreamData(System.Int32,System.Int32)">
+            <summary>
+            Write/Read stream data
+            </summary>
+            <param name="writeLenght">number of write lenght</param>
+            <param name="readLenght">number of read lenght</param>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusTcpClient.Disconnect">
+            <summary>
+            Close connection to the server.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusTcpClient.Connect">
+            <summary>
+            Establish connection to the server.
+            </summary>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusTcpClient.Connect(System.String,System.Int32)">
+            <summary>
+            Establish connection to the server using the specified ip-address and port number.
+            </summary>
+            <param name="ipaddress">IP Address of the server.</param>
+            <param name="port">Port number of the server.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusTcpClient.ReadCoils(System.Int32,System.Int32)">
+            <summary>
+            Read Coils from a slave (FC01).
+            </summary>
+            <param name="startingAddress">First address to be read.</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned <see cref="T:System.Boolean"/>[] values.</returns>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusTcpClient.ReadDiscreteInputs(System.Int32,System.Int32)">
+            <summary>
+            Read Discrete Inputs from a slave (FC02).
+            </summary>
+            <param name="startingAddress">First address to be read.</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned <see cref="T:System.Boolean"/>[] values.</returns>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusTcpClient.ReadHoldingRegisters(System.Int32,System.Int32)">
+            <summary>
+            Read Holding Registers from a slave (FC03).
+            </summary>
+            <param name="startingAddress">First address to be read.</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned <see cref="T:System.Int16"/>[] values.</returns>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusTcpClient.ReadInputRegisters(System.Int32,System.Int32)">
+            <summary>
+            Read Input Registers from a slave (FC04).
+            </summary>
+            <param name="startingAddress">First address to be read.</param>
+            <param name="size">Number of values to be read.</param>
+            <returns>Returned <see cref="T:System.Int16"/>[] values.</returns>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusTcpClient.ReadWriteMultipleRegisters(System.Int32,System.Int32,System.Int32,System.Int16[])">
+            <summary>
+            Read/Write Multiple Registers to a slave (FC23).
+            </summary>
+            <param name="startingAddressRead">First address to be read.</param>
+            <param name="sizeRead">Number of values to be read.</param>
+            <param name="startingAddressWrite">First address to be written.</param>
+            <param name="values">Values to be written.</param>
+            <returns>Returned <see cref="T:System.Int16"/>[] values.</returns>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusTcpClient.WriteMultipleCoils(System.Int32,System.Boolean[])">
+            <summary>
+            Write Multiple Coils to a slave (FC15).
+            </summary>
+            <param name="startingAddress">First address to be written.</param>
+            <param name="values">Values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusTcpClient.WriteMultipleRegisters(System.Int32,System.Int16[])">
+            <summary>
+            Write Multiple Registers to a slave (FC16).
+            </summary>
+            <param name="startingAddress">First address to be written.</param>
+            <param name="values">Values to be written.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusTcpClient.WriteSingleCoil(System.Int32,System.Boolean)">
+            <summary>
+            Write Single Coil to a slave (FC05).
+            </summary>
+            <param name="startingAddress">Address to be written.</param>
+            <param name="value">A single value to be written.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusTcpClient.WriteSingleRegister(System.Int32,System.Int16)">
+            <summary>
+            Write Single Register to a slave (FC06).
+            </summary>
+            <param name="startingAddress">First address to be written.</param>
+            <param name="value">A value to be written.</param>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusTcpClient.SettingDevice(System.String,System.Byte@,System.Byte@,System.Byte@,System.Byte@)">
+            <summary>
+            SettingDevice
+            </summary>
+            <param name="label">label</param>
+            <param name="device">device</param>
+            <param name="low_num">low_num</param>
+            <param name="mid_num">mid_num</param>
+            <param name="high_num">high_num</param>
+            <returns></returns>
+        </member>
+        <member name="M:dotPLC.Modbus.ModbusTcpClient.SetupBuffer">
+            <summary>
+            SetupBuffer
+            </summary>
+        </member>
+        <member name="T:dotPLC.Properties.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Properties.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:dotPLC.Properties.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
             </summary>
         </member>
     </members>

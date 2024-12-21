@@ -1,4 +1,5 @@
 ﻿using dotPLC.Initial;
+using dotPLC.Mitsubishi.Exceptions;
 using dotPLC.Mitsubishi.Types;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ namespace dotPLC.Mitsubishi
     /// <summary>
     /// Provides client connection for TCP network service to connect to GX Simulator3.
     /// </summary>
-    public sealed class Simulator3 : Ethernet
+    public sealed class Simulator3 : Ethernet, IMitsubishiFuntion
     {
         /// <summary>
         /// Data to ping to Gx Simulator3.
@@ -75,19 +76,19 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         public Simulator3()
         {
-            IPAddress = "127.0.0.1";
+            _iPAddress = "127.0.0.1";
             Port = 5511;
         }
         /// <summary>
-        /// Port number of GX Simulator3, default is 5511.
+        /// Gets the port number of GX Simulator3, default is 5511.
         /// </summary>
-        public int Port { get; } = 5511;
+        public new int Port { get; } = 5511;
         /// <summary>
         /// Write a single value to the server.
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="value">A single value to be written.</param>
-        internal override void WriteDevice(string label, bool value)
+        internal  void WriteDevice(string label, bool value)
         {
             SendBuffer[51] = 0x00;
             SendBuffer[52] = 0x00;
@@ -119,7 +120,7 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="value">A single value to be written.</param>
-        internal override void WriteDevice(string label, short value)
+        internal  void WriteDevice(string label, short value)
         {
             SendBuffer[51] = 0x00;
             SendBuffer[52] = 0x00;
@@ -149,7 +150,7 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="value">A single value to be written.</param>
-        internal override void WriteDevice(string label, int value)
+        internal  void WriteDevice(string label, int value)
         {
             SendBuffer[51] = 0x00;
             SendBuffer[52] = 0x00;
@@ -177,7 +178,7 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="value">A single value to be written.</param>
-        internal override void WriteDevice(string label, float value)
+        internal  void WriteDevice(string label, float value)
         {
             SendBuffer[51] = 0x00;
             SendBuffer[52] = 0x00;
@@ -205,7 +206,7 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="values">Values to be written.</param>
-        internal override void WriteDeviceBlock(string label, params short[] values)
+        internal  void WriteDeviceBlock(string label, params short[] values)
         {
             SendBuffer[51] = 0x00;
             SendBuffer[52] = 0x00;
@@ -242,7 +243,7 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="values">Values to be written.</param>
-        internal override void WriteDeviceBlock(string label, params int[] values)
+        internal  void WriteDeviceBlock(string label, params int[] values)
         {
             int num1 = values != null ? values.Length : throw new ArgumentNullException(nameof(values), "Array data must be non-null");
             ++SendBuffer[2];
@@ -279,7 +280,7 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="values">Values to be written.</param>
-        internal override void WriteDeviceBlock(string label, params float[] values)
+        internal  void WriteDeviceBlock(string label, params float[] values)
         {
             int num1 = values != null ? values.Length : throw new ArgumentNullException(nameof(values), "Array data must be non-null");
             ++SendBuffer[2];
@@ -316,7 +317,7 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="values">Values to be written.</param>
-        internal override void WriteDeviceBlock(string label, params bool[] values)
+        internal  void WriteDeviceBlock(string label, params bool[] values)
         {
             SendBuffer[51] = 0x00;
             SendBuffer[52] = 0x00;
@@ -365,7 +366,7 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="text">Text to be written.</param>
-        public override void WriteText(string label, string text)
+        public  void WriteText(string label, string text)
         {
             if (text.Length % 2 != 0)
             {
@@ -425,7 +426,7 @@ namespace dotPLC.Mitsubishi
         /// Write multiple values to the server randomly.
         /// </summary>
         /// <param name="words"><see cref="dotPLC.Mitsubishi.Types.Word"/> values to be written.</param>
-        public override void WriteDeviceRandom(params Word[] words)
+        public  void WriteDeviceRandom(params Word[] words)
         {
             SendBuffer[51] = 0x00;
             SendBuffer[52] = 0x00;
@@ -468,7 +469,7 @@ namespace dotPLC.Mitsubishi
         /// Write multiple values to the server randomly.
         /// </summary>
         /// <param name="dwords"><see cref="dotPLC.Mitsubishi.Types.DWord"/> values to be written.</param>
-        public override void WriteDeviceRandom(params DWord[] dwords)
+        public  void WriteDeviceRandom(params DWord[] dwords)
         {
             SendBuffer[51] = 0x00;
             SendBuffer[52] = 0x00;
@@ -522,7 +523,7 @@ namespace dotPLC.Mitsubishi
         /// Write multiple values to the server randomly.
         /// </summary>
         /// <param name="floats"><see cref="dotPLC.Mitsubishi.Types.Float"/> values to be written.</param>
-        public override void WriteDeviceRandom(params Float[] floats)
+        public  void WriteDeviceRandom(params Float[] floats)
         {
             SendBuffer[51] = 0x00;
             SendBuffer[52] = 0x00;
@@ -576,7 +577,7 @@ namespace dotPLC.Mitsubishi
         /// Write multiple values to the server randomly.
         /// </summary>
         /// <param name="bits"><see cref="dotPLC.Mitsubishi.Types.Bit"/> values to be written.</param>
-        public override void WriteDeviceRandom(params Bit[] bits)
+        public  void WriteDeviceRandom(params Bit[] bits)
         {
             SendBuffer[51] = 0x00;
             SendBuffer[52] = 0x00;
@@ -814,7 +815,7 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <returns>Returned value.</returns>
-        internal override bool ReadSingleCoil(string label)
+        internal  bool ReadSingleCoil(string label)
         {
             SendBuffer[51] = 0x00;
             SendBuffer[52] = 0x00;
@@ -845,7 +846,7 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <returns>Returned value.</returns>
-        internal override short ReadSingleRegister(string label)
+        internal  short ReadSingleRegister(string label)
         {
             SendBuffer[51] = 0x00;
             SendBuffer[52] = 0x00;
@@ -873,7 +874,7 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <returns>Returned value.</returns>
-        internal override int ReadSingleDouble(string label)
+        internal  int ReadSingleDouble(string label)
         {
             SendBuffer[51] = 0x00;
             SendBuffer[52] = 0x00;
@@ -898,7 +899,7 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <returns>Returned value.</returns>
-        internal override float ReadSingleFloat(string label)
+        internal  float ReadSingleFloat(string label)
         {
             SendBuffer[51] = 0x00;
             SendBuffer[52] = 0x00;
@@ -924,14 +925,14 @@ namespace dotPLC.Mitsubishi
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="size">Number of values to be read.</param>
         /// <returns>Returned values.</returns>
-        internal override bool[] ReadMultipleCoils(string label, int size) => ConvertMultipleWordToBoolArray(ReadMultipleRegisters(label, size), size);
+        internal  bool[] ReadMultipleCoils(string label, int size) => ConvertMultipleWordToBoolArray(ReadMultipleRegisters(label, size), size);
         /// <summary>
         /// Read multiple values from the server in a batch.
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="size">Number of values to be read.</param>
         /// <returns>Returned values.</returns>
-        internal override short[] ReadMultipleRegisters(string label, int size)
+        internal  short[] ReadMultipleRegisters(string label, int size)
         {
             ++SendBuffer[2];
             SendBuffer[51] = 0x00;
@@ -975,7 +976,7 @@ namespace dotPLC.Mitsubishi
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="size">Number of values to be read.</param>
         /// <returns>Returned values.</returns>
-        internal override int[] ReadMultipleDoubles(string label, int size)
+        internal  int[] ReadMultipleDoubles(string label, int size)
         {
             ++SendBuffer[2];
             SendBuffer[51] = 0x00;
@@ -1006,7 +1007,7 @@ namespace dotPLC.Mitsubishi
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="size">Number of values to be read.</param>
         /// <returns>Returned values.</returns>
-        internal override float[] ReadMultipleFloats(string label, int size)
+        internal  float[] ReadMultipleFloats(string label, int size)
         {
             ++SendBuffer[2];
             SendBuffer[51] = 0x00;
@@ -1037,7 +1038,7 @@ namespace dotPLC.Mitsubishi
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="size">Number of text to be read.</param>
         /// <returns>Returns text of the specified size.</returns>
-        public override string ReadText(string label, int size)
+        public  string ReadText(string label, int size)
         {
             ++SendBuffer[2];
             SendBuffer[51] = 0x00;
@@ -1067,7 +1068,7 @@ namespace dotPLC.Mitsubishi
         /// Read the model character string of the server.
         /// </summary>
         /// <returns>The model character string of the server.</returns>
-        public override string GetCpuName()
+        public  string GetCpuName()
         {
             SendBuffer[51] = 0x00;
             SendBuffer[52] = 0x00;
@@ -1086,7 +1087,7 @@ namespace dotPLC.Mitsubishi
         /// Read multiple values from the server randomly.
         /// </summary>
         /// <param name="bits"><see cref="dotPLC.Mitsubishi.Types.Bit"/> values to be read.</param>
-        public override void ReadDeviceRandom(params Bit[] bits)
+        public  void ReadDeviceRandom(params Bit[] bits)
         {
             SendBuffer[51] = 0x00;
             SendBuffer[52] = 0x00;
@@ -1125,7 +1126,7 @@ namespace dotPLC.Mitsubishi
         /// Read multiple values from the server randomly.
         /// </summary>
         /// <param name="words"><see cref="dotPLC.Mitsubishi.Types.Word"/> values to be read.</param>
-        public override void ReadDeviceRandom(params Word[] words)
+        public  void ReadDeviceRandom(params Word[] words)
         {
             SendBuffer[51] = 0x00;
             SendBuffer[52] = 0x00;
@@ -1162,7 +1163,7 @@ namespace dotPLC.Mitsubishi
         /// Read multiple values from the server randomly.
         /// </summary>
         /// <param name="dwords"><see cref="dotPLC.Mitsubishi.Types.DWord"/> values to be read.</param>
-        public override void ReadDeviceRandom(params DWord[] dwords)
+        public  void ReadDeviceRandom(params DWord[] dwords)
         {
             SendBuffer[51] = 0x00;
             SendBuffer[52] = 0x00;
@@ -1210,7 +1211,7 @@ namespace dotPLC.Mitsubishi
         /// Read multiple values from the server randomly.
         /// </summary>
         /// <param name="floats"><see cref="dotPLC.Mitsubishi.Types.Float"/> values to be read.</param>
-        public override void ReadDeviceRandom(params Float[] floats)
+        public  void ReadDeviceRandom(params Float[] floats)
         {
             SendBuffer[51] = 0x00;
             SendBuffer[52] = 0x00;
@@ -1261,7 +1262,7 @@ namespace dotPLC.Mitsubishi
         /// <param name="words"><see cref="dotPLC.Mitsubishi.Types.Word"/> values to be read.</param>
         /// <param name="dwords"><see cref="dotPLC.Mitsubishi.Types.DWord"/> values to be read.</param>
         /// <param name="floats"><see cref="dotPLC.Mitsubishi.Types.Float"/> values to be read.</param>
-        public override void ReadDeviceRandom(Bit[] bits = null, Word[] words = null, DWord[] dwords = null, Float[] floats = null)
+        public  void ReadDeviceRandom(Bit[] bits = null, Word[] words = null, DWord[] dwords = null, Float[] floats = null)
         {
             SendBuffer[51] = 0x00;
             SendBuffer[52] = 0x00;
@@ -1403,7 +1404,7 @@ namespace dotPLC.Mitsubishi
             _tcpclient = new TcpClient();
             try
             {
-                _tcpclient.ConnectAsync(IPAddress, Port).Wait(ReceiveTimeout);
+                _tcpclient.ConnectAsync(_iPAddress, Port).Wait(ReadTimeout);
             }
             catch
             {
@@ -1424,7 +1425,7 @@ namespace dotPLC.Mitsubishi
         /// <summary>
         /// Close connection to GX Simulator3.
         /// </summary>
-        public override void Close()
+        public override void Disconnect()
         {
             if (_tcpclient != null)
                 _tcpclient.Close();
@@ -1502,13 +1503,16 @@ namespace dotPLC.Mitsubishi
         protected internal override int SettingDevice(string label, out byte device, out byte low_num, out byte mid_num, out byte high_num)
         {
             label = sWhitespace.Replace(label, "").ToUpper();
-            int num1;
+            int device_num;
             if (label[0] == 'S' && label[1] == 'B')
             {
                 label = label.Substring(2);
                 device = 0x15; //0x021
-                num1 = int.Parse(label, NumberStyles.HexNumber);
-                byte[] bytes = BitConverter.GetBytes(num1);
+                if (!int.TryParse(label, NumberStyles.HexNumber, null, out device_num) || device_num > 0x7FFF)
+                {
+                    throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                }
+                byte[] bytes = BitConverter.GetBytes(device_num);
                 low_num = bytes[0];
                 mid_num = bytes[1];
                 high_num = bytes[2];
@@ -1517,18 +1521,24 @@ namespace dotPLC.Mitsubishi
             {
                 label = label.Substring(2);
                 device = 0x31;
-                num1 = int.Parse(label, NumberStyles.HexNumber);
-                byte[] bytes = BitConverter.GetBytes(num1);
+                if (!int.TryParse(label, NumberStyles.HexNumber, null, out device_num) || device_num > 0x7FFF)
+                {
+                    throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                }
+                byte[] bytes = BitConverter.GetBytes(device_num);
                 low_num = bytes[0];
                 mid_num = bytes[1];
                 high_num = bytes[2];
             }
-            else if (label[0] == 'B')
+            else if (label[0] == 'B' && label[1] != 'L')
             {
                 label = label.Substring(1);
                 device = 0x14;
-                num1 = int.Parse(label, NumberStyles.HexNumber);
-                byte[] bytes = BitConverter.GetBytes(num1);
+                if (!int.TryParse(label, NumberStyles.HexNumber, null, out device_num) || device_num > 0x7FFF)
+                {
+                    throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                }
+                byte[] bytes = BitConverter.GetBytes(device_num);
                 low_num = bytes[0];
                 mid_num = bytes[1];
                 high_num = bytes[2];
@@ -1537,8 +1547,11 @@ namespace dotPLC.Mitsubishi
             {
                 label = label.Substring(1);
                 device = 0x30; //0x048;
-                num1 = int.Parse(label, NumberStyles.HexNumber);
-                byte[] bytes = BitConverter.GetBytes(num1);
+                if (!int.TryParse(label, NumberStyles.HexNumber, null, out device_num) || device_num > 0x7FFF)
+                {
+                    throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                }
+                byte[] bytes = BitConverter.GetBytes(device_num);
                 low_num = bytes[0];
                 mid_num = bytes[1];
                 high_num = bytes[2];
@@ -1547,8 +1560,12 @@ namespace dotPLC.Mitsubishi
             {
                 label = label.Substring(1);
                 device = 0x10; //0x10; //0x016
-                num1 = ConvertOctalToDecimal(int.Parse(label));
-                byte[] bytes = BitConverter.GetBytes(num1);
+                if (!int.TryParse(label, out device_num) || device_num > 1777)
+                {
+                    throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                }
+                device_num = ConvertOctalToDecimal(device_num);
+                byte[] bytes = BitConverter.GetBytes(device_num);
                 low_num = bytes[0];
                 mid_num = bytes[1];
                 high_num = bytes[2];
@@ -1557,99 +1574,162 @@ namespace dotPLC.Mitsubishi
             {
                 label = label.Substring(1);
                 device = 0x11;
-                num1 = ConvertOctalToDecimal(int.Parse(label));
-                byte[] bytes = BitConverter.GetBytes(num1);
+                if (!int.TryParse(label, out device_num) || device_num > 1777)
+                {
+                    throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                }
+                device_num = ConvertOctalToDecimal(device_num);
+                byte[] bytes = BitConverter.GetBytes(device_num);
                 low_num = bytes[0];
                 mid_num = bytes[1];
                 high_num = bytes[2];
             }
             else
             {
-                int num2 = 0;
+                int device_num_temp = 0;
                 for (int index = 0; index < label.Length; ++index)
                 {
                     if (label[index] >= '0' && label[index] <= '9')
                     {
-                        num2 = index;
+                        device_num_temp = index;
                         break;
                     }
                 }
-                device = GetNameDevice(label.Substring(0, num2));
-                num1 = int.Parse(label.Substring(num2));
-                byte[] bytes = BitConverter.GetBytes(num1);
+                if (!int.TryParse(label.Substring(device_num_temp), out device_num))
+                {
+                    throw new InvalidDeviceLabelNameException("The label name of device is invalid.");
+                }
+                device = GetNameDeviceAndCheckAddress(label.Substring(0, device_num_temp),device_num);
+                byte[] bytes = BitConverter.GetBytes(device_num);
                 low_num = bytes[0];
                 mid_num = bytes[1];
                 high_num = bytes[2];
             }
-            return num1;
+            return device_num;
         }
         /// <summary>
         /// Lấy byte của tên device
         /// </summary>
         /// <param name="device">device name</param>
         /// <returns>byte của device</returns>
-        internal override byte GetNameDevice(string device)
+        internal byte GetNameDeviceAndCheckAddress(string device, int devicenum)
         {
             switch (device)
             {
                 case "B":
+                    if (devicenum > 0x7FFF)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 20;
                 case "BL":
+                    if (devicenum > 31)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 114;
                 case "CC":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 68;
                 case "CN":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 70;
                 case "CS":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 69;
                 case "D":
+                    if (devicenum > 7999)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 32;
                 case "F":
+                    if (devicenum > 32767)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 4;
                 case "L":
+                    if (devicenum > 32767)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 3;
                 case "LCN":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 86;
                 case "LZ":
+                    if (devicenum > 1)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 98;
                 case "M":
+                    if (devicenum > 32767)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 1;
                 case "R":
+                    if (devicenum > 32767)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 39;
                 case "S":
+                    if (devicenum > 4095)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 8;
                 case "SB":
+                    if (devicenum > 0x7FFF)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 21;
                 case "SC":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 72;
                 case "SD":
+                    if (devicenum > 11999)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 33;
                 case "SM":
+                    if (devicenum > 9999)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 2;
                 case "SN":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 74;
                 case "SS":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 73;
                 case "STN":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 74;
                 case "SW":
+                    if (devicenum > 0x7FFF)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 49;
                 case "TC":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 64;
                 case "TN":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 66;
                 case "TS":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 65;
                 case "W":
+                    if (devicenum > 0x7FFF)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 48;
                 case "X":
+                    if (devicenum > 1777)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 16;
                 case "Y":
+                    if (devicenum > 1777)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 17;
                 case "Z":
+                    if (devicenum > 19)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
                     return 96;
                 default:
-                    throw new ArgumentOutOfRangeException("The specified device does not belong to the memory of the PLC");
+                    throw new InvalidDeviceLabelNameException("The label name of device is invalid.");
             }
         }
         /// <summary>
@@ -1753,6 +1833,214 @@ namespace dotPLC.Mitsubishi
             for (int startIndex = 0; startIndex < length; startIndex += 2)
                 byteArray[startIndex / 2] = Convert.ToByte(HexString.Substring(startIndex, 2), 16);
             return byteArray;
+        }
+
+
+        /// <summary>
+        /// Write a single value to the server.
+        /// </summary>
+        /// <typeparam name="T">The data type of value.</typeparam>
+        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+        /// <param name="value">A single value to be written.</param>
+        public void WriteDevice<T>(string label, T value) where T : struct
+        {
+            switch (Type.GetTypeCode(typeof(T)))
+            {
+                case TypeCode.Boolean:
+                    WriteDevice(label, (bool)Convert.ChangeType(value, TypeCode.Boolean));
+                    break;
+                case TypeCode.Int16:
+                    WriteDevice(label, (short)Convert.ChangeType(value, TypeCode.Int16));
+                    break;
+                case TypeCode.UInt16:
+                    WriteDevice(label, (short)(ushort)Convert.ChangeType(value, TypeCode.UInt16));
+                    break;
+                case TypeCode.Int32:
+                    WriteDevice(label, (int)Convert.ChangeType(value, TypeCode.Int32));
+                    break;
+                case TypeCode.UInt32:
+                    WriteDevice(label, (int)(uint)Convert.ChangeType(value, TypeCode.UInt32));
+                    break;
+                case TypeCode.Single:
+                    WriteDevice(label, (float)Convert.ChangeType(value, TypeCode.Single));
+                    break;
+                default:
+                    throw new InvalidDataTypeException("Invalid input data type.");
+            }
+        }
+        /// <summary>
+        /// Write multiple values to the server in a batch. 
+        /// </summary>
+        /// <typeparam name="T">The data type of value. (EX: <see cref="bool"></see>, <see cref="short"/>, <see cref="float"/>, etc.)</typeparam>
+        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+        /// <param name="values">Values to be written.</param>
+        public void WriteDeviceBlock<T>(string label, params T[] values) where T : struct
+        {
+            if (values == null)
+                throw new ArgumentNullException(nameof(values));
+            int length = values.Length;
+            switch (Type.GetTypeCode(typeof(T)))
+            {
+                case TypeCode.Boolean:
+                    {
+                        if (length < 1 || length > 3584) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 3584 points.", nameof(values));
+                        var values_temp = new bool[length];
+                        for (int index = 0; index < length; ++index)
+                            values_temp[index] = (bool)Convert.ChangeType(values[index], TypeCode.Boolean);
+                        WriteDeviceBlock(label, values_temp);
+                        break;
+                    }
+                case TypeCode.Int16:
+                    {
+                        if (length < 1 || length > 960) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 960 points.", nameof(values));
+                        var values_temp = new short[length];
+                        for (int index = 0; index < length; ++index)
+                            values_temp[index] = (short)Convert.ChangeType(values[index], TypeCode.Int16);
+                        WriteDeviceBlock(label, values_temp);
+                        break;
+                    }
+                case TypeCode.UInt16:
+                    {
+                        if (length < 1 || length > 960) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 960 points.", nameof(values));
+                        var values_temp = new short[length];
+                        for (int index = 0; index < length; ++index)
+                            values_temp[index] = (short)(ushort)Convert.ChangeType(values[index], TypeCode.UInt16);
+                        WriteDeviceBlock(label, values_temp);
+                        break;
+                    }
+                case TypeCode.Int32:
+                    {
+                        if (length < 1 || length > 480) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 480 points.", nameof(values));
+                        var values_temp = new int[length];
+                        for (int index = 0; index < length; ++index)
+                            values_temp[index] = (int)Convert.ChangeType(values[index], TypeCode.Int32);
+                        WriteDeviceBlock(label, values_temp);
+                        break;
+                    }
+                case TypeCode.UInt32:
+                    {
+                        if (length < 1 || length > 480) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 480 points.", nameof(values));
+                        var values_temp = new int[length];
+                        for (int index = 0; index < length; ++index)
+                            values_temp[index] = (int)(uint)Convert.ChangeType(values[index], TypeCode.UInt32);
+                        WriteDeviceBlock(label, values_temp);
+                        break;
+                    }
+                case TypeCode.Single:
+                    {
+                        if (length < 1 || length > 480) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 480 points.", nameof(values));
+                        var values_temp = new float[length];
+                        for (int index = 0; index < length; ++index)
+                            values_temp[index] = (float)Convert.ChangeType(values[index], TypeCode.Single);
+                        WriteDeviceBlock(label, values_temp);
+                        break;
+                    }
+                default:
+                    throw new InvalidDataTypeException("Invalid input data type.");
+            }
+        }
+        /// <summary>
+        /// Read multiple values from the server in a batch.
+        /// </summary>
+        /// <typeparam name="T">The data type of value. (EX: <see cref="bool"></see>, <see cref="short"/>, <see cref="float"/>, etc.)</typeparam>
+        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+        /// <param name="size">Number of values to be read.</param>
+        /// <returns>Returned <typeparamref name="T"/>[] values.</returns>
+        public T[] ReadDeviceBlock<T>(string label, int size) where T : struct
+        {
+            T[] results = new T[size];
+            switch (Type.GetTypeCode(typeof(T)))
+            {
+                case TypeCode.Boolean:
+                    {
+                        if (size < 1 || size > 3584) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 3584 points.", nameof(size));
+                        bool[] values = ReadMultipleCoils(label, size);
+                        for (int index = 0; index < size; ++index)
+                            results[index] = (T)Convert.ChangeType(values[index], typeof(T));
+                        return results;
+                    }
+                case TypeCode.Int16:
+                    {
+                        if (size < 1 || size > 960) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 960 points.", nameof(size));
+                        short[] values = ReadMultipleRegisters(label, size);
+                        for (int index = 0; index < size; ++index)
+                            results[index] = (T)Convert.ChangeType(values[index], typeof(T));
+                        return results;
+                    }
+                case TypeCode.UInt16:
+                    {
+                        if (size < 1 || size > 960) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 960 points.", nameof(size));
+                        short[] values = ReadMultipleRegisters(label, size);
+                        for (int index = 0; index < size; ++index)
+                            results[index] = (T)Convert.ChangeType((ushort)values[index], typeof(T));
+                        return results;
+                    }
+                case TypeCode.Int32:
+                    {
+                        if (size < 1 || size > 480) //Page57 (SLMP-Mitsubishi.PDF) 960Word/2=480double
+                            throw new SizeOutOfRangeException("Size must be 1 to 480 points.", nameof(size));
+                        int[] values = ReadMultipleDoubles(label, size);
+                        for (int index = 0; index < size; ++index)
+                            results[index] = (T)Convert.ChangeType(values[index], typeof(T));
+                        return results;
+                    }
+                case TypeCode.UInt32:
+                    {
+                        if (size < 1 || size > 480) //Page57 (SLMP-Mitsubishi.PDF) 960Word/2=480double
+                            throw new SizeOutOfRangeException("Size must be 1 to 480 points.", nameof(size));
+                        int[] values = ReadMultipleDoubles(label, size);
+                        for (int index = 0; index < size; ++index)
+                            results[index] = (T)Convert.ChangeType((uint)values[index], typeof(T));
+                        return results;
+                    }
+                case TypeCode.Single:
+                    {
+                        if (size < 1 || size > 480) //Page57 (SLMP-Mitsubishi.PDF) 960Word/2=480float
+                            throw new SizeOutOfRangeException("Size must be 1 to 480 points.", nameof(size));
+                        float[] values = ReadMultipleFloats(label, size);
+                        for (int index = 0; index < size; ++index)
+                            results[index] = (T)Convert.ChangeType(values[index], typeof(T));
+                        return results;
+                    }
+                default:
+                    throw new InvalidDataTypeException("Data type is not compatible with the PLC.");
+            }
+        }
+
+        /// <summary>
+        /// Read a single value from the server.
+        /// </summary>
+        /// <typeparam name="T">The data type of value. (EX: <see cref="bool"></see>, <see cref="short"/>, <see cref="float"/>, etc.)</typeparam>
+        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+        /// <returns>Returned <typeparamref name="T"/> value.</returns>
+        public T ReadDevice<T>(string label) where T : struct
+        {
+            switch (Type.GetTypeCode(typeof(T)))
+            {
+                case TypeCode.Boolean:
+                    return (T)Convert.ChangeType(ReadSingleCoil(label), typeof(T));
+                case TypeCode.Int16:
+                    return (T)Convert.ChangeType(ReadSingleRegister(label), typeof(T));
+                case TypeCode.UInt16:
+                    return (T)Convert.ChangeType((ushort)ReadSingleRegister(label), typeof(T));
+                case TypeCode.Int32:
+                    return (T)Convert.ChangeType(ReadSingleDouble(label), typeof(T));
+                case TypeCode.UInt32:
+                    return (T)Convert.ChangeType((uint)ReadSingleDouble(label), typeof(T));
+                case TypeCode.Single:
+                    return (T)Convert.ChangeType(ReadSingleFloat(label), typeof(T));
+                default:
+                    throw new InvalidDataTypeException("Invalid input data type.");
+            }
         }
     }
 }

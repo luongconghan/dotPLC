@@ -10,13 +10,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using dotPLC.Mitsubishi.Exceptions;
 
 namespace dotPLC.Mitsubishi
 {
     /// <summary>
     /// Provides client connection for TCP network service via Seamless Message Protocol (SLMP).
     /// </summary>
-    public sealed partial class SLMPClient : Ethernet
+    public sealed partial class SLMPClient : Ethernet, IMitsubishiFuntion, IMitsubishiFunctionAsync
     {
         #region Constructor
         /// <summary>
@@ -34,6 +35,7 @@ namespace dotPLC.Mitsubishi
             _selfTestTimer.Interval = _selfTestCheckInterval;
             _selfTestTimer.Elapsed += new ElapsedEventHandler(_selfTestTimer_Elapsed);
         }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SLMPClient"></see> class which determines the ip-address and the port number.
         /// </summary>
@@ -42,9 +44,11 @@ namespace dotPLC.Mitsubishi
         public SLMPClient(string ipaddress = "127.0.0.1", int port = 502)
          : this()
         {
-            IPAddress = ipaddress;
+            if (!ValidateIPv4(ipaddress)) throw new ArgumentException("Invalid IP address.", nameof(ipaddress));
+            _iPAddress = ipaddress;
             Port = port;
         }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SLMPClient"></see> class which determines AutoReconnect mode.
         /// </summary>
@@ -54,6 +58,7 @@ namespace dotPLC.Mitsubishi
         {
             AutoReconnect = autoReconnect;
         }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SLMPClient"></see> class which determines the ip-address, the port number and AutoReconnect mode.
         /// </summary>
@@ -63,84 +68,224 @@ namespace dotPLC.Mitsubishi
         public SLMPClient(string ipaddress = "127.0.0.1", int port = 502, AutoReconnect autoReconnect = AutoReconnect.None)
           : this(ipaddress, port)
         {
-            IPAddress = ipaddress;
+            if (!ValidateIPv4(ipaddress)) throw new ArgumentException("Invalid IP address.", nameof(ipaddress));
+            _iPAddress = ipaddress;
             Port = port;
             AutoReconnect = autoReconnect;
         }
+
         #endregion Constructor
+
         #region Field
-        /// <summary>
-        /// CancellationTokenSource auto-reconnect
-        /// </summary>
-        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        /// <summary>
-        /// isReconnecting
-        /// </summary>
-        public bool isReconnecting = false;
-        /// <summary>
-        /// _isSafe
-        /// </summary>
-        private int _isSafe = 1;
-        /// <summary>
-        /// _isSafeMethod
-        /// </summary>
-        private int _isSafeMethod = 1;
-        /// <summary>
-        /// _reconnectLimitTimer
-        /// </summary>
-        private System.Timers.Timer _reconnectLimitTimer;
-        /// <summary>
-        /// _breakTimer
-        /// </summary>
-        private System.Timers.Timer _breakTimer;
-        /// <summary>
-        /// _selfTestTimer
-        /// </summary>
-        private System.Timers.Timer _selfTestTimer;
-        /// <summary>
-        /// _queue
-        /// </summary>
-        private readonly TaskQueue _queue = new TaskQueue();
-        /// <summary>
-        /// _breakInterval
-        /// </summary>
-        private int _breakInterval = 50;
-        /// <summary>
-        /// _selfTestCheckInterval
-        /// </summary>
-        private int _selfTestCheckInterval = 500;
-        /// <summary>
-        /// _reconnectLimitInterval
-        /// </summary>
-        private int _reconnectLimitInterval = 600000;
-        /// <summary>
-        /// _autoReconnect
-        /// </summary>
-        private AutoReconnect _autoReconnect = AutoReconnect.None;
+
         /// <summary>
         /// _selfTestConnectionString
         /// </summary>
         private string _selfTestConnectionString = "1998";
+
         /// <summary>
         /// Labels
         /// </summary>
         private Dictionary<string, List<int>> Labels = new Dictionary<string, List<int>>();
+
         /// <summary>
         /// dsWordBaseBits
         /// </summary>
         private List<Word> dsWordBaseBits = new List<Word>();
+
         /// <summary>
         /// _getCpuName
         /// </summary>
         private byte[] _getCpuName = new byte[15] { 0x50, 0x00, 0x00, 0xff, 0xff, 0x03, 0x00, 0x06, 0x00, 0x00, 0x00, 0x01, 0x01, 0x00, 0x00 };
+
         #endregion Field
-        #region Properties 
+
+        #region Field for auto-reconnect
         /// <summary>
-        /// Port number of the server.
+        /// CancellationTokenSource auto-reconnect
         /// </summary>
-        public int Port { get; set; } = 502;
+        internal CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         /// <summary>
-        /// Auto-reconnect mode when the connection is lost from the server.
+        /// isReconnecting
+        /// </summary>
+        internal bool isReconnecting = false;
+        /// <summary>
+        /// _isSafe
+        /// </summary>
+        internal int _isSafe = 1;
+        /// <summary>
+        /// _isSafeMethod
+        /// </summary>
+        internal int _isSafeMethod = 1;
+        /// <summary>
+        /// _reconnectLimitTimer
+        /// </summary>
+        internal System.Timers.Timer _reconnectLimitTimer;
+        /// <summary>
+        /// _breakTimer
+        /// </summary>
+        internal System.Timers.Timer _breakTimer;
+        /// <summary>
+        /// _selfTestTimer
+        /// </summary>
+        internal System.Timers.Timer _selfTestTimer;
+        /// <summary>
+        /// _queue
+        /// </summary>
+        internal readonly TaskQueue _queue = new TaskQueue();
+        /// <summary>
+        /// _breakInterval
+        /// </summary>
+        internal int _breakInterval = 50;
+        /// <summary>
+        /// _selfTestCheckInterval
+        /// </summary>
+        internal int _selfTestCheckInterval = 500;
+        /// <summary>
+        /// _reconnectLimitInterval
+        /// </summary>
+        internal int _reconnectLimitInterval = 600000;
+        /// <summary>
+        /// _autoReconnect
+        /// </summary>
+        internal AutoReconnect _autoReconnect = AutoReconnect.None;
+
+        #endregion
+
+        /// <summary>
+        /// Auto-Reconnect
+        /// </summary>
+        /// <returns>Returns <see cref="System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
+        private async Task ReconnectAsync()
+        {
+            if (Interlocked.Exchange(ref _isSafe, 0) != 1)
+                return;
+            if (_autoReconnect == AutoReconnect.Limit)
+                _reconnectLimitTimer.Start();
+            isReconnecting = true;
+            await Task.Run(async () =>
+            {
+                while (true)
+                {
+                    try
+                    {
+                        await Task.Delay(50, _cancellationTokenSource.Token).ConfigureAwait(false);
+                        if (_autoReconnect == AutoReconnect.JustDetectDisconnected)
+                        {
+                            _breakTimer.Start();
+                            break;
+                        }
+                        if (_tcpclient != null)
+                        {
+                            _tcpclient.Close();
+                            if (_stream != null)
+                                _stream.Close();
+                            _tcpclient = null;
+                        }
+                        _tcpclient = new TcpClient(_iPAddress, Port);
+                        _stream = _tcpclient.GetStream();
+                        _connected = true;
+                        Reconnected?.Invoke(this, null);
+                        if (_autoReconnect == AutoReconnect.None)
+                            break;
+                        _breakTimer.Start();
+                        break;
+                    }
+                    catch (TaskCanceledException)
+                    {
+                        break;
+                    }
+                    catch (Exception)
+                    {
+                        if (_tcpclient != null)
+                        {
+                            _tcpclient.Close();
+                            if (_stream != null)
+                                _stream.Close();
+                            _tcpclient = null;
+                        }
+                    }
+                }
+            }).ConfigureAwait(false);
+            if (_cancellationTokenSource.IsCancellationRequested)
+                _cancellationTokenSource = new CancellationTokenSource();
+            isReconnecting = false;
+            _reconnectLimitTimer.Stop();
+            Interlocked.Exchange(ref _isSafe, 1);
+        }
+        /// <summary>
+        /// Read and Write data
+        /// </summary>
+        /// <param name="writeLenght"></param>
+        /// <param name="readLenght"></param>
+        internal void StreamData(int writeLenght, int readLenght)
+        {
+            try
+            {
+                _selfTestTimer.Stop();
+                _breakTimer.Stop();
+                _reconnectLimitTimer.Stop();
+                _stream.Write(SendBuffer, 0, writeLenght);
+                _stream.Read(ReceveiBuffer, 0, readLenght);
+                if (_autoReconnect == AutoReconnect.None)
+                    return;
+                _breakTimer.Start();
+            }
+            catch (NullReferenceException)
+            {
+                _breakTimer.Stop();
+                throw new SocketNotOpenedException("Socket not opened.");
+            }
+            catch (Exception)
+            {
+                if (isReconnecting || !_isConnectStart) //test
+                {
+                    throw new ConnectionException("Connection was aborted.");
+                }
+                InnerClose();
+                if (_autoReconnect == AutoReconnect.None || _autoReconnect == AutoReconnect.JustDetectDisconnected)
+                {
+                    throw new ConnectionException("Connection was aborted.");
+                }
+                else
+                {
+                    if (!isReconnecting)
+                    {
+                        ConfiguredTaskAwaitable t = ReconnectAsync().ConfigureAwait(false);
+                        throw new ConnectionException("Connection was aborted.");
+                    }
+                }
+            }
+        }
+        /// <summary>
+        /// Close Connect Inner
+        /// </summary>
+        internal void InnerClose()
+        {
+            _breakTimer.Stop();
+            _selfTestTimer.Stop();
+            _reconnectLimitTimer.Stop();
+            if (_tcpclient != null)
+                _tcpclient.Close();
+            if (_stream != null)
+                _stream.Close();
+            _tcpclient = null;
+            _connected = false;
+            if (_isConnectStart)
+                LostConnect?.Invoke(this, null);
+        }
+        /// <summary>
+        /// Occurs when an established connection is lost.
+        /// </summary>
+        public event EventHandler<EventArgs> LostConnect;
+        /// <summary>
+        /// Occurs when reconnecting to the server successfully.
+        /// </summary>
+        public event EventHandler<EventArgs> Reconnected;
+        #region Properties 
+
+        /// <summary>
+        /// Gets or sets the Auto-reconnect mode when the connection is lost.
         /// </summary>
         public AutoReconnect AutoReconnect
         {
@@ -173,7 +318,7 @@ namespace dotPLC.Mitsubishi
             }
         }
         /// <summary>
-        ///The interval from when the connection is lost to the server is detected
+        ///Gets or sets the interval from when the connection is lost to the server is detected
         ///, expressed in milliseconds, at which attempt to auto-reconnect to the server will be stopped.<para></para>
         /// Note: Only works when the auto-reconnect mode is <see cref="AutoReconnect.Limit"/>
         /// </summary>
@@ -187,7 +332,7 @@ namespace dotPLC.Mitsubishi
             }
         }
         /// <summary>
-        ///The interval since the last communication with the server
+        ///Gets or sets the interval since the last communication with the server
         ///, expressed in milliseconds, at which the established connection with the server is checked.
         /// </summary>
         public int BreakInterval
@@ -205,14 +350,7 @@ namespace dotPLC.Mitsubishi
         /// Occurs when communication in trouble.
         /// </summary>
         public event EventHandler<TroubleshootingEventArgs> Trouble;
-        /// <summary>
-        /// Occurs when an established connection is lost.
-        /// </summary>
-        public event EventHandler<EventArgs> LostConnect;
-        /// <summary>
-        /// Occurs when reconnecting to the server successfully.
-        /// </summary>
-        public event EventHandler<EventArgs> Reconnected;
+
         #endregion Event
         #region Support methods
         /// <summary>
@@ -232,22 +370,7 @@ namespace dotPLC.Mitsubishi
             }
             SendBuffer[9] = 0x01;
         }
-        private void InnerClose()
-        {
-            _breakTimer.Stop();
-            _selfTestTimer.Stop();
-            _reconnectLimitTimer.Stop();
-            if (_tcpclient != null)
-                _tcpclient.Close();
-            if (_stream != null)
-                _stream.Close();
-            _tcpclient = null;
-            _connected = false;
-            if (_isConnectStart)
-                LostConnect?.Invoke(this, null);
-        }
-        int a = 0;
-        int b = 0;
+       
         /// <summary>
         /// check connection for auto-reconnect
         /// </summary>
@@ -256,7 +379,6 @@ namespace dotPLC.Mitsubishi
         {
             if (Interlocked.Exchange(ref _isSafeMethod, 0) != 1)
                 return;
-            a++;
             foreach (char ch in loopbackMessage)
             {
                 if ((ch < '0' || ch > '9') && (ch < 'A' || ch > 'F') || loopbackMessage.Length > 960)
@@ -323,50 +445,7 @@ namespace dotPLC.Mitsubishi
             Interlocked.Exchange(ref _isSafeMethod, 1);
 
         }
-        /// <summary>
-        /// Read and Write data
-        /// </summary>
-        /// <param name="writeLenght"></param>
-        /// <param name="readLenght"></param>
-        private void StreamData(int writeLenght, int readLenght)
-        {
-            try
-            {
-                _selfTestTimer.Stop();
-                _breakTimer.Stop();
-                _reconnectLimitTimer.Stop();
-                _stream.Write(SendBuffer, 0, writeLenght);
-                _stream.Read(ReceveiBuffer, 0, readLenght);
-                if (_autoReconnect == AutoReconnect.None)
-                    return;
-                _breakTimer.Start();
-            }
-            catch (NullReferenceException ex)
-            {
-                _breakTimer.Stop();
-                throw new Exception(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                if (isReconnecting || !_isConnectStart) //test
-                {
-                    throw new Exception(ex.Message);
-                }
-                InnerClose();
-                if (_autoReconnect == AutoReconnect.None || _autoReconnect == AutoReconnect.JustDetectDisconnected)
-                {
-                    throw new Exception(ex.Message);
-                }
-                else
-                {
-                    if (!isReconnecting)
-                    {
-                        ConfiguredTaskAwaitable t = ReconnectAsync().ConfigureAwait(false);
-                        throw new Exception(ex.Message);
-                    }
-                }
-            }
-        }
+        
         /// <summary>
         /// Read and Write data as async.
         /// </summary>
@@ -386,93 +465,31 @@ namespace dotPLC.Mitsubishi
                     return;
                 _breakTimer.Start();
             }
-            catch (NullReferenceException ex)
+            catch (NullReferenceException)
             {
                 _breakTimer.Stop();
-                throw new Exception(ex.Message);
+                throw new SocketNotOpenedException("Socket not opened.");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 if (isReconnecting || !_isConnectStart) //test
                 {
-                    throw new Exception(ex.Message);
+                    throw new ConnectionException("Connection was aborted.");
                 }
                 InnerClose();
                 if (_autoReconnect == AutoReconnect.None || _autoReconnect == AutoReconnect.JustDetectDisconnected)
                 {
-                    throw new Exception(ex.Message);
+                    throw new ConnectionException("Connection was aborted.");
                 }
                 else
                 {
                     if (!isReconnecting)
                     {
                         ConfiguredTaskAwaitable t = ReconnectAsync().ConfigureAwait(false);
-                        throw new Exception(ex.Message);
+                        throw new ConnectionException("Connection was aborted.");
                     }
                 }
             }
-        }
-        /// <summary>
-        /// Auto-Reconnect
-        /// </summary>
-        /// <returns>Returns <see cref="System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
-        private async Task ReconnectAsync()
-        {
-            if (Interlocked.Exchange(ref _isSafe, 0) != 1)
-                return;
-            if (_autoReconnect == AutoReconnect.Limit)
-                _reconnectLimitTimer.Start();
-            isReconnecting = true;
-            await Task.Run(async () =>
-            {
-                while (true)
-                {
-                    try
-                    {
-                        await Task.Delay(50, _cancellationTokenSource.Token).ConfigureAwait(false);
-                        b++;
-                        if (_autoReconnect == AutoReconnect.JustDetectDisconnected)
-                        {
-                            _breakTimer.Start();
-                            break;
-                        }
-                        if (_tcpclient != null)
-                        {
-                            _tcpclient.Close();
-                            if (_stream != null)
-                                _stream.Close();
-                            _tcpclient = null;
-                        }
-                        _tcpclient = new TcpClient(IPAddress, Port);
-                        _stream = _tcpclient.GetStream();
-                        _connected = true;
-                        Reconnected?.Invoke(this, null);
-                        if (_autoReconnect == AutoReconnect.None)
-                            break;
-                        _breakTimer.Start();
-                        break;
-                    }
-                    catch (TaskCanceledException)
-                    {
-                        break;
-                    }
-                    catch (Exception)
-                    {
-                        if (_tcpclient != null)
-                        {
-                            _tcpclient.Close();
-                            if (_stream != null)
-                                _stream.Close();
-                            _tcpclient = null;
-                        }
-                    }
-                }
-            }).ConfigureAwait(false);
-            if (_cancellationTokenSource.IsCancellationRequested)
-                _cancellationTokenSource = new CancellationTokenSource();
-            isReconnecting = false;
-            _reconnectLimitTimer.Stop();
-            Interlocked.Exchange(ref _isSafe, 1);
         }
         /// <summary>
         /// split label name
@@ -485,13 +502,20 @@ namespace dotPLC.Mitsubishi
         /// <returns>index</returns>
         protected internal override int SettingDevice(string label, out byte device, out byte low_num, out byte mid_num, out byte high_num)
         {
+            if (label == null || label == "")
+            {
+                throw new InvalidDeviceLabelNameException("The label name of device is invalid.", nameof(label));
+            }
             label = sWhitespace.Replace(label, "").ToUpper();
             int device_num;
             if (label[0] == 'S' && label[1] == 'B')
             {
                 label = label.Substring(2);
                 device = 0xA1;
-                device_num = int.Parse(label, NumberStyles.HexNumber);
+                if (!int.TryParse(label, NumberStyles.HexNumber, null, out device_num) || device_num > 0x7FFF)
+                {
+                    throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
+                }
                 byte[] bytes = BitConverter.GetBytes(device_num);
                 low_num = bytes[0];
                 mid_num = bytes[1];
@@ -501,17 +525,24 @@ namespace dotPLC.Mitsubishi
             {
                 label = label.Substring(2);
                 device = 0xB5;
-                device_num = int.Parse(label, NumberStyles.HexNumber);
+                if (!int.TryParse(label, NumberStyles.HexNumber, null, out device_num) || device_num > 0x7FFF)
+                {
+                    throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
+                }
                 byte[] bytes = BitConverter.GetBytes(device_num);
                 low_num = bytes[0];
                 mid_num = bytes[1];
                 high_num = bytes[2];
             }
-            else if (label[0] == 'B' && label[1] == 'L')
+            else if (label[0] == 'B' && label[1] != 'L') //Bit-B (not BL)
             {
                 label = label.Substring(1);
-                device = 0xDC;
-                device_num = int.Parse(label, NumberStyles.HexNumber);
+                device = 0xA0;
+                if (!int.TryParse(label, NumberStyles.HexNumber, null, out device_num) || device_num > 0x7FFF)
+                {
+                    throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
+                }
+                // GetNameDeviceAndCheckAddress("B", device_num); //Ném lỗi label trong hàm này
                 byte[] bytes = BitConverter.GetBytes(device_num);
                 low_num = bytes[0];
                 mid_num = bytes[1];
@@ -521,7 +552,10 @@ namespace dotPLC.Mitsubishi
             {
                 label = label.Substring(1);
                 device = 0xB4;
-                device_num = int.Parse(label, NumberStyles.HexNumber);
+                if (!int.TryParse(label, NumberStyles.HexNumber, null, out device_num) || device_num > 0x7FFF)
+                {
+                    throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
+                }
                 byte[] bytes = BitConverter.GetBytes(device_num);
                 low_num = bytes[0];
                 mid_num = bytes[1];
@@ -531,7 +565,11 @@ namespace dotPLC.Mitsubishi
             {
                 label = label.Substring(1);
                 device = 0x9C;
-                device_num = ConvertOctalToDecimal(int.Parse(label));
+                if (!int.TryParse(label, out device_num) || device_num > 1777)
+                {
+                    throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
+                }
+                device_num = ConvertOctalToDecimal(device_num);
                 byte[] bytes = BitConverter.GetBytes(device_num);
                 low_num = bytes[0];
                 mid_num = bytes[1];
@@ -541,7 +579,11 @@ namespace dotPLC.Mitsubishi
             {
                 label = label.Substring(1);
                 device = 0x9D;
-                device_num = ConvertOctalToDecimal(int.Parse(label));
+                if (!int.TryParse(label, out device_num) || device_num > 1777)
+                {
+                    throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
+                }
+                device_num = ConvertOctalToDecimal(device_num);
                 byte[] bytes = BitConverter.GetBytes(device_num);
                 low_num = bytes[0];
                 mid_num = bytes[1];
@@ -558,13 +600,17 @@ namespace dotPLC.Mitsubishi
                         break;
                     }
                 }
-                device = GetNameDevice(label.Substring(0, device_num_temp));
-                device_num = int.Parse(label.Substring(device_num_temp));
+                if (!int.TryParse(label.Substring(device_num_temp), out device_num))
+                {
+                    throw new InvalidDeviceLabelNameException("The label name of device is invalid.", nameof(label));
+                }
+                device = GetNameDeviceAndCheckAddress(label.Substring(0, device_num_temp), device_num); //Ném lỗi label trong hàm này
                 byte[] bytes = BitConverter.GetBytes(device_num);
                 low_num = bytes[0];
                 mid_num = bytes[1];
                 high_num = bytes[2];
             }
+
             return device_num;
         }
         /// <summary>
@@ -572,68 +618,124 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         /// <param name="device"></param>
         /// <returns></returns>
-        internal override byte GetNameDevice(string device)
+        internal byte GetNameDeviceAndCheckAddress(string device, int devicenum)
         {
             switch (device)
             {
                 case "B":
+                    if (devicenum > 0x7FFF)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 160;
                 case "BL":
+                    if (devicenum > 31)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 220;
                 case "CC":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 195;
                 case "CN":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 197;
                 case "CS":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 196;
                 case "D":
+                    if (devicenum > 7999)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 168;
                 case "F":
+                    if (devicenum > 32767)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 147;
                 case "L":
+                    if (devicenum > 32767)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 146;
                 case "LCN":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 86;
                 case "LZ":
+                    if (devicenum > 1)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 98;
                 case "M":
+                    if (devicenum > 32767)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 144;
                 case "R":
+                    if (devicenum > 32767)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 175;
                 case "S":
+                    if (devicenum > 4095)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 152;
                 case "SB":
+                    if (devicenum > 0x7FFF)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 161;
                 case "SC":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 198;
                 case "SD":
+                    if (devicenum > 11999)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 169;
                 case "SM":
+                    if (devicenum > 9999)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 145;
                 case "SN":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 200;
                 case "SS":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 199;
                 case "STN":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 200;
                 case "SW":
+                    if (devicenum > 0x7FFF)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 181;
                 case "TC":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 192;
                 case "TN":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 194;
                 case "TS":
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 193;
                 case "W":
+                    if (devicenum > 0x7FFF)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 180;
                 case "X":
+                    if (devicenum > 1777)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 156;
                 case "Y":
+                    if (devicenum > 1777)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 157;
                 case "Z":
+                    if (devicenum > 19)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.", "label");
                     return 204;
                 default:
-                    throw new ArgumentOutOfRangeException("The specified device does not belong to the memory of the PLC");
+                    throw new InvalidDeviceLabelNameException("The label name of device is invalid.");
             }
         }
         /// <summary>
@@ -681,11 +783,11 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         public override void Connect()
         {
-            _tcpclient = new TcpClient();
+            _tcpclient = new TcpClient() { SendTimeout = _writeTimeout, ReceiveTimeout = _readTimeout };
             _isConnectStart = true;
             try
             {
-                _tcpclient.ConnectAsync(IPAddress, Port).Wait(ReceiveTimeout);
+                _tcpclient.ConnectAsync(_iPAddress, Port).Wait(ReadTimeout);
             }
             catch
             {
@@ -697,6 +799,8 @@ namespace dotPLC.Mitsubishi
                 throw new Exception("Connect Timeout");
             }
             _stream = _tcpclient.GetStream();
+            _stream.ReadTimeout = _readTimeout;
+            _stream.WriteTimeout = _writeTimeout;
             _connected = true;
             if (_autoReconnect == AutoReconnect.None)
                 return;
@@ -709,13 +813,14 @@ namespace dotPLC.Mitsubishi
         /// <param name="port">Port number of the server.</param>
         public void Connect(string ipaddress, int port)
         {
-            IPAddress = ipaddress;
+            if (!ValidateIPv4(ipaddress)) throw new ArgumentException("Invalid IP address.", nameof(ipaddress));
+            _iPAddress = ipaddress;
             Port = port;
-            _tcpclient = new TcpClient();
+            _tcpclient = new TcpClient() { SendTimeout = _writeTimeout, ReceiveTimeout = _readTimeout };
             _isConnectStart = true;
             try
             {
-                _tcpclient.ConnectAsync(IPAddress, Port).Wait(ReceiveTimeout);
+                _tcpclient.ConnectAsync(_iPAddress, Port).Wait(ReadTimeout);
             }
             catch
             {
@@ -727,6 +832,8 @@ namespace dotPLC.Mitsubishi
                 throw new Exception("Connect Timeout");
             }
             _stream = _tcpclient.GetStream();
+            _stream.ReadTimeout = _readTimeout;
+            _stream.WriteTimeout = _writeTimeout;
             _connected = true;
             if (_autoReconnect == AutoReconnect.None)
                 return;
@@ -738,11 +845,11 @@ namespace dotPLC.Mitsubishi
         /// <returns>Returns <see cref="System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
         public async Task ConnectAsync()
         {
-            _tcpclient = new TcpClient();
+            _tcpclient = new TcpClient() {SendTimeout = _writeTimeout,ReceiveTimeout = _readTimeout};
             _isConnectStart = true;
             try
             {
-                await _tcpclient.ConnectAsync(IPAddress, Port).ConfigureAwait(false);
+                await _tcpclient.ConnectAsync(_iPAddress, Port).ConfigureAwait(false);
             }
             catch
             {
@@ -753,6 +860,8 @@ namespace dotPLC.Mitsubishi
                 throw new Exception("Connect Timeout");
             }
             _stream = _tcpclient.GetStream();
+            _stream.ReadTimeout = _readTimeout;
+            _stream.WriteTimeout = _writeTimeout;
             _connected = true;
             if (_autoReconnect == AutoReconnect.None)
                 return;
@@ -766,13 +875,13 @@ namespace dotPLC.Mitsubishi
         /// <returns>Returns <see cref="System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
         public async Task ConnectAsync(string ipaddress, int port)
         {
-            IPAddress = !string.IsNullOrEmpty(ipaddress) ? ipaddress : throw new ArgumentException("IP address must valid.", nameof(ipaddress));
+            if (!ValidateIPv4(ipaddress)) throw new ArgumentException("Invalid IP address.", nameof(ipaddress));
             Port = port;
-            _tcpclient = new TcpClient();
+            _tcpclient = new TcpClient() { SendTimeout = _writeTimeout, ReceiveTimeout = _readTimeout };
             _isConnectStart = true;
             try
             {
-                await _tcpclient.ConnectAsync(IPAddress, Port).ConfigureAwait(false);
+                await _tcpclient.ConnectAsync(_iPAddress, Port).ConfigureAwait(false);
             }
             catch
             {
@@ -783,6 +892,8 @@ namespace dotPLC.Mitsubishi
                 throw new Exception("Connect Timeout");
             }
             _stream = _tcpclient.GetStream();
+            _stream.ReadTimeout = _readTimeout;
+            _stream.WriteTimeout = _writeTimeout;
             _connected = true;
             if (_autoReconnect == AutoReconnect.None)
                 return;
@@ -791,7 +902,7 @@ namespace dotPLC.Mitsubishi
         /// <summary>
         /// Close connection to the server.
         /// </summary>
-        public override void Close()
+        public override void Disconnect()
         {
             _selfTestTimer.Stop();
             _breakTimer.Stop();
@@ -814,7 +925,7 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="value">A single value to be written.</param>
-        internal override void WriteDevice(string label, bool value)
+        internal  void WriteDevice(string label, bool value)
         {
             SendBuffer[7] = 0x0D;
             SendBuffer[8] = 0x00;
@@ -834,13 +945,14 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            StreamData(0, 20 - 11); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write single value to the server.
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="value">A single value to be written.</param>
-        internal override void WriteDevice(string label, short value)
+        internal void WriteDevice(string label, short value)
         {
             SendBuffer[7] = 0x0E;
             SendBuffer[8] = 0x00;
@@ -859,6 +971,7 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            StreamData(0, 20 - 11); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write single value to the server.
@@ -866,7 +979,7 @@ namespace dotPLC.Mitsubishi
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="value">A single value to be written.</param>
 
-        internal override void WriteDevice(string label, int value)
+        internal void WriteDevice(string label, int value)
         {
             SendBuffer[7] = 0x10;
             SendBuffer[8] = 0x00;
@@ -885,13 +998,14 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            StreamData(0, 20 - 11); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write single value to the server.
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="value">A single value to be written.</param>
-        internal override void WriteDevice(string label, float value)
+        internal void WriteDevice(string label, float value)
         {
             SendBuffer[7] = 0x10;
             SendBuffer[8] = 0x00;
@@ -910,6 +1024,7 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            StreamData(0, 20 - 11); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write single value to the server as an asynchronous operation.
@@ -977,7 +1092,7 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="values">Values to be written.</param>
-        internal override void WriteDeviceBlock(string label, params bool[] values)
+        internal void WriteDeviceBlock(string label, params bool[] values)
         {
             byte[] coillength_bytes = BitConverter.GetBytes(values.Length);
             byte[] byteArraySlmp = ConvertBoolArrayToByteArraySLMP(values);
@@ -998,13 +1113,14 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            StreamData(0, 20 - 11); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         ///  Write multiple values to the server in a batch.
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="values">Values to be written.</param>
-        internal override void WriteDeviceBlock(string label, params short[] values)
+        internal void WriteDeviceBlock(string label, params short[] values)
         {
             int datalength = values != null ? values.Length : throw new ArgumentNullException(nameof(values), "Array data must be non-null");
             byte[] datalength_bytes = BitConverter.GetBytes(12 + datalength * 2);
@@ -1031,13 +1147,14 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            StreamData(0, 20 - 11); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         ///  Write multiple values to the server in a batch.
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="values">Values to be written.</param>
-        internal override void WriteDeviceBlock(string label, params int[] values)
+        internal void WriteDeviceBlock(string label, params int[] values)
         {
             int datalength = values != null ? values.Length : throw new ArgumentNullException(nameof(values), "Array data must be non-null");
             byte[] datalength_bytes = BitConverter.GetBytes(12 + datalength * 4);
@@ -1066,13 +1183,14 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            StreamData(0, 20 - 11); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         ///  Write multiple values to the server in a batch.
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="values">Values to be written.</param>
-        internal override void WriteDeviceBlock(string label, params float[] values)
+        internal void WriteDeviceBlock(string label, params float[] values)
         {
             int datalength = values != null ? values.Length : throw new ArgumentNullException(nameof(values), "Array data must be non-null");
             byte[] datalength_bytes = BitConverter.GetBytes(12 + datalength * 4);
@@ -1101,6 +1219,7 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            StreamData(0, 20 - 11); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write multiple values to the server in a batch as an asynchronous operation.
@@ -1139,12 +1258,16 @@ namespace dotPLC.Mitsubishi
         /// <returns>Returns <see cref="System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
         public async Task WriteDeviceBlockAsync<T>(string label, params T[] values) where T : struct
         {
+            if (values == null)
+                throw new ArgumentNullException(nameof(values));
+            int length = values.Length;
             switch (Type.GetTypeCode(typeof(T)))
             {
                 case TypeCode.Boolean:
                     {
+                        if (length < 1 || length > 3584) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 3584 points.", nameof(values));
                         bool[] results = new bool[values.Length];
-                        int length = values.Length;
                         for (int i = 0; i < length; ++i)
                             results[i] = (bool)Convert.ChangeType(values[i], TypeCode.Boolean);
                         await WriteDeviceBlockAsync(label, results);
@@ -1152,8 +1275,9 @@ namespace dotPLC.Mitsubishi
                     }
                 case TypeCode.Int16:
                     {
+                        if (length < 1 || length > 960) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 960 points.", nameof(values));
                         short[] results = new short[values.Length];
-                        int length = values.Length;
                         for (int i = 0; i < length; ++i)
                             results[i] = (short)Convert.ChangeType(values[i], TypeCode.Int16);
                         await WriteDeviceBlockAsync(label, results);
@@ -1161,8 +1285,9 @@ namespace dotPLC.Mitsubishi
                     }
                 case TypeCode.UInt16:
                     {
+                        if (length < 1 || length > 960) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 960 points.", nameof(values));
                         short[] results = new short[values.Length];
-                        int length = values.Length;
                         for (int i = 0; i < length; ++i)
                             results[i] = (short)(ushort)Convert.ChangeType(values[i], TypeCode.UInt16);
                         await WriteDeviceBlockAsync(label, results);
@@ -1170,8 +1295,9 @@ namespace dotPLC.Mitsubishi
                     }
                 case TypeCode.Int32:
                     {
+                        if (length < 1 || length > 480) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 480 points.", nameof(values));
                         int[] results = new int[values.Length];
-                        int length = values.Length;
                         for (int i = 0; i < length; ++i)
                             results[i] = (int)Convert.ChangeType(values[i], TypeCode.Int32);
                         await WriteDeviceBlockAsync(label, results);
@@ -1179,8 +1305,9 @@ namespace dotPLC.Mitsubishi
                     }
                 case TypeCode.UInt32:
                     {
+                        if (length < 1 || length > 480) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 480 points.", nameof(values));
                         int[] results = new int[values.Length];
-                        int length = values.Length;
                         for (int i = 0; i < length; ++i)
                             results[i] = (int)(uint)Convert.ChangeType(values[i], TypeCode.UInt32);
                         await WriteDeviceBlockAsync(label, results);
@@ -1188,8 +1315,9 @@ namespace dotPLC.Mitsubishi
                     }
                 case TypeCode.Single:
                     {
+                        if (length < 1 || length > 480) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 480 points.", nameof(values));
                         float[] results6 = new float[values.Length];
-                        int length = values.Length;
                         for (int i = 0; i < length; ++i)
                             results6[i] = (float)Convert.ChangeType(values[i], TypeCode.Single);
                         await WriteDeviceBlockAsync(label, results6);
@@ -1203,9 +1331,14 @@ namespace dotPLC.Mitsubishi
         /// Write multiple values to the server randomly.
         /// </summary>
         /// <param name="bits"><see cref="dotPLC.Mitsubishi.Types.Bit"/> values to be written.</param>
-        public override void WriteDeviceRandom(params Bit[] bits)
+        public  void WriteDeviceRandom(params Bit[] bits)
         {
+            if (bits == null)
+                throw new ArgumentNullException(nameof(bits));
             int datalength = bits.Length;
+            if (datalength < 1 || datalength > 188) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 3584 points.", nameof(bits));
+
             byte[] datalenght_bytes = BitConverter.GetBytes(7 + datalength * 5);
             SendBuffer[7] = datalenght_bytes[0];
             SendBuffer[8] = datalenght_bytes[1];
@@ -1214,29 +1347,37 @@ namespace dotPLC.Mitsubishi
             SendBuffer[13] = 0x01;
             SendBuffer[14] = 0x00;
             SendBuffer[15] = (byte)datalength;
-            int index1 = 16;
-            for (int index2 = 0; index2 < datalength; ++index2)
+            int index_B = 16;
+            for (int i = 0; i < datalength; ++i)
             {
-                SettingDevice(bits[index2].Label, out SendBuffer[index1 + 3], out SendBuffer[index1], out SendBuffer[index1 + 1], out SendBuffer[index1 + 2]);
-                if (bits[index2].Value)
-                    SendBuffer[index1 + 4] = 0x01;
+                if (bits[i] == null)
+                    throw new ArgumentNullException(nameof(bits), string.Format("bits[{0}] is null.", i));
+                SettingDevice(bits[i].Label, out SendBuffer[index_B + 3], out SendBuffer[index_B], out SendBuffer[index_B + 1], out SendBuffer[index_B + 2]);
+                if (bits[i].Value)
+                    SendBuffer[index_B + 4] = 0x01;
                 else
-                    SendBuffer[index1 + 4] = 0x00;
-                index1 += 5;
+                    SendBuffer[index_B + 4] = 0x00;
+                index_B += 5;
             }
             StreamData(16 + datalength * 5, 11);
             if (ReceveiBuffer[9] == 0x00 && ReceveiBuffer[10] == 0x00)
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            StreamData(0, 20 - 11); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write multiple values to the server randomly.
         /// </summary>
         /// <param name="words"><see cref="dotPLC.Mitsubishi.Types.Word"/> values to be written.</param>
-        public override void WriteDeviceRandom(params Word[] words)
+        public  void WriteDeviceRandom(params Word[] words)
         {
+            if (words == null)
+                throw new ArgumentNullException(nameof(words));
             int datalength = words.Length;
+            if (datalength < 1 || datalength > 160) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 160 points.", nameof(words));
+
             byte[] datalenght_bytes = BitConverter.GetBytes(8 + datalength * 6);
             SendBuffer[7] = datalenght_bytes[0];
             SendBuffer[8] = datalenght_bytes[1];
@@ -1246,31 +1387,36 @@ namespace dotPLC.Mitsubishi
             SendBuffer[14] = 0x00;
             SendBuffer[15] = (byte)datalength;
             SendBuffer[16] = 0x00;
-            int index1 = 17;
+            int index_W = 17;
             int num = 17 + datalength * 6;
-            for (int index2 = 0; index2 < datalength; ++index2)
+            for (int i = 0; i < datalength; ++i)
             {
-                SettingDevice(words[index2].Label, out SendBuffer[index1 + 3], out SendBuffer[index1], out SendBuffer[index1 + 1], out SendBuffer[index1 + 2]);
-                byte[] bytes2 = BitConverter.GetBytes(words[index2].Value);
-                SendBuffer[index1 + 4] = bytes2[0];
-                SendBuffer[index1 + 5] = bytes2[1];
-                index1 += 6;
+                if (words[i] == null)
+                    throw new ArgumentNullException(nameof(words), string.Format("words[{0}] is null.", i));
+                SettingDevice(words[i].Label, out SendBuffer[index_W + 3], out SendBuffer[index_W], out SendBuffer[index_W + 1], out SendBuffer[index_W + 2]);
+                byte[] bytes2 = BitConverter.GetBytes(words[i].Value);
+                SendBuffer[index_W + 4] = bytes2[0];
+                SendBuffer[index_W + 5] = bytes2[1];
+                index_W += 6;
             }
             StreamData(17 + datalength * 6, 11);
             if (ReceveiBuffer[9] == 0x00 && ReceveiBuffer[10] == 0x00)
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
-
-
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            StreamData(0, 20 - 11); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write multiple values to the server randomly.
         /// </summary>
         /// <param name="dwords"><see cref="dotPLC.Mitsubishi.Types.DWord"/> values to be written.</param>
-        public override void WriteDeviceRandom(params DWord[] dwords)
+        public  void WriteDeviceRandom(params DWord[] dwords)
         {
+            if (dwords == null)
+                throw new ArgumentNullException(nameof(dwords));
             int datalength = dwords.Length;
+            if (datalength < 1 || datalength > 137) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 137 points.", nameof(dwords));
             byte[] datalength_bytes = BitConverter.GetBytes(8 + datalength * 8);
             SendBuffer[7] = datalength_bytes[0];
             SendBuffer[8] = datalength_bytes[1];
@@ -1280,32 +1426,39 @@ namespace dotPLC.Mitsubishi
             SendBuffer[14] = 0x00;
             SendBuffer[15] = 0x00;
             SendBuffer[16] = (byte)datalength;
-            int index1 = 17;
-            for (int index2 = 0; index2 < datalength; ++index2)
+            int index_DW = 17;
+            for (int i = 0; i < datalength; ++i)
             {
-                SettingDevice(dwords[index2].Label, out SendBuffer[index1 + 3], out SendBuffer[index1], out SendBuffer[index1 + 1], out SendBuffer[index1 + 2]);
-                byte[] bytes2 = BitConverter.GetBytes(dwords[index2].Value);
-                int index3 = 0;
-                for (int index4 = 4; index4 <= 7; ++index4)
+                if (dwords[i] == null)
+                    throw new ArgumentNullException(nameof(dwords), string.Format("dwords[{0}] is null.", i));
+                SettingDevice(dwords[i].Label, out SendBuffer[index_DW + 3], out SendBuffer[index_DW], out SendBuffer[index_DW + 1], out SendBuffer[index_DW + 2]);
+                byte[] data_bytes = BitConverter.GetBytes(dwords[i].Value);
+                int k = 0;
+                for (int j = 4; j <= 7; ++j)
                 {
-                    SendBuffer[index1 + index4] = bytes2[index3];
-                    ++index3;
+                    SendBuffer[index_DW + j] = data_bytes[k];
+                    ++k;
                 }
-                index1 += 8;
+                index_DW += 8;
             }
             StreamData(17 + datalength * 8, 11);
             if (ReceveiBuffer[9] == 0x00 && ReceveiBuffer[10] == 0x00)
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            StreamData(0, 20 - 11); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write multiple values to the server randomly.
         /// </summary>
         /// <param name="floats"><see cref="dotPLC.Mitsubishi.Types.Float"/> values to be written.</param>
-        public override void WriteDeviceRandom(params Float[] floats)
+        public  void WriteDeviceRandom(params Float[] floats)
         {
+            if (floats == null)
+                throw new ArgumentNullException(nameof(floats));
             int datalength = floats.Length;
+            if (datalength < 1 || datalength > 137) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 137 points.", nameof(floats));
             byte[] datalength_bytes = BitConverter.GetBytes(8 + datalength * 8);
             SendBuffer[7] = datalength_bytes[0];
             SendBuffer[8] = datalength_bytes[1];
@@ -1318,6 +1471,8 @@ namespace dotPLC.Mitsubishi
             int index_FL = 17;
             for (int i = 0; i < datalength; ++i)
             {
+                if (floats[i] == null)
+                    throw new ArgumentNullException(nameof(floats), string.Format("floats[{0}] is null.", i));
                 SettingDevice(floats[i].Label, out SendBuffer[index_FL + 3], out SendBuffer[index_FL], out SendBuffer[index_FL + 1], out SendBuffer[index_FL + 2]);
                 byte[] data_bytes = BitConverter.GetBytes(floats[i].Value);
 
@@ -1333,9 +1488,8 @@ namespace dotPLC.Mitsubishi
             if (ReceveiBuffer[9] == 0x00 && ReceveiBuffer[10] == 0x00)
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
-
-
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            StreamData(0, 20 - 11); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write multiple values to the server randomly.
@@ -1345,11 +1499,15 @@ namespace dotPLC.Mitsubishi
         /// <param name="floats"><see cref="dotPLC.Mitsubishi.Types.Float"/> values to be written.</param>
         public void WriteDeviceRandom(Word[] words = null, DWord[] dwords = null, Float[] floats = null)
         {
+            if (words == null && dwords == null && floats == null)
+                throw new ArgumentNullException(nameof(floats));
+
             int num_W = words == null ? 0 : words.Length;
             int num_DW = dwords == null ? 0 : dwords.Length;
             int num_FL = floats == null ? 0 : floats.Length;
-            if (num_W == 0 && num_DW == 0 && num_FL == 0)
-                return;
+            int size = num_W * 12 + (num_DW + num_FL) * 14;
+            if (size < 1 || size > 1920) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 1920.\n[size \u2264 word points x 12 + (double points + float points) x 14 \u2264 1920]");
             byte[] datalength_bytes = BitConverter.GetBytes(8 + num_W * 6 + (num_DW + num_FL) * 8);
             SendBuffer[7] = datalength_bytes[0];
             SendBuffer[8] = datalength_bytes[1];
@@ -1366,6 +1524,8 @@ namespace dotPLC.Mitsubishi
             {
                 for (int i = 0; i < num_W; ++i)
                 {
+                    if (words[i] == null)
+                        throw new ArgumentNullException(nameof(words), string.Format("words[{0}] is null.", i));
                     SettingDevice(words[i].Label, out SendBuffer[index_W + 3], out SendBuffer[index_W], out SendBuffer[index_W + 1], out SendBuffer[index_W + 2]);
                     byte[] data_bytes = BitConverter.GetBytes(words[i].Value);
                     SendBuffer[index_W + 4] = data_bytes[0];
@@ -1377,6 +1537,8 @@ namespace dotPLC.Mitsubishi
             {
                 for (int i = 0; i < num_DW; ++i)
                 {
+                    if (dwords[i] == null)
+                        throw new ArgumentNullException(nameof(dwords), string.Format("dwords[{0}] is null.", i));
                     SettingDevice(dwords[i].Label, out SendBuffer[index_DW + 3], out SendBuffer[index_DW], out SendBuffer[index_DW + 1], out SendBuffer[index_DW + 2]);
                     byte[] data_bytes = BitConverter.GetBytes(dwords[i].Value);
                     int k = 0;
@@ -1392,6 +1554,8 @@ namespace dotPLC.Mitsubishi
             {
                 for (int i = 0; i < num_FL; ++i)
                 {
+                    if (floats[i] == null)
+                        throw new ArgumentNullException(nameof(floats), string.Format("floats[{0}] is null.", i));
                     SettingDevice(floats[i].Label, out SendBuffer[index_FL + 3], out SendBuffer[index_FL], out SendBuffer[index_FL + 1], out SendBuffer[index_FL + 2]);
                     byte[] data_bytes = BitConverter.GetBytes(floats[i].Value);
                     int k = 0;
@@ -1408,6 +1572,7 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            StreamData(0, 20 - 11); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write multiple values to the server randomly as an asynchronous operation.
@@ -1447,7 +1612,7 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <returns>Returned value.</returns>
-        internal override bool ReadSingleCoil(string label)
+        internal bool ReadSingleCoil(string label)
         {
             bool flag = false;
             SendBuffer[7] = 0x0C;
@@ -1464,6 +1629,7 @@ namespace dotPLC.Mitsubishi
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                StreamData(0, 20 - 12); //Khi PLC gửi lỗi (20byte)
             }
             else
                 flag = ReceveiBuffer[11] == 0x10;
@@ -1474,7 +1640,7 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <returns>Returned value.</returns>
-        internal override short ReadSingleRegister(string label)
+        internal short ReadSingleRegister(string label)
         {
             short num = 0;
             SendBuffer[7] = 0x0C;
@@ -1491,6 +1657,7 @@ namespace dotPLC.Mitsubishi
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                StreamData(0, 20 - 13); //Khi PLC gửi lỗi (20byte)
             }
             else
                 num = BitConverter.ToInt16(ReceveiBuffer, 11);
@@ -1501,7 +1668,7 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <returns>Returned value.</returns>
-        internal override int ReadSingleDouble(string label)
+        internal int ReadSingleDouble(string label)
         {
             int num = 0;
             SendBuffer[7] = 0x0C;
@@ -1518,6 +1685,7 @@ namespace dotPLC.Mitsubishi
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                StreamData(0, 20 - 15); //Khi PLC gửi lỗi (20byte)
             }
             else
                 num = BitConverter.ToInt32(ReceveiBuffer, 11);
@@ -1528,7 +1696,7 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <returns>Returned value.</returns>
-        internal override float ReadSingleFloat(string label)
+        internal float ReadSingleFloat(string label)
         {
             float num = 0.0f;
             SendBuffer[7] = 0x0C;
@@ -1545,6 +1713,7 @@ namespace dotPLC.Mitsubishi
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                StreamData(0, 20 - 15); //Khi PLC gửi lỗi (20byte)
             }
             else
                 num = BitConverter.ToSingle(ReceveiBuffer, 11);
@@ -1611,9 +1780,8 @@ namespace dotPLC.Mitsubishi
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="size">Number of values to be read.</param>
         /// <returns>Returned values.</returns>
-        internal override bool[] ReadMultipleCoils(string label, int size)
+        internal bool[] ReadMultipleCoils(string label, int size)
         {
-            SendBuffer[7] = 0x0C;
             SendBuffer[8] = 0x00;
             SendBuffer[11] = 0x01;
             SendBuffer[12] = 0x04;
@@ -1623,12 +1791,15 @@ namespace dotPLC.Mitsubishi
             byte[] bytes = BitConverter.GetBytes(size);
             SendBuffer[19] = bytes[0];
             SendBuffer[20] = bytes[1];
-            StreamData(21, 11 + (size % 2 == 0 ? size / 2 : size / 2 + 1));
+            int num_of_byte = size % 2 == 0 ? size / 2 : size / 2 + 1;
+            StreamData(21, 11 + num_of_byte);
             bool[] flagArray = new bool[size];
             if (ReceveiBuffer[9] != 0x00 || ReceveiBuffer[10] != 0x00)
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (11 + num_of_byte < 20)
+                    StreamData(0, 20 - (11 + num_of_byte)); //Khi PLC gửi lỗi (20byte)
             }
             else
                 flagArray = ConvertByteArrayToBoolArray(ReceveiBuffer, 11, size);
@@ -1640,7 +1811,7 @@ namespace dotPLC.Mitsubishi
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="size">Number of values to be read.</param>
         /// <returns>Returned values.</returns>
-        internal override short[] ReadMultipleRegisters(string label, int size)
+        internal short[] ReadMultipleRegisters(string label, int size)
         {
             short[] numArray = new short[size];
             SendBuffer[7] = 0x0C;
@@ -1658,6 +1829,8 @@ namespace dotPLC.Mitsubishi
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (11 + size * 2 < 20)
+                    StreamData(0, 20 - (11 + size * 2)); //Khi PLC gửi lỗi (20byte)
             }
             else
             {
@@ -1672,7 +1845,7 @@ namespace dotPLC.Mitsubishi
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="size">Number of values to be read.</param>
         /// <returns>Returned values.</returns>
-        internal override int[] ReadMultipleDoubles(string label, int size)
+        internal int[] ReadMultipleDoubles(string label, int size)
         {
             int[] numArray = new int[size];
             SendBuffer[7] = 0x0C;
@@ -1690,6 +1863,8 @@ namespace dotPLC.Mitsubishi
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (11 + size * 4 < 20)
+                    StreamData(0, 20 - (11 + size * 4)); //Khi PLC gửi lỗi (20byte)
             }
             else
             {
@@ -1704,7 +1879,7 @@ namespace dotPLC.Mitsubishi
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="size">Number of values to be read.</param>
         /// <returns>Returned values.</returns>
-        internal override float[] ReadMultipleFloats(string label, int size)
+        internal float[] ReadMultipleFloats(string label, int size)
         {
             float[] numArray = new float[size];
             SendBuffer[7] = 0x0C;
@@ -1722,6 +1897,8 @@ namespace dotPLC.Mitsubishi
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (11 + size * 4 < 20)
+                    StreamData(0, 20 - (11 + size * 4)); //Khi PLC gửi lỗi (20byte)
             }
             else
             {
@@ -1777,6 +1954,8 @@ namespace dotPLC.Mitsubishi
             {
                 case TypeCode.Boolean:
                     {
+                        if (size < 1 || size > 3584) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 3584 points.", nameof(size));
                         var values = await ReadMultipleCoilsAsync(label, size);
                         for (int i = 0; i < size; ++i)
                             results[i] = (T)Convert.ChangeType(values[i], typeof(T));
@@ -1784,6 +1963,8 @@ namespace dotPLC.Mitsubishi
                     }
                 case TypeCode.Int16:
                     {
+                        if (size < 1 || size > 960) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 960 points.", nameof(size));
                         var values = await ReadMultipleRegistersAsync(label, size);
                         for (int i = 0; i < size; ++i)
                             results[i] = (T)Convert.ChangeType(values[i], typeof(T));
@@ -1791,6 +1972,8 @@ namespace dotPLC.Mitsubishi
                     }
                 case TypeCode.UInt16:
                     {
+                        if (size < 1 || size > 960) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 960 points.", nameof(size));
                         var values = await ReadMultipleRegistersAsync(label, size);
                         for (int i = 0; i < size; ++i)
                             results[i] = (T)Convert.ChangeType((ushort)values[i], typeof(T));
@@ -1798,6 +1981,8 @@ namespace dotPLC.Mitsubishi
                     }
                 case TypeCode.Int32:
                     {
+                        if (size < 1 || size > 480) //Page57 (SLMP-Mitsubishi.PDF) 960Word/2=480double
+                            throw new SizeOutOfRangeException("Size must be 1 to 480 points.", nameof(size));
                         var values = await ReadMultipleDoublesAsync(label, size);
                         for (int i = 0; i < size; ++i)
                             results[i] = (T)Convert.ChangeType(values[i], typeof(T));
@@ -1805,6 +1990,8 @@ namespace dotPLC.Mitsubishi
                     }
                 case TypeCode.UInt32:
                     {
+                        if (size < 1 || size > 480) //Page57 (SLMP-Mitsubishi.PDF) 960Word/2=480double
+                            throw new SizeOutOfRangeException("Size must be 1 to 480 points.", nameof(size));
                         int[] values5 = await ReadMultipleDoublesAsync(label, size);
                         for (int i = 0; i < size; ++i)
                             results[i] = (T)Convert.ChangeType((uint)values5[i], typeof(T));
@@ -1812,6 +1999,8 @@ namespace dotPLC.Mitsubishi
                     }
                 case TypeCode.Single:
                     {
+                        if (size < 1 || size > 480) //Page57 (SLMP-Mitsubishi.PDF) 960Word/2=480float
+                            throw new SizeOutOfRangeException("Size must be 1 to 480 points.", nameof(size));
                         var values = await ReadMultipleFloatsAsync(label, size);
                         for (int i = 0; i < size; ++i)
                             results[i] = (T)Convert.ChangeType(values[i], typeof(T));
@@ -1825,23 +2014,23 @@ namespace dotPLC.Mitsubishi
         /// Read multiple values from the server randomly.
         /// </summary>
         /// <param name="bits"><see cref="dotPLC.Mitsubishi.Types.Bit"/> values to be read.</param>
-        public override void ReadDeviceRandom(params Bit[] bits)
+        public  void ReadDeviceRandom(params Bit[] bits)
         {
             if (bits == null)
-                return;
+                throw new ArgumentNullException(nameof(bits));
             Labels.Clear();
             dsWordBaseBits.Clear();
             for (int index = 0; index < bits.Length; ++index)
             {
+                if (bits[index] == null)
+                    throw new ArgumentNullException(nameof(bits), string.Format("bits[{0}] is null.", index));
                 string device;
                 int num;
-                if (SettingDevice(bits[index].Label, out device, out num))
-                {
-                    if (Labels.ContainsKey(device))
-                        Labels[device].Add(num);
-                    else
-                        Labels.Add(device, new List<int>() { num });
-                }
+                SettingDevice(bits[index].Label, out device, out num);
+                if (Labels.ContainsKey(device))
+                    Labels[device].Add(num);
+                else
+                    Labels.Add(device, new List<int>() { num });
             }
             foreach (KeyValuePair<string, List<int>> item in Labels)
                 item.Value.Sort();
@@ -1865,6 +2054,8 @@ namespace dotPLC.Mitsubishi
                 }
             }
             int count = dsWordBaseBits.Count;
+            if (count < 1 || count > 192) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 192.\n[size = bits (Convert to word points)]", nameof(bits));
             byte[] bytes = BitConverter.GetBytes(8 + count * 4);
             SendBuffer[7] = bytes[0];
             SendBuffer[8] = bytes[1];
@@ -1874,17 +2065,19 @@ namespace dotPLC.Mitsubishi
             SendBuffer[14] = 0x00;
             SendBuffer[15] = (byte)count;
             SendBuffer[16] = 0x00;
-            int index1 = 17;
+            int index_B = 17;
             for (int i = 0; i < count; ++i)
             {
-                SettingDevice(dsWordBaseBits[i].Label, out SendBuffer[index1 + 3], out SendBuffer[index1], out SendBuffer[index1 + 1], out SendBuffer[index1 + 2]);
-                index1 += 4;
+                SettingDevice(dsWordBaseBits[i].Label, out SendBuffer[index_B + 3], out SendBuffer[index_B], out SendBuffer[index_B + 1], out SendBuffer[index_B + 2]);
+                index_B += 4;
             }
             StreamData(17 + count * 4, 11 + count * 2);
             if (ReceveiBuffer[9] != 0x00 || ReceveiBuffer[10] != 0x00)
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (11 + count * 2 < 20)
+                    StreamData(0, 20 - (11 + count * 2)); //Khi PLC gửi lỗi (20byte)
             }
             else
             {
@@ -1911,9 +2104,14 @@ namespace dotPLC.Mitsubishi
         /// Read multiple values from the server randomly.
         /// </summary>
         /// <param name="words"><see cref="dotPLC.Mitsubishi.Types.Word"/> values to be read.</param>
-        public override void ReadDeviceRandom(params Word[] words)
+        public  void ReadDeviceRandom(params Word[] words)
         {
+            if (words == null)
+                throw new ArgumentNullException(nameof(words));
             int length = words.Length;
+            if (length < 1 || length > 192) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 192 points.", nameof(words));
+
             byte[] bytes = BitConverter.GetBytes(8 + length * 4);
             SendBuffer[7] = bytes[0];
             SendBuffer[8] = bytes[1];
@@ -1923,17 +2121,21 @@ namespace dotPLC.Mitsubishi
             SendBuffer[14] = 0x00;
             SendBuffer[15] = (byte)length;
             SendBuffer[16] = 0x00;
-            int index1 = 17;
+            int index_W = 17;
             for (int i = 0; i < length; ++i)
             {
-                SettingDevice(words[i].Label, out SendBuffer[index1 + 3], out SendBuffer[index1], out SendBuffer[index1 + 1], out SendBuffer[index1 + 2]);
-                index1 += 4;
+                if (words[i] == null)
+                    throw new ArgumentNullException(nameof(words), string.Format("words[{0}] is null.", i));
+                SettingDevice(words[i].Label, out SendBuffer[index_W + 3], out SendBuffer[index_W], out SendBuffer[index_W + 1], out SendBuffer[index_W + 2]);
+                index_W += 4;
             }
             StreamData(17 + length * 4, 11 + length * 2);
             if (ReceveiBuffer[9] != 0x00 || ReceveiBuffer[10] != 0x00)
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (11 + length * 2 < 20)
+                    StreamData(0, 20 - (11 + length * 2)); //Khi PLC gửi lỗi (20byte)
             }
             else
             {
@@ -1945,9 +2147,13 @@ namespace dotPLC.Mitsubishi
         /// Read multiple values from the server randomly.
         /// </summary>
         /// <param name="dwords"><see cref="dotPLC.Mitsubishi.Types.DWord"/> values to be read.</param>
-        public override void ReadDeviceRandom(params DWord[] dwords)
+        public  void ReadDeviceRandom(params DWord[] dwords)
         {
+            if (dwords == null)
+                throw new ArgumentNullException(nameof(dwords));
             int length = dwords.Length;
+            if (length < 1 || length > 192) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 192 points.", nameof(dwords));
             byte[] bytes = BitConverter.GetBytes(8 + length * 4);
             SendBuffer[7] = bytes[0];
             SendBuffer[8] = bytes[1];
@@ -1957,17 +2163,21 @@ namespace dotPLC.Mitsubishi
             SendBuffer[14] = 0x00;
             SendBuffer[15] = 0x00;
             SendBuffer[16] = (byte)length;
-            int index1 = 17;
+            int index_DW = 17;
             for (int i = 0; i < length; ++i)
             {
-                SettingDevice(dwords[i].Label, out SendBuffer[index1 + 3], out SendBuffer[index1], out SendBuffer[index1 + 1], out SendBuffer[index1 + 2]);
-                index1 += 4;
+                if (dwords[i] == null)
+                    throw new ArgumentNullException(nameof(dwords), string.Format("dwords[{0}] is null.", i));
+                SettingDevice(dwords[i].Label, out SendBuffer[index_DW + 3], out SendBuffer[index_DW], out SendBuffer[index_DW + 1], out SendBuffer[index_DW + 2]);
+                index_DW += 4;
             }
             StreamData(17 + length * 4, 11 + length * 4);
             if (ReceveiBuffer[9] != 0x00 || ReceveiBuffer[10] != 0x00)
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (11 + length * 4 < 20)
+                    StreamData(0, 20 - (11 + length * 4)); //Khi PLC gửi lỗi (20byte)
             }
             else
             {
@@ -1979,9 +2189,13 @@ namespace dotPLC.Mitsubishi
         /// Read multiple values from the server randomly.
         /// </summary>
         /// <param name="floats"><see cref="dotPLC.Mitsubishi.Types.Float"/> values to be read.</param>
-        public override void ReadDeviceRandom(params Float[] floats)
+        public  void ReadDeviceRandom(params Float[] floats)
         {
+            if (floats == null)
+                throw new ArgumentNullException(nameof(floats));
             int length = floats.Length;
+            if (length < 1 || length > 192) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 192 points.", nameof(floats));
             byte[] bytes = BitConverter.GetBytes(8 + length * 4);
             SendBuffer[7] = bytes[0];
             SendBuffer[8] = bytes[1];
@@ -1991,17 +2205,21 @@ namespace dotPLC.Mitsubishi
             SendBuffer[14] = 0x00;
             SendBuffer[15] = 0x00;
             SendBuffer[16] = (byte)length;
-            int index1 = 17;
+            int index_FL = 17;
             for (int i = 0; i < length; ++i)
             {
-                SettingDevice(floats[i].Label, out SendBuffer[index1 + 3], out SendBuffer[index1], out SendBuffer[index1 + 1], out SendBuffer[index1 + 2]);
-                index1 += 4;
+                if (floats[i] == null)
+                    throw new ArgumentNullException(nameof(floats), string.Format("floats[{0}] is null.", i));
+                SettingDevice(floats[i].Label, out SendBuffer[index_FL + 3], out SendBuffer[index_FL], out SendBuffer[index_FL + 1], out SendBuffer[index_FL + 2]);
+                index_FL += 4;
             }
             StreamData(17 + length * 4, 11 + length * 4);
             if (ReceveiBuffer[9] != 0x00 || ReceveiBuffer[10] != 0x00)
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (11 + length * 4 < 20)
+                    StreamData(0, 20 - (11 + length * 4)); //Khi PLC gửi lỗi (20byte)
             }
             else
             {
@@ -2011,23 +2229,12 @@ namespace dotPLC.Mitsubishi
         }
         /// <summary>
         /// Read multiple values from the server randomly. <see langword="[RECOMMENDED]"></see>
-        /// <example>
-        /// <para>For example:</para>
-        /// <code>
-        /// - <see cref="dotPLC.Mitsubishi.Types.Bit"/>[] bits = <see href="new"/> <see cref="dotPLC.Mitsubishi.Types.Bit"/>[] { <see href="new"/> <see cref="dotPLC.Mitsubishi.Types.Bit"/>("X0"), <see href="new"/> <see cref="dotPLC.Mitsubishi.Types.Bit"/>("M10")};
-        /// - <see cref="dotPLC.Mitsubishi.Types.Word"/>[] words = <see href="new"/> <see cref="dotPLC.Mitsubishi.Types.Word"/>[] { <see href="new"/> <see cref="dotPLC.Mitsubishi.Types.Word"/>("D0"), <see href="new"/> <see cref="dotPLC.Mitsubishi.Types.Word"/>("SD5"), <see href="new"/> <see cref="dotPLC.Mitsubishi.Types.Word"/>("SD10")};
-        /// - <see cref="dotPLC.Mitsubishi.Types.DWord"/>[] dwords = <see href="new"/> <see cref="dotPLC.Mitsubishi.Types.DWord"/>[] { <see href="new"/> <see cref="dotPLC.Mitsubishi.Types.DWord"/>("D20"), <see href="new"/> <see cref="dotPLC.Mitsubishi.Types.DWord"/>("SD20")};
-        /// - <see cref="dotPLC.Mitsubishi.Types.Float"/>[] floats = <see href="new"/> <see cref="dotPLC.Mitsubishi.Types.Float"/>[] { <see href="new"/> <see cref="dotPLC.Mitsubishi.Types.Float"/>("D30")};
-        /// ReadDeviceRandom(null, words, null, floats);
-        /// ReadDeviceRandom(bits, words, dwords, floats);
-        /// </code>
-        /// </example>
         /// </summary>
         /// <param name="bits"><see cref="dotPLC.Mitsubishi.Types.Bit"/> values to be read.</param>
         /// <param name="words"><see cref="dotPLC.Mitsubishi.Types.Word"/> values to be read.</param>
         /// <param name="dwords"><see cref="dotPLC.Mitsubishi.Types.DWord"/> values to be read.</param>
         /// <param name="floats"><see cref="dotPLC.Mitsubishi.Types.Float"/> values to be read.</param>
-        public override void ReadDeviceRandom(Bit[] bits = null, Word[] words = null, DWord[] dwords = null, Float[] floats = null)
+        public  void ReadDeviceRandom(Bit[] bits = null, Word[] words = null, DWord[] dwords = null, Float[] floats = null)
         {
             Labels.Clear();
             dsWordBaseBits.Clear();
@@ -2035,15 +2242,15 @@ namespace dotPLC.Mitsubishi
             {
                 for (int index = 0; index < bits.Length; ++index)
                 {
+                    if (bits[index] == null)
+                        throw new ArgumentNullException(nameof(bits),string.Format("bits[{0}] is null.",index));
                     string device;
                     int num;
-                    if (SettingDevice(bits[index].Label, out device, out num))
-                    {
-                        if (Labels.ContainsKey(device))
-                            Labels[device].Add(num);
-                        else
-                            Labels.Add(device, new List<int>() { num });
-                    }
+                    SettingDevice(bits[index].Label, out device, out num);
+                    if (Labels.ContainsKey(device))
+                        Labels[device].Add(num);
+                    else
+                        Labels.Add(device, new List<int>() { num });
                 }
                 foreach (KeyValuePair<string, List<int>> item in Labels)
                     item.Value.Sort();
@@ -2067,68 +2274,82 @@ namespace dotPLC.Mitsubishi
                     }
                 }
             }
-            int num1 = dsWordBaseBits == null ? 0 : dsWordBaseBits.Count; //số bit dựa theo Word
-            int num2 = words == null ? 0 : words.Length; //Số W
-            int num3 = dwords == null ? 0 : dwords.Length; //Số Dw
-            int num4 = floats == null ? 0 : floats.Length; // Số FL
-            if (num1 == 0 && num2 == 0 && num3 == 0 && num4 == 0)
+            int num_of_Bit_base_W = dsWordBaseBits == null ? 0 : dsWordBaseBits.Count; //số bit dựa theo Word
+            int num_of_W = words == null ? 0 : words.Length; //Số W
+            int num_of_DW = dwords == null ? 0 : dwords.Length; //Số Dw
+            int num_of_FL = floats == null ? 0 : floats.Length; // Số FL
+            if (num_of_Bit_base_W == 0 && num_of_W == 0 && num_of_DW == 0 && num_of_FL == 0)
                 return;
-            byte[] bytes = BitConverter.GetBytes(8 + (num1 + num2 + num3 + num4) * 4);
+            int size = num_of_Bit_base_W + num_of_W + num_of_DW + num_of_FL;
+            if (size < 1 || size > 192) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 192." +
+                    "\n[size = bits points (Convert to word points) + word points + double points + float points.]"
+                    + "\n[size = " + num_of_Bit_base_W + " + " + num_of_W + " + " + num_of_DW + " + " + num_of_FL + " = " + size);
+
+            byte[] bytes = BitConverter.GetBytes(8 + (num_of_Bit_base_W + num_of_W + num_of_DW + num_of_FL) * 4);
             SendBuffer[7] = bytes[0];
             SendBuffer[8] = bytes[1];
             SendBuffer[11] = 0x03;
             SendBuffer[12] = 0x04;
             SendBuffer[13] = 0x00;
             SendBuffer[14] = 0x00;
-            SendBuffer[15] = (byte)(num2 + num1);
-            SendBuffer[16] = (byte)(num3 + num4);
-            int index1 = 17;
-            int index2 = 17 + num1 * 4;
-            int index3 = index2 + num2 * 4;
-            int index4 = index3 + num3 * 4;
-            if (num1 > 0)
+            SendBuffer[15] = (byte)(num_of_W + num_of_Bit_base_W);
+            SendBuffer[16] = (byte)(num_of_DW + num_of_FL);
+            int index_B = 17;
+            int index_W = 17 + num_of_Bit_base_W * 4;
+            int index_DW = index_W + num_of_W * 4;
+            int index_FL = index_DW + num_of_DW * 4;
+            if (num_of_Bit_base_W > 0)
             {
-                for (int i = 0; i < num1; ++i)
+                for (int i = 0; i < num_of_Bit_base_W; ++i)
                 {
-                    SettingDevice(dsWordBaseBits[i].Label, out SendBuffer[index1 + 3], out SendBuffer[index1], out SendBuffer[index1 + 1], out SendBuffer[index1 + 2]);
-                    index1 += 4;
+                    SettingDevice(dsWordBaseBits[i].Label, out SendBuffer[index_B + 3], out SendBuffer[index_B], out SendBuffer[index_B + 1], out SendBuffer[index_B + 2]);
+                    index_B += 4;
                 }
             }
-            if (num2 > 0)
+            if (num_of_W > 0)
             {
-                for (int i = 0; i < num2; ++i)
+                for (int i = 0; i < num_of_W; ++i)
                 {
-                    SettingDevice(words[i].Label, out SendBuffer[index2 + 3], out SendBuffer[index2], out SendBuffer[index2 + 1], out SendBuffer[index2 + 2]);
-                    index2 += 4;
+                    if (words[i] == null)
+                        throw new ArgumentNullException(nameof(words), string.Format("words[{0}] is null.", i));
+                    SettingDevice(words[i].Label, out SendBuffer[index_W + 3], out SendBuffer[index_W], out SendBuffer[index_W + 1], out SendBuffer[index_W + 2]);
+                    index_W += 4;
                 }
             }
-            if (num3 > 0)
+            if (num_of_DW > 0)
             {
-                for (int i = 0; i < num3; ++i)
+                for (int i = 0; i < num_of_DW; ++i)
                 {
-                    SettingDevice(dwords[i].Label, out SendBuffer[index3 + 3], out SendBuffer[index3], out SendBuffer[index3 + 1], out SendBuffer[index3 + 2]);
-                    index3 += 4;
+                    if (dwords[i] == null)
+                        throw new ArgumentNullException(nameof(dwords), string.Format("dwords[{0}] is null.", i));
+                    SettingDevice(dwords[i].Label, out SendBuffer[index_DW + 3], out SendBuffer[index_DW], out SendBuffer[index_DW + 1], out SendBuffer[index_DW + 2]);
+                    index_DW += 4;
                 }
             }
-            if (num4 > 0)
+            if (num_of_FL > 0)
             {
-                for (int i = 0; i < num4; ++i)
+                for (int i = 0; i < num_of_FL; ++i)
                 {
-                    SettingDevice(floats[i].Label, out SendBuffer[index4 + 3], out SendBuffer[index4], out SendBuffer[index4 + 1], out SendBuffer[index4 + 2]);
-                    index4 += 4;
+                    if (floats[i] == null)
+                        throw new ArgumentNullException(nameof(floats), string.Format("floats[{0}] is null.", i));
+                    SettingDevice(floats[i].Label, out SendBuffer[index_FL + 3], out SendBuffer[index_FL], out SendBuffer[index_FL + 1], out SendBuffer[index_FL + 2]);
+                    index_FL += 4;
                 }
             }
-            StreamData(17 + (num1 + num2 + num3 + num4) * 4, 11 + num1 * 2 + num2 * 2 + num3 * 4 + num4 * 4);
+            StreamData(17 + (num_of_Bit_base_W + num_of_W + num_of_DW + num_of_FL) * 4, 11 + num_of_Bit_base_W * 2 + num_of_W * 2 + num_of_DW * 4 + num_of_FL * 4);
             if (ReceveiBuffer[9] != 0x00 || ReceveiBuffer[10] != 0x00)
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (11 + num_of_Bit_base_W * 2 + num_of_W * 2 + num_of_DW * 4 + num_of_FL * 4 < 20)
+                    StreamData(0, 20 - (11 + num_of_Bit_base_W * 2 + num_of_W * 2 + num_of_DW * 4 + num_of_FL * 4)); //Khi PLC gửi lỗi (20byte)
             }
             else
             {
-                if (num1 > 0)
+                if (num_of_Bit_base_W > 0)
                 {
-                    for (int i = 0; i < num1 * 2; i += 2)
+                    for (int i = 0; i < num_of_Bit_base_W * 2; i += 2)
                         dsWordBaseBits[i / 2].Value = BitConverter.ToInt16(ReceveiBuffer, 11 + i);
                     for (int i = 0; i < bits.Length; ++i)
                     {
@@ -2146,20 +2367,20 @@ namespace dotPLC.Mitsubishi
                         }
                     }
                 }
-                if (num2 > 0)
+                if (num_of_W > 0)
                 {
-                    for (int i = 0; i < num2 * 2; i += 2)
-                        words[i / 2].Value = BitConverter.ToInt16(ReceveiBuffer, 11 + num1 * 2 + i);
+                    for (int i = 0; i < num_of_W * 2; i += 2)
+                        words[i / 2].Value = BitConverter.ToInt16(ReceveiBuffer, 11 + num_of_Bit_base_W * 2 + i);
                 }
-                if (num3 > 0)
+                if (num_of_DW > 0)
                 {
-                    for (int i = 0; i < num3 * 4; i += 4)
-                        dwords[i / 4].Value = BitConverter.ToInt32(ReceveiBuffer, 11 + (num1 * 2 + num2 * 2) + i);
+                    for (int i = 0; i < num_of_DW * 4; i += 4)
+                        dwords[i / 4].Value = BitConverter.ToInt32(ReceveiBuffer, 11 + (num_of_Bit_base_W * 2 + num_of_W * 2) + i);
                 }
-                if (num4 > 0)
+                if (num_of_FL > 0)
                 {
-                    for (int i = 0; i < num4 * 4; i += 4)
-                        floats[i / 4].Value = BitConverter.ToSingle(ReceveiBuffer, 11 + (num1 * 2 + num2 * 2 + num3 * 4) + i);
+                    for (int i = 0; i < num_of_FL * 4; i += 4)
+                        floats[i / 4].Value = BitConverter.ToSingle(ReceveiBuffer, 11 + (num_of_Bit_base_W * 2 + num_of_W * 2 + num_of_DW * 4) + i);
                 }
             }
         }
@@ -2203,10 +2424,12 @@ namespace dotPLC.Mitsubishi
         /// <returns>Returns <see cref="bool"></see> indicates that true is normal, false is abnormal.</returns>
         public bool SelfTest(string loopbackMessage)
         {
+            if (loopbackMessage == "" || loopbackMessage == null)
+                throw new ArgumentNullException(nameof(loopbackMessage), "Data length must be greater than 1 and less than or equal to 960 characters, character codes are allowed (\"0\" to \"9\", \"A\" to \"F\").");
             foreach (char ch in loopbackMessage)
             {
                 if ((ch < '0' || ch > '9') && (ch < 'A' || ch > 'F') || loopbackMessage.Length > 960)
-                    throw new ArgumentOutOfRangeException(nameof(loopbackMessage), loopbackMessage, "Data is sent for up to 960 bytes from the head by treating each character code (\"0\" to \"9\", \"A\" to \"F\") as a 1 byte value.");
+                    throw new ArgumentOutOfRangeException(nameof(loopbackMessage), loopbackMessage, "Data length must be greater than 1 and less than or equal to 960 characters, character codes are allowed (\"0\" to \"9\", \"A\" to \"F\").");
             }
             byte[] datalength_bytes = BitConverter.GetBytes(8 + loopbackMessage.Length);
             SendBuffer[7] = datalength_bytes[0];
@@ -2227,6 +2450,8 @@ namespace dotPLC.Mitsubishi
                 flag = false;
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (13 + loopbackMessage.Length < 20)
+                    StreamData(0, 20 - (13 + loopbackMessage.Length)); //Khi PLC gửi lỗi (20byte)
             }
             else
                 flag = ReceveiBuffer[11] == textlength_bytes[0] && ReceveiBuffer[12] == textlength_bytes[1] && loopbackMessage == Encoding.ASCII.GetString(ReceveiBuffer, 13, loopbackMessage.Length);
@@ -2236,7 +2461,7 @@ namespace dotPLC.Mitsubishi
         /// Read the model character string of the server.
         /// </summary>
         /// <returns>The model character string of the server.</returns>
-        public override string GetCpuName()
+        public  string GetCpuName()
         {
             Array.Copy(_getCpuName, SendBuffer, _getCpuName.Length);
             StreamData(_getCpuName.Length, 512);
@@ -2260,7 +2485,9 @@ namespace dotPLC.Mitsubishi
         /// <param name="password">Specifies a remote password.</param>
         public void RemoteLock(string password)
         {
-            byte[] numArray = password.Length <= 32 && password.Length >= 6 ? BitConverter.GetBytes(8 + password.Length) : throw new ArgumentOutOfRangeException("The password length is the specified characters (6 to 32 characters).");
+            if (password == "" || password == null)
+                throw new ArgumentNullException(nameof(password), "The password length is the specified characters (6 to 32 characters).");
+            byte[] numArray = password.Length <= 32 && password.Length >= 6 ? BitConverter.GetBytes(8 + password.Length) : throw new ArgumentOutOfRangeException(nameof(password), "The password length is the specified characters (6 to 32 characters).");
             SendBuffer[7] = numArray[0];
             SendBuffer[8] = numArray[1];
             SendBuffer[11] = 0x31;
@@ -2277,6 +2504,7 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            StreamData(0, 20 - 11); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Changes the remote password from locked status to unlocked status. (Enables communication to the device.)
@@ -2284,7 +2512,9 @@ namespace dotPLC.Mitsubishi
         /// <param name="password">Specifies a remote password.</param>
         public void RemoteUnlock(string password)
         {
-            byte[] numArray = password.Length <= 32 && password.Length >= 6 ? BitConverter.GetBytes(8 + password.Length) : throw new ArgumentOutOfRangeException("The password length is the specified characters (6 to 32 characters).");
+            if (password == "" || password == null)
+                throw new ArgumentNullException(nameof(password), "The password length is the specified characters (6 to 32 characters).");
+            byte[] numArray = password.Length <= 32 && password.Length >= 6 ? BitConverter.GetBytes(8 + password.Length) : throw new ArgumentOutOfRangeException(nameof(password), "The password length is the specified characters (6 to 32 characters).");
             SendBuffer[7] = numArray[0];
             SendBuffer[8] = numArray[1];
             SendBuffer[11] = 0x30;
@@ -2301,6 +2531,7 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            StreamData(0, 20 - 11); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// To perform a remote operation of the server. (EX: RUN/PAUSE/STOP/CLEAR/RESET...)
@@ -2315,6 +2546,7 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            StreamData(0, 20 - 11); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// To test whether the communication function between the client and the server operates normally or not.
@@ -2352,8 +2584,12 @@ namespace dotPLC.Mitsubishi
         /// </summary>
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="text">Text to be written.</param>
-        public override void WriteText(string label, string text)
+        public  void WriteText(string label, string text)
         {
+            if (text == null || text == "")
+                throw new ArgumentNullException(nameof(text));
+            if (text.Length < 1 || text.Length  > 960) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 960 points.", nameof(text));
             if (text.Length % 2 != 0)
             {
                 int num1 = text.Length / 2;
@@ -2372,7 +2608,15 @@ namespace dotPLC.Mitsubishi
                 SendBuffer[19] = 0x01;
                 SendBuffer[20] = 0x00;
                 StreamData(21, 13);
+                if (ReceveiBuffer[9] != 0x00 || ReceveiBuffer[10] != 0x00)
+                {
+                    int errorCode_Read = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
+                    Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode_Read));
+                    StreamData(0, 20 - 11); //Khi PLC gửi lỗi (20byte)
+                    return;
+                }
                 text += Convert.ToChar(ReceveiBuffer[12]).ToString();
+
             }
             int length = text.Length;
             byte[] datalength_bytes = BitConverter.GetBytes(12 + length * 2);
@@ -2393,6 +2637,7 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            StreamData(0, 20 - 11); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Read text from the server.
@@ -2400,8 +2645,10 @@ namespace dotPLC.Mitsubishi
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         /// <param name="size">Number of text to be read.</param>
         /// <returns>Returns text of the specified size.</returns>
-        public override string ReadText(string label, int size)
+        public  string ReadText(string label, int size)
         {
+            if (size < 1 || size > 960) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 960 points.", nameof(size));
             string str = string.Empty;
             int count = size;
             if (size % 2 != 0)
@@ -2421,6 +2668,8 @@ namespace dotPLC.Mitsubishi
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (11 + size < 20)
+                    StreamData(0, 20 - (11 + size)); //Khi PLC gửi lỗi (20byte)
             }
             else
                 str = count % 2 != 0 ? Encoding.ASCII.GetString(ReceveiBuffer, 11, count) : Encoding.ASCII.GetString(ReceveiBuffer, 11, size);
@@ -2441,5 +2690,214 @@ namespace dotPLC.Mitsubishi
         /// <returns>Returns <see cref="System.Threading.Tasks.Task{TResult}"></see> represents an asynchronous operation that can return a value.
         /// Value is text of the specified size.</returns>
         public async Task<string> ReadTextAsync(string label, int size) => await _queue.Enqueue(() => ReadTextSubAsync(label, size)).ConfigureAwait(false);
+
+        /// <summary>
+        /// Write a single value to the server.
+        /// </summary>
+        /// <typeparam name="T">The data type of value.</typeparam>
+        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+        /// <param name="value">A single value to be written.</param>
+        public void WriteDevice<T>(string label, T value) where T : struct
+        {
+            switch (Type.GetTypeCode(typeof(T)))
+            {
+                case TypeCode.Boolean:
+                    WriteDevice(label, (bool)Convert.ChangeType(value, TypeCode.Boolean));
+                    break;
+                case TypeCode.Int16:
+                    WriteDevice(label, (short)Convert.ChangeType(value, TypeCode.Int16));
+                    break;
+                case TypeCode.UInt16:
+                    WriteDevice(label, (short)(ushort)Convert.ChangeType(value, TypeCode.UInt16));
+                    break;
+                case TypeCode.Int32:
+                    WriteDevice(label, (int)Convert.ChangeType(value, TypeCode.Int32));
+                    break;
+                case TypeCode.UInt32:
+                    WriteDevice(label, (int)(uint)Convert.ChangeType(value, TypeCode.UInt32));
+                    break;
+                case TypeCode.Single:
+                    WriteDevice(label, (float)Convert.ChangeType(value, TypeCode.Single));
+                    break;
+                default:
+                    throw new InvalidDataTypeException("Invalid input data type.");
+            }
+        }
+
+        /// <summary>
+        /// Write multiple values to the server in a batch. 
+        /// </summary>
+        /// <typeparam name="T">The data type of value. (EX: <see cref="bool"></see>, <see cref="short"/>, <see cref="float"/>, etc.)</typeparam>
+        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+        /// <param name="values">Values to be written.</param>
+        public void WriteDeviceBlock<T>(string label, params T[] values) where T : struct
+        {
+            if (values == null)
+                throw new ArgumentNullException(nameof(values));
+            int length = values.Length;
+            switch (Type.GetTypeCode(typeof(T)))
+            {
+                case TypeCode.Boolean:
+                    {
+                        if (length < 1 || length > 3584) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 3584 points.", nameof(values));
+                        var values_temp = new bool[length];
+                        for (int index = 0; index < length; ++index)
+                            values_temp[index] = (bool)Convert.ChangeType(values[index], TypeCode.Boolean);
+                        WriteDeviceBlock(label, values_temp);
+                        break;
+                    }
+                case TypeCode.Int16:
+                    {
+                        if (length < 1 || length > 960) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 960 points.", nameof(values));
+                        var values_temp = new short[length];
+                        for (int index = 0; index < length; ++index)
+                            values_temp[index] = (short)Convert.ChangeType(values[index], TypeCode.Int16);
+                        WriteDeviceBlock(label, values_temp);
+                        break;
+                    }
+                case TypeCode.UInt16:
+                    {
+                        if (length < 1 || length > 960) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 960 points.", nameof(values));
+                        var values_temp = new short[length];
+                        for (int index = 0; index < length; ++index)
+                            values_temp[index] = (short)(ushort)Convert.ChangeType(values[index], TypeCode.UInt16);
+                        WriteDeviceBlock(label, values_temp);
+                        break;
+                    }
+                case TypeCode.Int32:
+                    {
+                        if (length < 1 || length > 480) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 480 points.", nameof(values));
+                        var values_temp = new int[length];
+                        for (int index = 0; index < length; ++index)
+                            values_temp[index] = (int)Convert.ChangeType(values[index], TypeCode.Int32);
+                        WriteDeviceBlock(label, values_temp);
+                        break;
+                    }
+                case TypeCode.UInt32:
+                    {
+                        if (length < 1 || length > 480) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 480 points.", nameof(values));
+                        var values_temp = new int[length];
+                        for (int index = 0; index < length; ++index)
+                            values_temp[index] = (int)(uint)Convert.ChangeType(values[index], TypeCode.UInt32);
+                        WriteDeviceBlock(label, values_temp);
+                        break;
+                    }
+                case TypeCode.Single:
+                    {
+                        if (length < 1 || length > 480) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 480 points.", nameof(values));
+                        var values_temp = new float[length];
+                        for (int index = 0; index < length; ++index)
+                            values_temp[index] = (float)Convert.ChangeType(values[index], TypeCode.Single);
+                        WriteDeviceBlock(label, values_temp);
+                        break;
+                    }
+                default:
+                    throw new InvalidDataTypeException("Invalid input data type.");
+            }
+        }
+
+        /// <summary>
+        /// Read a single value from the server.
+        /// </summary>
+        /// <typeparam name="T">The data type of value. (EX: <see cref="bool"></see>, <see cref="short"/>, <see cref="float"/>, etc.)</typeparam>
+        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+        /// <returns>Returned <typeparamref name="T"/> value.</returns>
+        public T ReadDevice<T>(string label) where T : struct
+        {
+            switch (Type.GetTypeCode(typeof(T)))
+            {
+                case TypeCode.Boolean:
+                    return (T)Convert.ChangeType(ReadSingleCoil(label), typeof(T));
+                case TypeCode.Int16:
+                    return (T)Convert.ChangeType(ReadSingleRegister(label), typeof(T));
+                case TypeCode.UInt16:
+                    return (T)Convert.ChangeType((ushort)ReadSingleRegister(label), typeof(T));
+                case TypeCode.Int32:
+                    return (T)Convert.ChangeType(ReadSingleDouble(label), typeof(T));
+                case TypeCode.UInt32:
+                    return (T)Convert.ChangeType((uint)ReadSingleDouble(label), typeof(T));
+                case TypeCode.Single:
+                    return (T)Convert.ChangeType(ReadSingleFloat(label), typeof(T));
+                default:
+                    throw new InvalidDataTypeException("Invalid input data type.");
+            }
+        }
+
+        /// <summary>
+        /// Read multiple values from the server in a batch.
+        /// </summary>
+        /// <typeparam name="T">The data type of value. (EX: <see cref="bool"></see>, <see cref="short"/>, <see cref="float"/>, etc.)</typeparam>
+        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
+        /// <param name="size">Number of values to be read.</param>
+        /// <returns>Returned <typeparamref name="T"/>[] values.</returns>
+        public T[] ReadDeviceBlock<T>(string label, int size) where T : struct
+        {
+            T[] results = new T[size];
+            switch (Type.GetTypeCode(typeof(T)))
+            {
+                case TypeCode.Boolean:
+                    {
+                        if (size < 1 || size > 3584) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 3584 points.", nameof(size));
+                        bool[] values = ReadMultipleCoils(label, size);
+                        for (int index = 0; index < size; ++index)
+                            results[index] = (T)Convert.ChangeType(values[index], typeof(T));
+                        return results;
+                    }
+                case TypeCode.Int16:
+                    {
+                        if (size < 1 || size > 960) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 960 points.", nameof(size));
+                        short[] values = ReadMultipleRegisters(label, size);
+                        for (int index = 0; index < size; ++index)
+                            results[index] = (T)Convert.ChangeType(values[index], typeof(T));
+                        return results;
+                    }
+                case TypeCode.UInt16:
+                    {
+                        if (size < 1 || size > 960) //Page57 (SLMP-Mitsubishi.PDF)
+                            throw new SizeOutOfRangeException("Size must be 1 to 960 points.", nameof(size));
+                        short[] values = ReadMultipleRegisters(label, size);
+                        for (int index = 0; index < size; ++index)
+                            results[index] = (T)Convert.ChangeType((ushort)values[index], typeof(T));
+                        return results;
+                    }
+                case TypeCode.Int32:
+                    {
+                        if (size < 1 || size > 480) //Page57 (SLMP-Mitsubishi.PDF) 960Word/2=480double
+                            throw new SizeOutOfRangeException("Size must be 1 to 480 points.", nameof(size));
+                        int[] values = ReadMultipleDoubles(label, size);
+                        for (int index = 0; index < size; ++index)
+                            results[index] = (T)Convert.ChangeType(values[index], typeof(T));
+                        return results;
+                    }
+                case TypeCode.UInt32:
+                    {
+                        if (size < 1 || size > 480) //Page57 (SLMP-Mitsubishi.PDF) 960Word/2=480double
+                            throw new SizeOutOfRangeException("Size must be 1 to 480 points.", nameof(size));
+                        int[] values = ReadMultipleDoubles(label, size);
+                        for (int index = 0; index < size; ++index)
+                            results[index] = (T)Convert.ChangeType((uint)values[index], typeof(T));
+                        return results;
+                    }
+                case TypeCode.Single:
+                    {
+                        if (size < 1 || size > 480) //Page57 (SLMP-Mitsubishi.PDF) 960Word/2=480float
+                            throw new SizeOutOfRangeException("Size must be 1 to 480 points.", nameof(size));
+                        float[] values = ReadMultipleFloats(label, size);
+                        for (int index = 0; index < size; ++index)
+                            results[index] = (T)Convert.ChangeType(values[index], typeof(T));
+                        return results;
+                    }
+                default:
+                    throw new InvalidDataTypeException("Data type is not compatible with the PLC.");
+            }
+        }
     }
 }

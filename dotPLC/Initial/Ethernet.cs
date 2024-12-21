@@ -1,11 +1,15 @@
 ﻿
 using dotPLC.Mitsubishi;
+using dotPLC.Mitsubishi.Exceptions;
 using dotPLC.Mitsubishi.Types;
 using System;
 using System.Globalization;
 using System.Linq;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace dotPLC.Initial
 {
@@ -33,11 +37,11 @@ namespace dotPLC.Initial
         /// <summary>
         /// _receiveTimeout
         /// </summary>
-        private int _receiveTimeout = 3000;
+        internal int _readTimeout = 3000;
         /// <summary>
         /// _sendTimeout
         /// </summary>
-        private int _sendTimeout = 3000;
+        internal int _writeTimeout = 3000;
         /// <summary>
         /// BufferSize
         /// </summary>
@@ -59,9 +63,28 @@ namespace dotPLC.Initial
         /// </summary>
         public Ethernet() => SetupBuffer();
         /// <summary>
-        /// IP Address of the server.
+        /// Gets or sets the port number of the server.
         /// </summary>
-        public string IPAddress { get; set; } = "127.0.0.1";
+        public int Port { get; set; } = 502;
+        /// <summary>
+        /// Gets or sets the IP-Address of the server.
+        /// </summary>
+        internal string _iPAddress = "127.0.0.1";
+        /// <summary>
+        ///  Gets or sets the IP-Address of the server.
+        /// </summary>
+        public string IPAddress
+        {
+            get
+            {
+                return _iPAddress;
+            }
+            set
+            {
+                if (!ValidateIPv4(value)) throw new ArgumentException("Invalid IP address.", nameof(IPAddress));
+                _iPAddress = value;
+            }
+        }
         /// <summary>
         /// Gets a value indicating whether a connection to the server has been established.
         /// </summary>
@@ -69,29 +92,31 @@ namespace dotPLC.Initial
         /// <summary>
         /// Gets or sets the amount of time that a write operation blocks waiting for data to the server.
         /// </summary>
-        public int ReceiveTimeout
+        public int ReadTimeout
         {
-            get => _receiveTimeout;
+            get => _readTimeout;
             set
             {
-                _receiveTimeout = value;
+                _readTimeout = value;
                 if (_tcpclient == null)
                     return;
                 _tcpclient.ReceiveTimeout = value;
+                _stream.ReadTimeout = value;
             }
         }
         /// <summary>
         /// Gets or sets the amount of time that a read operation blocks waiting for data from the server.
         /// </summary>
-        public int SendTimeout
+        public int WriteTimeout
         {
-            get => _sendTimeout;
+            get => _writeTimeout;
             set
             {
-                _sendTimeout = value;
+                _writeTimeout = value;
                 if (_tcpclient == null)
                     return;
                 _tcpclient.SendTimeout = value;
+                _stream.WriteTimeout= value;
             }
         }
         /// <summary>
@@ -173,7 +198,7 @@ namespace dotPLC.Initial
             return boolArray;
         }
         /// <summary>
-        /// Chuyển đổi mảng bit thành mảng byte
+        /// Chuyển đổi mảng bit thành mảng byte -Theo số lượng word 21 coil =>4byte
         /// </summary>
         /// <param name="coils">mảng bit</param>
         /// <returns>Mảng byte</returns>
@@ -191,6 +216,28 @@ namespace dotPLC.Initial
                 }
                 byteArray[index1 / 8] = (byte)num;
             }
+            return byteArray;
+        }
+        /// <summary>
+        /// Chuyển đổi mảng bit thành mảng byte -Theo số lượng coil 21 coil =>3byte
+        /// </summary>
+        /// <param name="coils">mảng bit</param>
+        /// <returns>Mảng byte</returns>
+        internal static byte[] ConvertBoolArrayToByteArrayOdd(bool[] coils)
+        {
+            int length = coils.Length;
+            byte[] byteArray = new byte[length % 8 == 0 ? length / 8 : 1 + length / 8];
+            for (int i = 0; i < coils.Length; i += 8)
+            {
+                int k = 0;
+                for (int j = 0; j < 8 && i + j < length; ++j)
+                {
+                    if (coils[i + j])
+                        k += 1 << j;
+                }
+                byteArray[i / 8] = (byte)k;
+            }
+            // Array.Reverse(byteArray);
             return byteArray;
         }
         /// <summary>
@@ -316,12 +363,7 @@ namespace dotPLC.Initial
         /// <param name="high_num">byte[2]</param>
         /// <returns>index</returns>
         protected internal abstract int SettingDevice(string label, out byte device, out byte low_num, out byte mid_num, out byte high_num);
-        /// <summary>
-        /// Lấy byte đại diện cho device
-        /// </summary>
-        /// <param name="device">device</param>
-        /// <returns>byte đại diện cho device</returns>
-        internal abstract byte GetNameDevice(string device);
+        
         /// <summary>
         /// Phân tích label thành device và index
         /// </summary>
@@ -329,69 +371,81 @@ namespace dotPLC.Initial
         /// <param name="device">device</param>
         /// <param name="num">index</param>
         /// <returns>Trả về true nếu thành công;nếu không,false</returns>
-        internal static bool SettingDevice(string label, out string device, out int num)
+        internal static void SettingDevice(string label, out string device, out int num)
         {
-            if (label.Length < 2)
+            if (label==null || label=="" || label.Length < 2)
             {
-                device = label;
-                num = 0;
-                return false;
+                throw new InvalidDeviceLabelNameException("The label name of device is invalid.",nameof(label));
             }
             if (label[0] == 'S' && label[1] == 'B')
             {
                 label = label.Substring(2);
                 device = "SB";
-                return int.TryParse(label, NumberStyles.HexNumber, null, out num) && IsSizeMatch(device, num);
+                if (!int.TryParse(label, NumberStyles.HexNumber, null, out num) || num > 0x7fff)
+                    throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                return;
             }
             if (label[0] == 'S' && label[1] == 'W')
             {
                 label = label.Substring(2);
                 device = "SW";
-                return int.TryParse(label, NumberStyles.HexNumber, null, out num) && IsSizeMatch(device, num);
+                if (!int.TryParse(label, NumberStyles.HexNumber, null, out num) || num > 0x7fff)
+                    throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                return;
             }
             if (label[0] == 'B' && label[1] != 'L')
             {
                 label = label.Substring(1);
                 device = "B";
-                return int.TryParse(label, NumberStyles.HexNumber, null, out num) && IsSizeMatch(device, num);
+                if (!int.TryParse(label, NumberStyles.HexNumber, null, out num) || num > 0x7fff)
+                    throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                return;
             }
             if (label[0] == 'W')
             {
                 label = label.Substring(1);
                 device = "W";
-                return int.TryParse(label, NumberStyles.HexNumber, null, out num) && IsSizeMatch(device, num);
+                if (!int.TryParse(label, NumberStyles.HexNumber, null, out num) || num > 0x7fff)
+                    throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                return;
             }
             if (label[0] == 'X')
             {
                 label = label.Substring(1);
                 device = "X";
-                bool flag = int.TryParse(label, out num);
-                if (!isOctal(num))
-                    return false;
+                if (!int.TryParse(label, out num) || !isOctal(num) || num > 1777) //Check octal? 1777(octal)
+                {
+                    throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                }
                 num = ConvertOctalToDecimal(num);
-                return flag && IsSizeMatch(device, num);
+                return;
             }
             if (label[0] == 'Y')
             {
                 label = label.Substring(1);
                 device = "Y";
-                bool flag = int.TryParse(label, out num);
-                if (!isOctal(num))
-                    return false;
+                if (!int.TryParse(label, out num) || !isOctal(num) || num > 1777) //Check octal? 1777(octal)
+                {
+                    throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                }
                 num = ConvertOctalToDecimal(num);
-                return flag && IsSizeMatch(device, num);
+                return;
             }
-            int num1 = 0;
+            int index_device = 0;
             for (int index = 0; index < label.Length; ++index)
             {
                 if (label[index] >= '0' && label[index] <= '9')
                 {
-                    num1 = index;
+                    index_device = index;
                     break;
                 }
             }
-            device = label.Substring(0, num1);
-            return int.TryParse(label.Substring(num1), out num) && IsSizeMatch(device, num);
+            device = label.Substring(0, index_device);
+            if(!int.TryParse(label.Substring(index_device), out num))
+            {
+                throw new InvalidDeviceLabelNameException("The label name of device is invalid.",nameof(label));
+            }
+            CheckDeviceAndAddressMatch(device, num);
         }
         /// <summary>
         /// Ghép device và index thành label
@@ -400,103 +454,263 @@ namespace dotPLC.Initial
         /// <param name="num">index</param>
         /// <param name="label">label name</param>
         /// <returns>Trả về true nếu thành công;nếu không,false</returns>
-        internal static bool SettingLabel(string device, int num, out string label)
+        internal static void SettingLabel(string device, int num, out string label)
         {
             switch (device)
             {
                 case "SB":
                     label = device + num.ToString("X2");
-                    return IsSizeMatch(device, num);
+                    CheckDeviceAndAddressMatch(device, num);
+                    break;
                 case "SW":
                     label = device + num.ToString("X2");
-                    return IsSizeMatch(device, num);
+                    CheckDeviceAndAddressMatch(device, num);
+                    break;
                 case "B":
                     label = device + num.ToString("X2");
-                    return IsSizeMatch(device, num);
+                    CheckDeviceAndAddressMatch(device, num);
+                    break;
                 case "W":
                     label = device + num.ToString("X2");
-                    return IsSizeMatch(device, num);
+                    CheckDeviceAndAddressMatch(device, num);
+                    break;
                 case "X":
                     label = device + ConvertDecimalToOctal(num);
-                    return IsSizeMatch(device, num);
+                    CheckDeviceAndAddressMatch(device, num);
+                    break;
                 case "Y":
                     label = device + ConvertDecimalToOctal(num);
-                    return IsSizeMatch(device, num);
+                    CheckDeviceAndAddressMatch(device, num);
+                    break;
                 default:
                     label = device + num;
-                    return IsSizeMatch(device, num);
+                    CheckDeviceAndAddressMatch(device, num);
+                    break;
             }
         }
+
         /// <summary>
         /// Kiểm tra Device và Index có phù hợp không
         /// </summary>
         /// <param name="device">device</param>
-        /// <param name="num">index</param>
+        /// <param name="devicenum">devicenum</param>
         /// <returns>Trả về true nếu thành công;nếu không,false</returns>
-        internal static bool IsSizeMatch(string device, int num)
+        //internal static bool IsDeviceAndAddressMatch(string device, int num)
+        //{
+        //    switch (device)
+        //    {
+        //        //Register
+        //        case "D":
+        //            if (num > 7999) return false;
+        //            else return true;//Decimal
+        //        case "SW":
+        //            if (num > 0x7fff) return false;
+        //            else return true;//Hexadecimal
+        //        case "W":
+        //            if (num > 0x7fff) return false;
+        //            else return true; //Hexadecimal
+        //        case "TN":
+        //            if (num > 1023) return false;
+        //            else return true; //Timer word //Decimal 
+        //        case "SD":
+        //            if (num > 11999) return false;
+        //            else return true; //Decimal
+        //        case "R":
+        //            if (num > 32767) return false;
+        //            else return true; // Decimal
+        //        case "Z":
+        //            if (num > 19) return false;
+        //            else return true;  // Decimal
+        //        case "LZ":
+        //            if (num > 1) return false;
+        //            else return true;  // Decimal
+        //        case "CN":
+        //            if (num > 1023) return false;
+        //            else return true; //Counter
+        //        case "LCN":
+        //            if (num > 1023) return false;
+        //            else return true;     //Long counter  // Decimal
+        //        case "SN":
+        //            if (num > 1023) return false;
+        //            else return true;  // Retentive timer-Timer có nhớ ST0.. //Decimal
+        //        case "STN":
+        //            if (num > 1023) return false;
+        //            else return true; // Giống ở trên //Decimal
+
+        //        //Bit:
+        //        case "X":
+        //            if (num > 1777) return false;
+        //            else return true; //OCtal
+        //        case "Y":
+        //            if (num > 1777) return false;
+        //            else return true; //OCtal
+        //        case "M":
+        //            if (num > 32767) return false;
+        //            else return true; //Decimal
+        //        case "L":
+        //            if (num > 32767) return false;
+        //            else return true; //Decimal
+        //        case "F":
+        //            if (num > 32767) return false;
+        //            else return true;  //Decimal
+        //        case "B":
+        //            if (num > 0x7fff) return false; //255
+        //            else return true; //Hexca
+        //        case "S":
+        //            if (num > 4095) return false;
+        //            else return true;   //Step relay //Decimal
+        //        case "SS":
+        //            if (num > 1023) return false;
+        //            else return true;  //Retentive timer  ST0 //Decimal Bit
+        //        case "SC":
+        //            if (num > 1023) return false;
+        //            else return true;   //Retentive timer ST0 //Decimal Bit
+        //        case "TC":
+        //            if (num > 1023) return false;
+        //            else return true;   //Timer T0 (bật) Decimal
+        //        case "TS":
+        //            if (num > 1023) return false;
+        //            else return true;  // Timer T0 Decimal
+        //        case "CS":
+        //            if (num > 1023) return false;
+        //            else return true;   //Counter  C0  Decimal
+        //        case "CC":
+        //            if (num > 1023) return false;
+        //            else return true;   //Counter C0 Decimal
+        //        case "SB":
+        //            if (num > 0x7fff) return false;
+        //            else return true;  //Link special relay Hex
+        //        case "SM":
+        //            if (num > 9999) return false;
+        //            else return true; //Special relay Decmal
+        //        case "BL":
+        //            if (num > 31) return false;
+        //            else return true;   //SFC block device Decimal
+        //        default:
+        //            return false;
+        //    }
+        //}
+        internal static void CheckDeviceAndAddressMatch(string device, int devicenum)
         {
             switch (device)
             {
                 case "B":
-                    return num <= short.MaxValue;
+                    if (devicenum > 0x7FFF)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "BL":
-                    return num <= 31;
+                    if (devicenum > 31)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "CC":
-                    return num <= 1023;
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "CN":
-                    return num <= 1023;
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "CS":
-                    return num <= 1023;
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "D":
-                    return num <= 7999;
+                    if (devicenum > 7999)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "F":
-                    return num <= short.MaxValue;
+                    if (devicenum > 32767)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "L":
-                    return num <= short.MaxValue;
+                    if (devicenum > 32767)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "LCN":
-                    return num <= 1023;
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "LZ":
-                    return num <= 1;
+                    if (devicenum > 1)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "M":
-                    return num <= short.MaxValue;
+                    if (devicenum > 32767)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "R":
-                    return num <= short.MaxValue;
+                    if (devicenum > 32767)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "S":
-                    return num <= 4095;
+                    if (devicenum > 4095)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "SB":
-                    return num <= short.MaxValue;
+                    if (devicenum > 0x7FFF)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "SC":
-                    return num <= 1023;
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "SD":
-                    return num <= 11999;
+                    if (devicenum > 11999)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "SM":
-                    return num <= 9999;
+                    if (devicenum > 9999)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "SN":
-                    return num <= 1023;
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "SS":
-                    return num <= 1023;
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "STN":
-                    return num <= 1023;
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "SW":
-                    return num <= short.MaxValue;
+                    if (devicenum > 0x7FFF)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "TC":
-                    return num <= 1023;
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "TN":
-                    return num <= 1023;
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "TS":
-                    return num <= 1023;
+                    if (devicenum > 1023)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "W":
-                    return num <= short.MaxValue;
+                    if (devicenum > 0x7FFF)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "X":
-                    return num <= 1777;
+                    if (devicenum > 1777)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "Y":
-                    return num <= 1777;
+                    if (devicenum > 1777)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 case "Z":
-                    return num <= 19;
+                    if (devicenum > 19)
+                        throw new DeviceAddressOutOfRangeException("The address of device was out of the range of the PLC.","label");
+                    break;
                 default:
-                    return false;
+                    throw new InvalidDeviceLabelNameException("The label name of device is invalid.","label");
             }
         }
+
         /// <summary>
         /// Kiểm tra index có phải là octal không
         /// </summary>
@@ -518,353 +732,32 @@ namespace dotPLC.Initial
         /// <summary>
         /// Close connection to the server.
         /// </summary>
-        public abstract void Close();
-        /// <summary>
-        /// Write a single value to the server.
-        /// </summary>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <param name="value">A single value to be written.</param>
-        internal abstract void WriteDevice(string label, bool value);
-        /// <summary>
-        /// Write a single value to the server.
-        /// </summary>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <param name="value">A single value to be written.</param>
-        internal abstract void WriteDevice(string label, short value);
-        /// <summary>
-        /// Write a single value to the server.
-        /// </summary>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <param name="value">A single value to be written.</param>
-        internal abstract void WriteDevice(string label, int value);
-        /// <summary>
-        /// Write a single value to the server.
-        /// </summary>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <param name="value">A single value to be written.</param>
-        internal abstract void WriteDevice(string label, float value);
-        /// <summary>
-        /// Write a single value to the server.
-        /// </summary>
-        /// <typeparam name="T">The data type of value.</typeparam>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <param name="value">A single value to be written.</param>
-        public void WriteDevice<T>(string label, T value) where T : struct
-        {
-            switch (Type.GetTypeCode(typeof(T)))
-            {
-                case TypeCode.Boolean:
-                    WriteDevice(label, (bool)Convert.ChangeType(value, TypeCode.Boolean));
-                    break;
-                case TypeCode.Int16:
-                    WriteDevice(label, (short)Convert.ChangeType(value, TypeCode.Int16));
-                    break;
-                case TypeCode.UInt16:
-                    WriteDevice(label, (short)(ushort)Convert.ChangeType(value, TypeCode.UInt16));
-                    break;
-                case TypeCode.Int32:
-                    WriteDevice(label, (int)Convert.ChangeType(value, TypeCode.Int32));
-                    break;
-                case TypeCode.UInt32:
-                    WriteDevice(label, (int)(uint)Convert.ChangeType(value, TypeCode.UInt32));
-                    break;
-                case TypeCode.Single:
-                    WriteDevice(label, (float)Convert.ChangeType(value, TypeCode.Single));
-                    break;
-                default:
-                    throw new InvalidCastException("Invalid input data type.");
-            }
-        }
-        /// <summary>
-        /// Write multiple values to the server in a batch. 
-        /// </summary>
-        /// <typeparam name="T">The data type of value. (EX: <see cref="bool"></see>, <see cref="short"/>, <see cref="float"/>, etc.)</typeparam>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <param name="values">Values to be written.</param>
-        public void WriteDeviceBlock<T>(string label, params T[] values) where T : struct
-        {
-            int length = values.Length;
-            switch (Type.GetTypeCode(typeof(T)))
-            {
-                case TypeCode.Boolean:
-                    {
-                        var values_temp = new bool[length];
-                        for (int index = 0; index < length; ++index)
-                            values_temp[index] = (bool)Convert.ChangeType(values[index], TypeCode.Boolean);
-                        WriteDeviceBlock(label, values_temp);
-                        break;
-                    }
-                case TypeCode.Int16:
-                    {
-                        var values_temp = new short[length];
-                        for (int index = 0; index < length; ++index)
-                            values_temp[index] = (short)Convert.ChangeType(values[index], TypeCode.Int16);
-                        WriteDeviceBlock(label, values_temp);
-                        break;
-                    }
-                case TypeCode.UInt16:
-                    {
-                        var values_temp = new short[length];
-                        for (int index = 0; index < length; ++index)
-                            values_temp[index] = (short)(ushort)Convert.ChangeType(values[index], TypeCode.UInt16);
-                        WriteDeviceBlock(label, values_temp);
-                        break;
-                    }
-                case TypeCode.Int32:
-                    {
-                        var values_temp = new int[length];
-                        for (int index = 0; index < length; ++index)
-                            values_temp[index] = (int)Convert.ChangeType(values[index], TypeCode.Int32);
-                        WriteDeviceBlock(label, values_temp);
-                        break;
-                    }
-                case TypeCode.UInt32:
-                    {
-                        var values_temp = new int[length];
-                        for (int index = 0; index < length; ++index)
-                            values_temp[index] = (int)(uint)Convert.ChangeType(values[index], TypeCode.UInt32);
-                        WriteDeviceBlock(label, values_temp);
-                        break;
-                    }
-                case TypeCode.Single:
-                    {
-                        var values_temp = new float[length];
-                        for (int index = 0; index < length; ++index)
-                            values_temp[index] = (float)Convert.ChangeType(values[index], TypeCode.Single);
-                        WriteDeviceBlock(label, values_temp);
-                        break;
-                    }
-                default:
-                    throw new InvalidCastException("Invalid input data type.");
-            }
-        }
-        /// <summary>
-        ///  Write multiple values to the server in a batch.
-        /// </summary>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <param name="values">Values to be written.</param>
-        internal abstract void WriteDeviceBlock(string label, params bool[] values);
-        /// <summary>
-        ///  Write multiple values to the server in a batch.
-        /// </summary>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <param name="values">Values to be written.</param>
-        internal abstract void WriteDeviceBlock(string label, params short[] values);
-        /// <summary>
-        ///  Write multiple values to the server in a batch.
-        /// </summary>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <param name="values">Values to be written.</param>
-        internal abstract void WriteDeviceBlock(string label, params int[] values);
-        /// <summary>
-        ///  Write multiple values to the server in a batch.
-        /// </summary>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <param name="values">Values to be written.</param>
-        internal abstract void WriteDeviceBlock(string label, params float[] values);
-
+        public abstract void Disconnect();
 
         /// <summary>
-        /// Write multiple values to the server randomly.
+        /// validating an IP Address
         /// </summary>
-        /// <param name="bits"><see cref="dotPLC.Mitsubishi.Types.Bit"/> values to be written.</param>
-        public abstract void WriteDeviceRandom(params Bit[] bits);
-        /// <summary>
-        /// Write multiple values to the server randomly.
-        /// </summary>
-        /// <param name="words"><see cref="dotPLC.Mitsubishi.Types.Word"/> values to be written.</param>
-        public abstract void WriteDeviceRandom(params Word[] words);
-        /// <summary>
-        /// Write multiple values to the server randomly.
-        /// </summary>
-        /// <param name="dwords"><see cref="dotPLC.Mitsubishi.Types.DWord"/> values to be written.</param>
-        public abstract void WriteDeviceRandom(params DWord[] dwords);
-        /// <summary>
-        /// Write multiple values to the server randomly.
-        /// </summary>
-        /// <param name="floats"><see cref="dotPLC.Mitsubishi.Types.Float"/> values to be written.</param>
-        public abstract void WriteDeviceRandom(params Float[] floats);
-        /// <summary>
-        /// Read a single value from the server.
-        /// </summary>
-        /// <typeparam name="T">The data type of value. (EX: <see cref="bool"></see>, <see cref="short"/>, <see cref="float"/>, etc.)</typeparam>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <returns>Returned <typeparamref name="T"/> value.</returns>
-        public T ReadDevice<T>(string label) where T : struct
+        /// <param name="ipString">Ip-address.</param>
+        /// <returns>Validate if true, Invalidate if false.</returns>
+        internal bool ValidateIPv4(string ipString)
         {
-            switch (Type.GetTypeCode(typeof(T)))
+            if (string.IsNullOrWhiteSpace(ipString))
             {
-                case TypeCode.Boolean:
-                    return (T)Convert.ChangeType(ReadSingleCoil(label), typeof(T));
-                case TypeCode.Int16:
-                    return (T)Convert.ChangeType(ReadSingleRegister(label), typeof(T));
-                case TypeCode.UInt16:
-                    return (T)Convert.ChangeType((ushort)ReadSingleRegister(label), typeof(T));
-                case TypeCode.Int32:
-                    return (T)Convert.ChangeType(ReadSingleDouble(label), typeof(T));
-                case TypeCode.UInt32:
-                    return (T)Convert.ChangeType((uint)ReadSingleDouble(label), typeof(T));
-                case TypeCode.Single:
-                    return (T)Convert.ChangeType(ReadSingleFloat(label), typeof(T));
-                default:
-                    throw new InvalidCastException("Invalid input data type.");
+                return false;
             }
-        }
-        /// <summary>
-        /// Read a single value from the server.
-        /// </summary>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <returns>Returned value.</returns>
-        internal abstract bool ReadSingleCoil(string label);
-        /// <summary>
-        /// Read a single value from the server.
-        /// </summary>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <returns>Returned value.</returns>
-        internal abstract short ReadSingleRegister(string label);
-        /// <summary>
-        /// Read a single value from the server.
-        /// </summary>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <returns>Returned value.</returns>
-        internal abstract int ReadSingleDouble(string label);
-        /// <summary>
-        /// Read a single value from the server.
-        /// </summary>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <returns>Returned value.</returns>
-        internal abstract float ReadSingleFloat(string label);
-        /// <summary>
-        /// Read multiple values from the server in a batch.
-        /// </summary>
-        /// <typeparam name="T">The data type of value. (EX: <see cref="bool"></see>, <see cref="short"/>, <see cref="float"/>, etc.)</typeparam>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <param name="size">Number of values to be read.</param>
-        /// <returns>Returned <typeparamref name="T"/>[] values.</returns>
-        public T[] ReadDeviceBlock<T>(string label, int size) where T : struct
-        {
-            T[] results = new T[size];
-            switch (Type.GetTypeCode(typeof(T)))
+
+            string[] splitValues = ipString.Split('.');
+            if (splitValues.Length != 4)
             {
-                case TypeCode.Boolean:
-                    {
-                        bool[] values = ReadMultipleCoils(label, size);
-                        for (int index = 0; index < size; ++index)
-                            results[index] = (T)Convert.ChangeType(values[index], typeof(T));
-                        return results;
-                    }
-                case TypeCode.Int16:
-                    {
-                        short[] values = ReadMultipleRegisters(label, size);
-                        for (int index = 0; index < size; ++index)
-                            results[index] = (T)Convert.ChangeType(values[index], typeof(T));
-                        return results;
-                    }
-                case TypeCode.UInt16:
-                    {
-                        short[] values = ReadMultipleRegisters(label, size);
-                        for (int index = 0; index < size; ++index)
-                            results[index] = (T)Convert.ChangeType((ushort)values[index], typeof(T));
-                        return results;
-                    }
-                case TypeCode.Int32:
-                    {
-                        int[] values = ReadMultipleDoubles(label, size);
-                        for (int index = 0; index < size; ++index)
-                            results[index] = (T)Convert.ChangeType(values[index], typeof(T));
-                        return results;
-                    }
-                case TypeCode.UInt32:
-                    {
-                        int[] values = ReadMultipleDoubles(label, size);
-                        for (int index = 0; index < size; ++index)
-                            results[index] = (T)Convert.ChangeType((uint)values[index], typeof(T));
-                        return results;
-                    }
-                case TypeCode.Single:
-                    {
-                        float[] values = ReadMultipleFloats(label, size);
-                        for (int index = 0; index < size; ++index)
-                            results[index] = (T)Convert.ChangeType(values[index], typeof(T));
-                        return results;
-                    }
-                default:
-                    throw new InvalidCastException("Invalid input data type.");
+                return false;
             }
+
+            byte tempForParsing;
+
+            return splitValues.All(r => byte.TryParse(r, out tempForParsing));
         }
-        /// <summary>
-        /// Read multiple values from the server in a batch.
-        /// </summary>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <param name="size">Number of values to be read.</param>
-        /// <returns>Returned values.</returns>
-        internal abstract bool[] ReadMultipleCoils(string label, int size);
-        /// <summary>
-        /// Read multiple values from the server in a batch.
-        /// </summary>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <param name="size">Number of values to be read.</param>
-        /// <returns>Returned values.</returns>
-        internal abstract short[] ReadMultipleRegisters(string label, int size);
-        /// <summary>
-        /// Read multiple values from the server in a batch.
-        /// </summary>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <param name="size">Number of values to be read.</param>
-        /// <returns>Returned values.</returns>
-        internal abstract int[] ReadMultipleDoubles(string label, int size);
-        /// <summary>
-        /// Read multiple values from the server in a batch.
-        /// </summary>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <param name="size">Number of values to be read.</param>
-        /// <returns>Returned values.</returns>
-        internal abstract float[] ReadMultipleFloats(string label, int size);
-        /// <summary>
-        /// Write text to the server.
-        /// </summary>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <param name="text">Text to be written.</param>
-        public abstract void WriteText(string label, string text);
-        /// <summary>
-        /// Read text from the server.
-        /// </summary>
-        /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
-        /// <param name="size">Number of text to be read.</param>
-        /// <returns>Returns text of the specified size.</returns>
-        public abstract string ReadText(string label, int size);
-        /// <summary>
-        /// Read the model character string of the server.
-        /// </summary>
-        /// <returns>The model character string of the server.</returns>
-        public abstract string GetCpuName();
-        /// <summary>
-        /// Read multiple values from the server randomly.
-        /// </summary>
-        /// <param name="bits"><see cref="dotPLC.Mitsubishi.Types.Bit"/> values to be read.</param>
-        public abstract void ReadDeviceRandom(params Bit[] bits);
-        /// <summary>
-        /// Read multiple values from the server randomly.
-        /// </summary>
-        /// <param name="words"><see cref="dotPLC.Mitsubishi.Types.Word"/> values to be read.</param>
-        public abstract void ReadDeviceRandom(params Word[] words);
-        /// <summary>
-        /// Read multiple values from the server randomly.
-        /// </summary>
-        /// <param name="dwords"><see cref="dotPLC.Mitsubishi.Types.DWord"/> values to be read.</param>
-        public abstract void ReadDeviceRandom(params DWord[] dwords);
-        /// <summary>
-        /// Read multiple values from the server randomly.
-        /// </summary>
-        /// <param name="floats"><see cref="dotPLC.Mitsubishi.Types.Float"/> values to be read.</param>
-        public abstract void ReadDeviceRandom(params Float[] floats);
-        /// <summary>
-        /// Read multiple values from the server randomly. <see langword="[RECOMMENDED]"></see>
-        /// </summary>
-        /// <param name="bits"><see cref="dotPLC.Mitsubishi.Types.Bit"/> values to be read.</param>
-        /// <param name="words"><see cref="dotPLC.Mitsubishi.Types.Word"/> values to be read.</param>
-        /// <param name="dwords"><see cref="dotPLC.Mitsubishi.Types.DWord"/> values to be read.</param>
-        /// <param name="floats"><see cref="dotPLC.Mitsubishi.Types.Float"/> values to be read.</param>
-        public abstract void ReadDeviceRandom(Bit[] bits = null, Word[] words = null, DWord[] dwords = null, Float[] floats = null);
+
+        
+        
     }
 }

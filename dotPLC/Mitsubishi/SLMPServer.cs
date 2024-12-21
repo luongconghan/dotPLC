@@ -264,6 +264,28 @@ namespace dotPLC.Mitsubishi
             }
         }
         /// <summary>
+        /// validating an IP Address
+        /// </summary>
+        /// <param name="ipString">Ip-address.</param>
+        /// <returns>Validate if true, Invalidate if false.</returns>
+        internal bool ValidateIPv4(string ipString)
+        {
+            if (string.IsNullOrWhiteSpace(ipString))
+            {
+                return false;
+            }
+
+            string[] splitValues = ipString.Split('.');
+            if (splitValues.Length != 4)
+            {
+                return false;
+            }
+
+            byte tempForParsing;
+
+            return splitValues.All(r => byte.TryParse(r, out tempForParsing));
+        }
+        /// <summary>
         /// Get register memory of device.
         /// </summary>
         /// <param name="device">Device.</param>
@@ -317,31 +339,30 @@ namespace dotPLC.Mitsubishi
                     return Memory.L;
                 case 0x93:
                     return Memory.F;
-                case 0x94:
-                    return Memory.B;
                 case 0xA0:
-                    return Memory.S;
+                    return Memory.B;
                 case 0x98:
-                    return Memory.SS;
+                    return Memory.S;
                 case 0xC7:
-                    return Memory.SC;
+                    return Memory.SS;
                 case 0xC6:
-                    return Memory.TC;
+                    return Memory.SC;
                 case 0xC0:
-                    return Memory.TS;
+                    return Memory.TC;
                 case 0xC1:
-                    return Memory.CS;
+                    return Memory.TS;
                 case 0xC4:
-                    return Memory.CC;
+                    return Memory.CS;
                 case 0xC3:
-                    return Memory.SB;
+                    return Memory.CC;
                 case 0xA1:
-                    return Memory.SM;
+                    return Memory.SB;
                 case 0x91:
-                    return Memory.BL;
+                    return Memory.SM;
                 case 0xDC:
+                    return Memory.BL;
                 default:
-                    throw new ArgumentOutOfRangeException("The specified device does not belong to the memory of the PLC");
+                    throw new ArgumentOutOfRangeException();
             }
         }
         /// <summary>

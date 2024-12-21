@@ -1,4 +1,5 @@
 ﻿using dotPLC.Initial;
+using dotPLC.Mitsubishi.Exceptions;
 using dotPLC.Mitsubishi.Types;
 using System;
 using System.Collections.Generic;
@@ -36,6 +37,7 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            await StreamDataAsync(0, 20 - 11).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write single value to the server as an asynchronous operation.
@@ -62,6 +64,7 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            await StreamDataAsync(0, 20 - 11).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write single value to the server as an asynchronous operation.
@@ -88,6 +91,7 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            await StreamDataAsync(0, 20 - 11).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write single value to the server as an asynchronous operation.
@@ -114,6 +118,7 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            await StreamDataAsync(0, 20 - 11).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write multiple values to the server in a batch as an asynchronous operation.
@@ -142,6 +147,7 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            await StreamDataAsync(0, 20 - 11).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write multiple values to the server in a batch as an asynchronous operation.
@@ -152,9 +158,9 @@ namespace dotPLC.Mitsubishi
         private async Task WriteDeviceBlockSubAsync(string label, short[] values)
         {
             int datalength = values != null ? values.Length : throw new ArgumentNullException(nameof(values), "Array data must be non-null");
-            byte[] datalength_bytes = BitConverter.GetBytes(12 + datalength * 2);
-            SendBuffer[7] = datalength_bytes[0];
-            SendBuffer[8] = datalength_bytes[1];
+            byte[] datalenght_bytes = BitConverter.GetBytes(12 + datalength * 2);
+            SendBuffer[7] = datalenght_bytes[0];
+            SendBuffer[8] = datalenght_bytes[1];
             SendBuffer[11] = 0x01;
             SendBuffer[12] = 0x14;
             SendBuffer[13] = 0x00;
@@ -175,6 +181,8 @@ namespace dotPLC.Mitsubishi
             if (ReceveiBuffer[9] == 0x00 && ReceveiBuffer[10] == 0x00)
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
+            Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            await StreamDataAsync(0, 20 - 11).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write multiple values to the server in a batch as an asynchronous operation.
@@ -185,9 +193,9 @@ namespace dotPLC.Mitsubishi
         private async Task WriteDeviceBlockSubAsync(string label, int[] values)
         {
             int datalength = values != null ? values.Length : throw new ArgumentNullException(nameof(values), "Array data must be non-null");
-            byte[] datalength_bytes = BitConverter.GetBytes(12 + datalength * 4);
-            SendBuffer[7] = datalength_bytes[0];
-            SendBuffer[8] = datalength_bytes[1];
+            byte[] datalenght_bytes = BitConverter.GetBytes(12 + datalength * 4);
+            SendBuffer[7] = datalenght_bytes[0];
+            SendBuffer[8] = datalenght_bytes[1];
             SendBuffer[11] = 0x01;
             SendBuffer[12] = 0x14;
             SendBuffer[13] = 0x00;
@@ -211,6 +219,7 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            await StreamDataAsync(0, 20 - 11).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write multiple values to the server in a batch as an asynchronous operation.
@@ -247,6 +256,7 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            await StreamDataAsync(0, 20 - 11).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write multiple values to the server randomly as an asynchronous operation.
@@ -255,18 +265,24 @@ namespace dotPLC.Mitsubishi
         /// <returns>Returns <see cref="System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
         private async Task WriteDeviceRandomSubAsync(params Bit[] bits)
         {
-            int num = bits.Length;
-            byte[] datalenght = BitConverter.GetBytes(7 + num * 5);
-            SendBuffer[7] = datalenght[0];
-            SendBuffer[8] = datalenght[1];
+            if (bits == null)
+                throw new ArgumentNullException(nameof(bits));
+            int datalength = bits.Length;
+            if (datalength < 1 || datalength > 188) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 3584 points.", nameof(bits));
+            byte[] datalenght_bytes = BitConverter.GetBytes(7 + datalength * 5);
+            SendBuffer[7] = datalenght_bytes[0];
+            SendBuffer[8] = datalenght_bytes[1];
             SendBuffer[11] = 0x02;
             SendBuffer[12] = 0x14;
             SendBuffer[13] = 0x01;
             SendBuffer[14] = 0x00;
-            SendBuffer[15] = (byte)num;
+            SendBuffer[15] = (byte)datalength;
             int index = 16;
-            for (int i = 0; i < num; ++i)
+            for (int i = 0; i < datalength; ++i)
             {
+                if (bits[i] == null)
+                    throw new ArgumentNullException(nameof(bits), string.Format("bits[{0}] is null.", i));
                 SettingDevice(bits[i].Label, out SendBuffer[index + 3], out SendBuffer[index], out SendBuffer[index + 1], out SendBuffer[index + 2]);
                 if (bits[i].Value)
                     SendBuffer[index + 4] = 0x01;
@@ -274,12 +290,13 @@ namespace dotPLC.Mitsubishi
                     SendBuffer[index + 4] = 0x00;
                 index += 5;
             }
-            int total_byte = 16 + num * 5;
+            int total_byte = 16 + datalength * 5;
             await StreamDataAsync(total_byte, 11).ConfigureAwait(false);
             if (ReceveiBuffer[9] == 0x00 && ReceveiBuffer[10] == 0x00)
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            await StreamDataAsync(0, 20 - 11).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write multiple values to the server randomly as an asynchronous operation.
@@ -288,32 +305,39 @@ namespace dotPLC.Mitsubishi
         /// <returns>Returns <see cref="System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
         private async Task WriteDeviceRandomSubAsync(params Word[] words)
         {
-            int num_of_W = words.Length;
-            byte[] datalenght = BitConverter.GetBytes(8 + num_of_W * 6);
-            SendBuffer[7] = datalenght[0];
-            SendBuffer[8] = datalenght[1];
+            if (words == null)
+                throw new ArgumentNullException(nameof(words));
+            int datalength = words.Length;
+            if (datalength < 1 || datalength > 160) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 160 points.", nameof(words));
+            byte[] datalength_bytes = BitConverter.GetBytes(8 + datalength * 6);
+            SendBuffer[7] = datalength_bytes[0];
+            SendBuffer[8] = datalength_bytes[1];
             SendBuffer[11] = 0x02;
             SendBuffer[12] = 0x14;
             SendBuffer[13] = 0x00;
             SendBuffer[14] = 0x00;
-            SendBuffer[15] = (byte)num_of_W;
+            SendBuffer[15] = (byte)datalength;
             SendBuffer[16] = 0x00;
             int index_W = 17;
-            int index_DW = 17 + num_of_W * 6;
-            for (int i = 0; i < num_of_W; ++i)
+            int index_DW = 17 + datalength * 6;
+            for (int i = 0; i < datalength; ++i)
             {
+                if (words[i] == null)
+                    throw new ArgumentNullException(nameof(words), string.Format("words[{0}] is null.", i));
                 SettingDevice(words[i].Label, out SendBuffer[index_W + 3], out SendBuffer[index_W], out SendBuffer[index_W + 1], out SendBuffer[index_W + 2]);
                 byte[] value_w = BitConverter.GetBytes(words[i].Value);
                 SendBuffer[index_W + 4] = value_w[0];
                 SendBuffer[index_W + 5] = value_w[1];
                 index_W += 6;
             }
-            int total_byte = 17 + num_of_W * 6;
+            int total_byte = 17 + datalength * 6;
             await StreamDataAsync(total_byte, 11).ConfigureAwait(false);
             if (ReceveiBuffer[9] == 0x00 && ReceveiBuffer[10] == 0x00)
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            await StreamDataAsync(0, 20 - 11).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write multiple values to the server randomly as an asynchronous operation.
@@ -322,19 +346,25 @@ namespace dotPLC.Mitsubishi
         /// <returns>Returns <see cref="System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
         private async Task WriteDeviceRandomSubAsync(params DWord[] dwords)
         {
-            int num_of_DW = dwords.Length;
-            byte[] datalenght = BitConverter.GetBytes(8 + num_of_DW * 8);
-            SendBuffer[7] = datalenght[0];
-            SendBuffer[8] = datalenght[1];
+            if (dwords == null)
+                throw new ArgumentNullException(nameof(dwords));
+            int datalength = dwords.Length;
+            if (datalength < 1 || datalength > 137) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 137 points.", nameof(dwords));
+            byte[] datalength_bytes = BitConverter.GetBytes(8 + datalength * 8);
+            SendBuffer[7] = datalength_bytes[0];
+            SendBuffer[8] = datalength_bytes[1];
             SendBuffer[11] = 0x02;
             SendBuffer[12] = 0x14;
             SendBuffer[13] = 0x00;
             SendBuffer[14] = 0x00;
             SendBuffer[15] = 0x00;
-            SendBuffer[16] = (byte)num_of_DW;
+            SendBuffer[16] = (byte)datalength;
             int index_DW = 17;
-            for (int i = 0; i < num_of_DW; ++i)
+            for (int i = 0; i < datalength; ++i)
             {
+                if (dwords[i] == null)
+                    throw new ArgumentNullException(nameof(dwords), string.Format("dwords[{0}] is null.", i));
                 SettingDevice(dwords[i].Label, out SendBuffer[index_DW + 3], out SendBuffer[index_DW], out SendBuffer[index_DW + 1], out SendBuffer[index_DW + 2]);
                 byte[] data_bytes = BitConverter.GetBytes(dwords[i].Value);
                 int k = 0;
@@ -345,12 +375,13 @@ namespace dotPLC.Mitsubishi
                 }
                 index_DW += 8;
             }
-            int total_byte = 17 + num_of_DW * 8;
+            int total_byte = 17 + datalength * 8;
             await StreamDataAsync(total_byte, 11).ConfigureAwait(false);
             if (ReceveiBuffer[9] == 0x00 && ReceveiBuffer[10] == 0x00)
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            await StreamDataAsync(0, 20 - 11).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write multiple values to the server randomly as an asynchronous operation.
@@ -359,19 +390,25 @@ namespace dotPLC.Mitsubishi
         /// <returns>Returns <see cref="System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
         private async Task WriteDeviceRandomSubAsync(params Float[] floats)
         {
-            int num_of_FL = floats.Length;
-            byte[] datalenght = BitConverter.GetBytes(8 + num_of_FL * 8);
-            SendBuffer[7] = datalenght[0];
-            SendBuffer[8] = datalenght[1];
+            if (floats == null)
+                throw new ArgumentNullException(nameof(floats));
+            int datalength = floats.Length;
+            if (datalength < 1 || datalength > 137) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 137 points.", nameof(floats));
+            byte[] datalenght_bytes = BitConverter.GetBytes(8 + datalength * 8);
+            SendBuffer[7] = datalenght_bytes[0];
+            SendBuffer[8] = datalenght_bytes[1];
             SendBuffer[11] = 0x02;
             SendBuffer[12] = 0x14;
             SendBuffer[13] = 0x00;
             SendBuffer[14] = 0x00;
             SendBuffer[15] = 0x00;
-            SendBuffer[16] = (byte)num_of_FL;
+            SendBuffer[16] = (byte)datalength;
             int index_FL = 17;
-            for (int i = 0; i < num_of_FL; ++i)
+            for (int i = 0; i < datalength; ++i)
             {
+                if (floats[i] == null)
+                    throw new ArgumentNullException(nameof(floats), string.Format("floats[{0}] is null.", i));
                 SettingDevice(floats[i].Label, out SendBuffer[index_FL + 3], out SendBuffer[index_FL], out SendBuffer[index_FL + 1], out SendBuffer[index_FL + 2]);
                 byte[] data_bytes = BitConverter.GetBytes(floats[i].Value);
                 int k = 0;
@@ -382,14 +419,13 @@ namespace dotPLC.Mitsubishi
                 }
                 index_FL += 8;
             }
-            int total_byte = 17 + num_of_FL * 8;
+            int total_byte = 17 + datalength * 8;
             await StreamDataAsync(total_byte, 11).ConfigureAwait(false);
             if (ReceveiBuffer[9] == 0x00 && ReceveiBuffer[10] == 0x00)
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
-
-
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            await StreamDataAsync(0, 20 - 11).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write multiple values to the server randomly as an asynchronous operation.
@@ -400,27 +436,33 @@ namespace dotPLC.Mitsubishi
         /// <returns>Returns <see cref="System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
         private async Task WriteDeviceRandomSubAsync(Word[] words, DWord[] dwords, Float[] floats)
         {
-            int num_of_W = words == null ? 0 : words.Length;
-            int num_of_DW = dwords == null ? 0 : dwords.Length;
-            int num_of_FL = floats == null ? 0 : floats.Length;
-            if (num_of_W == 0 && num_of_DW == 0 && num_of_FL == 0)
+            if (words == null && dwords == null && floats == null)
                 return;
-            byte[] datalenght = BitConverter.GetBytes(8 + num_of_W * 6 + (num_of_DW + num_of_FL) * 8);
-            SendBuffer[7] = datalenght[0];
-            SendBuffer[8] = datalenght[1];
+
+            int num_W = words == null ? 0 : words.Length;
+            int num_DW = dwords == null ? 0 : dwords.Length;
+            int num_FL = floats == null ? 0 : floats.Length;
+            int size = num_W * 12 + (num_DW + num_FL) * 14;
+            if (size < 1 || size > 1920) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 1920.\n[size \u2264 word points x 12 + (double points + float points) x 14 \u2264 1920]");
+            byte[] datalength = BitConverter.GetBytes(8 + num_W * 6 + (num_DW + num_FL) * 8);
+            SendBuffer[7] = datalength[0];
+            SendBuffer[8] = datalength[1];
             SendBuffer[11] = 0x02;
             SendBuffer[12] = 0x14;
             SendBuffer[13] = 0x00;
             SendBuffer[14] = 0x00;
-            SendBuffer[15] = (byte)num_of_W;
-            SendBuffer[16] = (byte)(num_of_DW + num_of_FL);
+            SendBuffer[15] = (byte)num_W;
+            SendBuffer[16] = (byte)(num_DW + num_FL);
             int index_W = 17;
-            int index_DW = 17 + num_of_W * 6;
-            int index_FL = 17 + num_of_W * 6 + num_of_DW * 8;
-            if (num_of_W > 0)
+            int index_DW = 17 + num_W * 6;
+            int index_FL = 17 + num_W * 6 + num_DW * 8;
+            if (num_W > 0)
             {
-                for (int i = 0; i < num_of_W; ++i)
+                for (int i = 0; i < num_W; ++i)
                 {
+                    if (words[i] == null)
+                        throw new ArgumentNullException(nameof(words), string.Format("words[{0}] is null.", i));
                     SettingDevice(words[i].Label, out SendBuffer[index_W + 3], out SendBuffer[index_W], out SendBuffer[index_W + 1], out SendBuffer[index_W + 2]);
                     byte[] value_w = BitConverter.GetBytes(words[i].Value);
                     SendBuffer[index_W + 4] = value_w[0];
@@ -428,10 +470,12 @@ namespace dotPLC.Mitsubishi
                     index_W += 6;
                 }
             }
-            if (num_of_DW > 0)
+            if (num_DW > 0)
             {
-                for (int i = 0; i < num_of_DW; ++i)
+                for (int i = 0; i < num_DW; ++i)
                 {
+                    if (dwords[i] == null)
+                        throw new ArgumentNullException(nameof(dwords), string.Format("dwords[{0}] is null.", i));
                     SettingDevice(dwords[i].Label, out SendBuffer[index_DW + 3], out SendBuffer[index_DW], out SendBuffer[index_DW + 1], out SendBuffer[index_DW + 2]);
                     byte[] value_w = BitConverter.GetBytes(dwords[i].Value);
                     SendBuffer[index_DW + 4] = value_w[0];
@@ -441,10 +485,12 @@ namespace dotPLC.Mitsubishi
                     index_DW += 8;
                 }
             }
-            if (num_of_FL > 0)
+            if (num_FL > 0)
             {
-                for (int i = 0; i < num_of_FL; ++i)
+                for (int i = 0; i < num_FL; ++i)
                 {
+                    if (floats[i] == null)
+                        throw new ArgumentNullException(nameof(floats), string.Format("floats[{0}] is null.", i));
                     SettingDevice(floats[i].Label, out SendBuffer[index_FL + 3], out SendBuffer[index_FL], out SendBuffer[index_FL + 1], out SendBuffer[index_FL + 2]);
                     byte[] value_w = BitConverter.GetBytes(floats[i].Value);
                     SendBuffer[index_FL + 4] = value_w[0];
@@ -454,12 +500,13 @@ namespace dotPLC.Mitsubishi
                     index_FL += 8;
                 }
             }
-            int total_byte = 17 + num_of_W * 6 + num_of_DW * 8 + num_of_FL * 8;
+            int total_byte = 17 + num_W * 6 + num_DW * 8 + num_FL * 8;
             await StreamDataAsync(total_byte, 11).ConfigureAwait(false);
             if (ReceveiBuffer[9] == 0x00 && ReceveiBuffer[10] == 0x00)
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            await StreamDataAsync(0, 20 - 11).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Write text to the server as an asynchronous operation.
@@ -469,6 +516,10 @@ namespace dotPLC.Mitsubishi
         /// <returns>Returns <see cref="System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
         private async Task WriteTextSubAsync(string label, string text)
         {
+            if (text == null || text == "")
+                throw new ArgumentNullException(nameof(text));
+            if (text.Length < 1 || text.Length > 960) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 960 points.", nameof(text));
             if (text.Length % 2 != 0)
             {
                 int num1 = text.Length / 2;
@@ -486,13 +537,20 @@ namespace dotPLC.Mitsubishi
                 SendBuffer[17] = bytes[2];
                 SendBuffer[19] = 0x01;
                 SendBuffer[20] = 0x00;
-                await StreamDataAsync(21, 13);
+                await StreamDataAsync(21, 13);//Đọc thanh ghi cuối
+                if (ReceveiBuffer[9] != 0x00 || ReceveiBuffer[10] != 0x00)
+                {
+                    int errorCode_Read = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
+                    Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode_Read));
+                    await StreamDataAsync(0, 20 - 11).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
+                    return;
+                }
                 text += Convert.ToChar(ReceveiBuffer[12]).ToString();
             }
             int length = text.Length;
-            byte[] datalength_bytes = BitConverter.GetBytes(12 + length * 2);
-            SendBuffer[7] = datalength_bytes[0];
-            SendBuffer[8] = datalength_bytes[1];
+            byte[] datalenght_bytes = BitConverter.GetBytes(12 + length * 2);
+            SendBuffer[7] = datalenght_bytes[0];
+            SendBuffer[8] = datalenght_bytes[1];
             SendBuffer[11] = 0x01;
             SendBuffer[12] = 0x14;
             SendBuffer[13] = 0x00;
@@ -508,6 +566,7 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            await StreamDataAsync(0, 20 - 11).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Read a single value from the server as an asynchronous operation.
@@ -532,6 +591,7 @@ namespace dotPLC.Mitsubishi
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                await StreamDataAsync(0, 20 - 12).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
             }
             else
                 coil = ReceveiBuffer[11] == 0x10;
@@ -560,6 +620,7 @@ namespace dotPLC.Mitsubishi
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                await StreamDataAsync(0, 20 - 13).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
             }
             else
                 value = BitConverter.ToInt16(ReceveiBuffer, 11);
@@ -588,6 +649,7 @@ namespace dotPLC.Mitsubishi
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                await StreamDataAsync(0, 20 - 15).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
             }
             else
                 value = BitConverter.ToInt32(ReceveiBuffer, 11);
@@ -616,6 +678,7 @@ namespace dotPLC.Mitsubishi
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                await StreamDataAsync(0, 20 - 15).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
             }
             else
                 value = BitConverter.ToSingle(ReceveiBuffer, 11);
@@ -647,6 +710,8 @@ namespace dotPLC.Mitsubishi
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (11 + num_of_byte < 20)
+                    await StreamDataAsync(0, 20 - (11 + num_of_byte)).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
             }
             else
                 coils = ConvertByteArrayToBoolArray(ReceveiBuffer, 11, size);
@@ -677,6 +742,8 @@ namespace dotPLC.Mitsubishi
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (11 + size * 2 < 20)
+                    await StreamDataAsync(0, 20 - (11 + size * 2)).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
             }
             else
             {
@@ -710,6 +777,8 @@ namespace dotPLC.Mitsubishi
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (11 + size * 4 < 20)
+                    await StreamDataAsync(0, 20 - (11 + size * 4)).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
             }
             else
             {
@@ -727,6 +796,7 @@ namespace dotPLC.Mitsubishi
         /// <see href="TResult"></see> is <see cref="float"></see>[].</returns>
         private async Task<float[]> ReadFloatsAsync(string label, int size)
         {
+           
             float[] values = new float[size];
             SendBuffer[7] = 0x0C;
             SendBuffer[8] = 0x00;
@@ -743,6 +813,8 @@ namespace dotPLC.Mitsubishi
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (11 + size * 4 < 20)
+                    await StreamDataAsync(0, 20 - (11 + size * 4)).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
             }
             else
             {
@@ -764,15 +836,15 @@ namespace dotPLC.Mitsubishi
             dsWordBaseBits.Clear();
             for (int index = 0; index < bits.Length; ++index)
             {
+                if (bits[index] == null)
+                    throw new ArgumentNullException(nameof(bits), string.Format("bits[{0}] is null.", index));
                 string device;
                 int num;
-                if (SettingDevice(bits[index].Label, out device, out num))
-                {
+                SettingDevice(bits[index].Label, out device, out num);
                     if (Labels.ContainsKey(device))
                         Labels[device].Add(num);
                     else
                         Labels.Add(device, new List<int>() { num });
-                }
             }
             foreach (KeyValuePair<string, List<int>> item in Labels)
                 item.Value.Sort();
@@ -816,6 +888,8 @@ namespace dotPLC.Mitsubishi
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (11 + count * 2 < 20)
+                    await StreamDataAsync(0, 20 - (11 + count * 2)).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
             }
             else
             {
@@ -845,33 +919,41 @@ namespace dotPLC.Mitsubishi
         /// <returns>Returns <see cref="System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
         private async Task ReadRandomSubAsync(params Word[] words)
         {
-            int num_of_W = words.Length;
-            byte[] datalenght = BitConverter.GetBytes(8 + num_of_W * 4);
-            SendBuffer[7] = datalenght[0];
-            SendBuffer[8] = datalenght[1];
+            if (words == null)
+                throw new ArgumentNullException(nameof(words));
+            int length = words.Length;
+            if (length < 1 || length > 192) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 192 points.", nameof(words));
+            byte[] datalength = BitConverter.GetBytes(8 + length * 4);
+            SendBuffer[7] = datalength[0];
+            SendBuffer[8] = datalength[1];
             SendBuffer[11] = 0x03;
             SendBuffer[12] = 0x04;
             SendBuffer[13] = 0x00;
             SendBuffer[14] = 0x00;
-            SendBuffer[15] = (byte)num_of_W;
+            SendBuffer[15] = (byte)length;
             SendBuffer[16] = 0x00;
             int index_W = 17;
-            for (int i = 0; i < num_of_W; ++i)
+            for (int i = 0; i < length; ++i)
             {
+                if (words[i] == null)
+                    throw new ArgumentNullException(nameof(words), string.Format("words[{0}] is null.", i));
                 SettingDevice(words[i].Label, out SendBuffer[index_W + 3], out SendBuffer[index_W], out SendBuffer[index_W + 1], out SendBuffer[index_W + 2]);
                 index_W += 4;
             }
-            int total_byte = 17 + num_of_W * 4;
-            int total_byte_recv = 11 + num_of_W * 2;
+            int total_byte = 17 + length * 4;
+            int total_byte_recv = 11 + length * 2;
             await StreamDataAsync(total_byte, total_byte_recv).ConfigureAwait(false);
             if (ReceveiBuffer[9] != 0x00 || ReceveiBuffer[10] != 0x00)
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (total_byte_recv < 20)
+                    await StreamDataAsync(0, 20 - total_byte_recv).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
             }
             else
             {
-                for (int i = 0; i < num_of_W * 2; i += 2)
+                for (int i = 0; i < length * 2; i += 2)
                     words[i / 2].Value = BitConverter.ToInt16(ReceveiBuffer, 11 + i);
             }
         }
@@ -882,33 +964,41 @@ namespace dotPLC.Mitsubishi
         /// <returns>Returns <see cref="System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
         private async Task ReadRandomSubAsync(params DWord[] dwords)
         {
-            int num_of_DW = dwords.Length;
-            byte[] datalenght = BitConverter.GetBytes(8 + num_of_DW * 4);
-            SendBuffer[7] = datalenght[0];
-            SendBuffer[8] = datalenght[1];
+            if (dwords == null)
+                throw new ArgumentNullException(nameof(dwords));
+            int length = dwords.Length;
+            if (length < 1 || length > 192) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 192 points.", nameof(dwords));
+            byte[] datalength = BitConverter.GetBytes(8 + length * 4);
+            SendBuffer[7] = datalength[0];
+            SendBuffer[8] = datalength[1];
             SendBuffer[11] = 0x03;
             SendBuffer[12] = 0x04;
             SendBuffer[13] = 0x00;
             SendBuffer[14] = 0x00;
             SendBuffer[15] = 0x00;
-            SendBuffer[16] = (byte)num_of_DW;
+            SendBuffer[16] = (byte)length;
             int index_DW = 17;
-            for (int i = 0; i < num_of_DW; ++i)
+            for (int i = 0; i < length; ++i)
             {
+                if (dwords[i] == null)
+                    throw new ArgumentNullException(nameof(dwords), string.Format("dwords[{0}] is null.", i));
                 SettingDevice(dwords[i].Label, out SendBuffer[index_DW + 3], out SendBuffer[index_DW], out SendBuffer[index_DW + 1], out SendBuffer[index_DW + 2]);
                 index_DW += 4;
             }
-            int total_byte = 17 + num_of_DW * 4;
-            int total_byte_recv = 11 + num_of_DW * 4;
+            int total_byte = 17 + length * 4;
+            int total_byte_recv = 11 + length * 4;
             await StreamDataAsync(total_byte, total_byte_recv).ConfigureAwait(false);
             if (ReceveiBuffer[9] != 0x00 || ReceveiBuffer[10] != 0x00)
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (total_byte_recv < 20)
+                    await StreamDataAsync(0, 20 - total_byte_recv).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
             }
             else
             {
-                for (int i = 0; i < num_of_DW * 4; i += 4)
+                for (int i = 0; i < length * 4; i += 4)
                     dwords[i / 4].Value = BitConverter.ToInt32(ReceveiBuffer, 11 + i);
             }
         }
@@ -919,33 +1009,41 @@ namespace dotPLC.Mitsubishi
         /// <returns>Returns <see cref="System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
         private async Task ReadRandomSubAsync(params Float[] floats)
         {
-            int num_of_FL = floats.Length;
-            byte[] datalenght = BitConverter.GetBytes(8 + num_of_FL * 4);
-            SendBuffer[7] = datalenght[0];
-            SendBuffer[8] = datalenght[1];
+            if (floats == null)
+                throw new ArgumentNullException(nameof(floats));
+            int length = floats.Length;
+            if (length < 1 || length > 192) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 192 points.", nameof(floats));
+            byte[] datalength = BitConverter.GetBytes(8 + length * 4);
+            SendBuffer[7] = datalength[0];
+            SendBuffer[8] = datalength[1];
             SendBuffer[11] = 0x03;
             SendBuffer[12] = 0x04;
             SendBuffer[13] = 0x00;
             SendBuffer[14] = 0x00;
             SendBuffer[15] = 0x00;
-            SendBuffer[16] = (byte)num_of_FL;
+            SendBuffer[16] = (byte)length;
             int index_FL = 17;
-            for (int i = 0; i < num_of_FL; ++i)
+            for (int i = 0; i < length; ++i)
             {
+                if (floats[i] == null)
+                    throw new ArgumentNullException(nameof(floats), string.Format("floats[{0}] is null.", i));
                 SettingDevice(floats[i].Label, out SendBuffer[index_FL + 3], out SendBuffer[index_FL], out SendBuffer[index_FL + 1], out SendBuffer[index_FL + 2]);
                 index_FL += 4;
             }
-            int total_byte = 17 + num_of_FL * 4;
-            int total_byte_recv = 11 + num_of_FL * 4;
+            int total_byte = 17 + length * 4;
+            int total_byte_recv = 11 + length * 4;
             await StreamDataAsync(total_byte, total_byte_recv).ConfigureAwait(false);
             if (ReceveiBuffer[9] != 0x00 || ReceveiBuffer[10] != 0x00)
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (total_byte_recv < 20)
+                    await StreamDataAsync(0, 20 - total_byte_recv).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
             }
             else
             {
-                for (int i = 0; i < num_of_FL * 4; i += 4)
+                for (int i = 0; i < length * 4; i += 4)
                     floats[i / 4].Value = BitConverter.ToSingle(ReceveiBuffer, 11 + i);
             }
         }
@@ -967,13 +1065,11 @@ namespace dotPLC.Mitsubishi
                 {
                     string device;
                     int num;
-                    if (SettingDevice(bits[index].Label, out device, out num))
-                    {
+                    SettingDevice(bits[index].Label, out device, out num);
                         if (Labels.ContainsKey(device))
                             Labels[device].Add(num);
                         else
                             Labels.Add(device, new List<int>() { num });
-                    }
                 }
                 foreach (KeyValuePair<string, List<int>> label in Labels)
                     label.Value.Sort();
@@ -997,68 +1093,70 @@ namespace dotPLC.Mitsubishi
                     }
                 }
             }
-            int num1 = dsWordBaseBits == null ? 0 : dsWordBaseBits.Count; //số bit dựa theo Word
-            int num2 = words == null ? 0 : words.Length; //Số W
-            int num3 = dwords == null ? 0 : dwords.Length; //Số Dw
-            int num4 = floats == null ? 0 : floats.Length; // Số FL
-            if (num1 == 0 && num2 == 0 && num3 == 0 && num4 == 0)
+            int num_of_Bit_base_W = dsWordBaseBits == null ? 0 : dsWordBaseBits.Count; //số bit dựa theo Word
+            int num_of_W = words == null ? 0 : words.Length; //Số W
+            int num_of_DW = dwords == null ? 0 : dwords.Length; //Số Dw
+            int num_of_FL = floats == null ? 0 : floats.Length; // Số FL
+            if (num_of_Bit_base_W == 0 && num_of_W == 0 && num_of_DW == 0 && num_of_FL == 0)
                 return;
-            byte[] bytes = BitConverter.GetBytes(8 + (num1 + num2 + num3 + num4) * 4);
+            byte[] bytes = BitConverter.GetBytes(8 + (num_of_Bit_base_W + num_of_W + num_of_DW + num_of_FL) * 4);
             SendBuffer[7] = bytes[0];
             SendBuffer[8] = bytes[1];
             SendBuffer[11] = 0x03;
             SendBuffer[12] = 0x04;
             SendBuffer[13] = 0x00;
             SendBuffer[14] = 0x00;
-            SendBuffer[15] = (byte)(num2 + num1);
-            SendBuffer[16] = (byte)(num3 + num4);
-            int index1 = 17;
-            int index2 = 17 + num1 * 4;
-            int index3 = index2 + num2 * 4;
-            int index4 = index3 + num3 * 4;
-            if (num1 > 0)
+            SendBuffer[15] = (byte)(num_of_W + num_of_Bit_base_W);
+            SendBuffer[16] = (byte)(num_of_DW + num_of_FL);
+            int index_B = 17;
+            int index_W = 17 + num_of_Bit_base_W * 4;
+            int index_DW = index_W + num_of_W * 4;
+            int index_FL = index_DW + num_of_DW * 4;
+            if (num_of_Bit_base_W > 0)
             {
-                for (int i = 0; i < num1; ++i)
+                for (int i = 0; i < num_of_Bit_base_W; ++i)
                 {
-                    SettingDevice(dsWordBaseBits[i].Label, out SendBuffer[index1 + 3], out SendBuffer[index1], out SendBuffer[index1 + 1], out SendBuffer[index1 + 2]);
-                    index1 += 4;
+                    SettingDevice(dsWordBaseBits[i].Label, out SendBuffer[index_B + 3], out SendBuffer[index_B], out SendBuffer[index_B + 1], out SendBuffer[index_B + 2]);
+                    index_B += 4;
                 }
             }
-            if (num2 > 0)
+            if (num_of_W > 0)
             {
-                for (int i = 0; i < num2; ++i)
+                for (int i = 0; i < num_of_W; ++i)
                 {
-                    SettingDevice(words[i].Label, out SendBuffer[index2 + 3], out SendBuffer[index2], out SendBuffer[index2 + 1], out SendBuffer[index2 + 2]);
-                    index2 += 4;
+                    SettingDevice(words[i].Label, out SendBuffer[index_W + 3], out SendBuffer[index_W], out SendBuffer[index_W + 1], out SendBuffer[index_W + 2]);
+                    index_W += 4;
                 }
             }
-            if (num3 > 0)
+            if (num_of_DW > 0)
             {
-                for (int i = 0; i < num3; ++i)
+                for (int i = 0; i < num_of_DW; ++i)
                 {
-                    SettingDevice(dwords[i].Label, out SendBuffer[index3 + 3], out SendBuffer[index3], out SendBuffer[index3 + 1], out SendBuffer[index3 + 2]);
-                    index3 += 4;
+                    SettingDevice(dwords[i].Label, out SendBuffer[index_DW + 3], out SendBuffer[index_DW], out SendBuffer[index_DW + 1], out SendBuffer[index_DW + 2]);
+                    index_DW += 4;
                 }
             }
-            if (num4 > 0)
+            if (num_of_FL > 0)
             {
-                for (int i = 0; i < num4; ++i)
+                for (int i = 0; i < num_of_FL; ++i)
                 {
-                    SettingDevice(floats[i].Label, out SendBuffer[index4 + 3], out SendBuffer[index4], out SendBuffer[index4 + 1], out SendBuffer[index4 + 2]);
-                    index4 += 4;
+                    SettingDevice(floats[i].Label, out SendBuffer[index_FL + 3], out SendBuffer[index_FL], out SendBuffer[index_FL + 1], out SendBuffer[index_FL + 2]);
+                    index_FL += 4;
                 }
             }
-            await StreamDataAsync(17 + (num1 + num2 + num3 + num4) * 4, 11 + num1 * 2 + num2 * 2 + num3 * 4 + num4 * 4).ConfigureAwait(false);
+            await StreamDataAsync(17 + (num_of_Bit_base_W + num_of_W + num_of_DW + num_of_FL) * 4, 11 + num_of_Bit_base_W * 2 + num_of_W * 2 + num_of_DW * 4 + num_of_FL * 4).ConfigureAwait(false);
             if (ReceveiBuffer[9] != 0x00 || ReceveiBuffer[10] != 0x00)
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (11 + num_of_Bit_base_W * 2 + num_of_W * 2 + num_of_DW * 4 + num_of_FL * 4 < 20)
+                    await StreamDataAsync(0, 20 - (11 + num_of_Bit_base_W * 2 + num_of_W * 2 + num_of_DW * 4 + num_of_FL * 4)).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
             }
             else
             {
-                if (num1 > 0)
+                if (num_of_Bit_base_W > 0)
                 {
-                    for (int i = 0; i < num1 * 2; i += 2)
+                    for (int i = 0; i < num_of_Bit_base_W * 2; i += 2)
                         dsWordBaseBits[i / 2].Value = BitConverter.ToInt16(ReceveiBuffer, 11 + i);
                     for (int i = 0; i < bits.Length; ++i)
                     {
@@ -1076,20 +1174,20 @@ namespace dotPLC.Mitsubishi
                         }
                     }
                 }
-                if (num2 > 0)
+                if (num_of_W > 0)
                 {
-                    for (int i = 0; i < num2 * 2; i += 2)
-                        words[i / 2].Value = BitConverter.ToInt16(ReceveiBuffer, 11 + num1 * 2 + i);
+                    for (int i = 0; i < num_of_W * 2; i += 2)
+                        words[i / 2].Value = BitConverter.ToInt16(ReceveiBuffer, 11 + num_of_Bit_base_W * 2 + i);
                 }
-                if (num3 > 0)
+                if (num_of_DW > 0)
                 {
-                    for (int i = 0; i < num3 * 4; i += 4)
-                        dwords[i / 4].Value = BitConverter.ToInt32(ReceveiBuffer, 11 + (num1 * 2 + num2 * 2) + i);
+                    for (int i = 0; i < num_of_DW * 4; i += 4)
+                        dwords[i / 4].Value = BitConverter.ToInt32(ReceveiBuffer, 11 + (num_of_Bit_base_W * 2 + num_of_W * 2) + i);
                 }
-                if (num4 > 0)
+                if (num_of_FL > 0)
                 {
-                    for (int i = 0; i < num4 * 4; i += 4)
-                        floats[i / 4].Value = BitConverter.ToSingle(ReceveiBuffer, 11 + (num1 * 2 + num2 * 2 + num3 * 4) + i);
+                    for (int i = 0; i < num_of_FL * 4; i += 4)
+                        floats[i / 4].Value = BitConverter.ToSingle(ReceveiBuffer, 11 + (num_of_Bit_base_W * 2 + num_of_W * 2 + num_of_DW * 4) + i);
                 }
             }
         }
@@ -1102,6 +1200,8 @@ namespace dotPLC.Mitsubishi
         /// Value is text of the specified size.</returns>
         private async Task<string> ReadTextSubAsync(string label, int size)
         {
+            if (size < 1 || size > 960) //Page57 (SLMP-Mitsubishi.PDF)
+                throw new SizeOutOfRangeException("Size must be 1 to 960 points.", nameof(size));
             string str = string.Empty;
             int count = size;
             if (size % 2 != 0)
@@ -1121,11 +1221,14 @@ namespace dotPLC.Mitsubishi
             {
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (11 + size < 20)
+                    await StreamDataAsync(0, 20 - (11 + size)).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
             }
             else
                 str = count % 2 != 0 ? Encoding.ASCII.GetString(ReceveiBuffer, 11, count) : Encoding.ASCII.GetString(ReceveiBuffer, 11, size);
             return str;
         }
+
         /// <summary>
         /// To test whether the communication function between the client and the server operates normally or not.
         /// </summary>
@@ -1134,14 +1237,16 @@ namespace dotPLC.Mitsubishi
         /// <see href="TResult"/> is <see cref="bool"/> indicates that true is normal, false is abnormal.</returns>
         private async Task<bool> SelfTestSubAsync(string loopbackMessage)
         {
+            if (loopbackMessage == "" || loopbackMessage == null)
+                throw new ArgumentNullException(nameof(loopbackMessage), "Data length must be greater than 1 and less than or equal to 960 characters, character codes are allowed (\"0\" to \"9\", \"A\" to \"F\").");
             foreach (char ch in loopbackMessage)
             {
                 if ((ch < '0' || ch > '9') && (ch < 'A' || ch > 'F') || loopbackMessage.Length > 960)
-                    throw new ArgumentOutOfRangeException(nameof(loopbackMessage), loopbackMessage, "Data is sent for up to 960 bytes from the head by treating each character code (\"0\" to \"9\", \"A\" to \"F\") as a 1 byte value.");
+                    throw new ArgumentOutOfRangeException(nameof(loopbackMessage), loopbackMessage, "Data length must be greater than 1 and less than or equal to 960 characters, character codes are allowed (\"0\" to \"9\", \"A\" to \"F\").");
             }
-            byte[] datalength_bytes = BitConverter.GetBytes(8 + loopbackMessage.Length);
-            SendBuffer[7] = datalength_bytes[0];
-            SendBuffer[8] = datalength_bytes[1];
+            byte[] datalenght_bytes = BitConverter.GetBytes(8 + loopbackMessage.Length);
+            SendBuffer[7] = datalenght_bytes[0];
+            SendBuffer[8] = datalenght_bytes[1];
             SendBuffer[11] = 0x19;
             SendBuffer[12] = 0x06;
             SendBuffer[13] = 0x00;
@@ -1158,6 +1263,8 @@ namespace dotPLC.Mitsubishi
                 flag = false;
                 int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
                 Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+                if (13 + loopbackMessage.Length < 20)
+                    await StreamDataAsync(0, 20 - (13 + loopbackMessage.Length)).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
             }
             else
                 flag = ReceveiBuffer[11] == textlength_bytes[0] && ReceveiBuffer[12] == textlength_bytes[1] && loopbackMessage == Encoding.ASCII.GetString(ReceveiBuffer, 13, loopbackMessage.Length);
@@ -1192,16 +1299,18 @@ namespace dotPLC.Mitsubishi
         /// <returns>Returns <see cref="System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
         private async Task RemoteLockSubAsync(string password)
         {
-            byte[] numArray = password.Length <= 32 && password.Length >= 6 ? BitConverter.GetBytes(8 + password.Length) : throw new ArgumentOutOfRangeException("The password length is the specified characters (6 to 32 characters).");
+            if (password == "" || password == null)
+                throw new ArgumentNullException(nameof(password), "The password length is the specified characters (6 to 32 characters).");
+            byte[] numArray = password.Length <= 32 && password.Length >= 6 ? BitConverter.GetBytes(8 + password.Length) : throw new ArgumentOutOfRangeException(nameof(password), "The password length is the specified characters (6 to 32 characters).");
             SendBuffer[7] = numArray[0];
             SendBuffer[8] = numArray[1];
             SendBuffer[11] = 0x31;
             SendBuffer[12] = 0x16;
             SendBuffer[13] = 0x00;
             SendBuffer[14] = 0x00;
-            byte[] datalength_bytes = BitConverter.GetBytes(password.Length);
-            SendBuffer[15] = datalength_bytes[0];
-            SendBuffer[16] = datalength_bytes[1];
+            byte[] datalenght_bytes = BitConverter.GetBytes(password.Length);
+            SendBuffer[15] = datalenght_bytes[0];
+            SendBuffer[16] = datalenght_bytes[1];
             byte[] password_bytes = Encoding.ASCII.GetBytes(password);
             Array.Copy(password_bytes, 0, SendBuffer, 17, password_bytes.Length);
             await StreamDataAsync(17 + password.Length, 11).ConfigureAwait(false);
@@ -1209,6 +1318,7 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            await StreamDataAsync(0, 20 - 11).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// Changes the remote password from locked status to unlocked status as an asynchronous operation. (Enables communication to the device.)
@@ -1217,7 +1327,9 @@ namespace dotPLC.Mitsubishi
         /// <returns>Returns <see cref="System.Threading.Tasks.Task"></see> The task object representing the asynchronous operation.</returns>
         private async Task RemoteUnlockSubAsync(string password)
         {
-            byte[] numArray = password.Length <= 32 && password.Length >= 6 ? BitConverter.GetBytes(8 + password.Length) : throw new ArgumentOutOfRangeException("The password length is the specified characters (6 to 32 characters).");
+            if (password == "" || password == null)
+                throw new ArgumentNullException(nameof(password), "The password length is the specified characters (6 to 32 characters).");
+            byte[] numArray = password.Length <= 32 && password.Length >= 6 ? BitConverter.GetBytes(8 + password.Length) : throw new ArgumentOutOfRangeException(nameof(password), "The password length is the specified characters (6 to 32 characters).");
             SendBuffer[7] = numArray[0];
             SendBuffer[8] = numArray[1];
             SendBuffer[11] = 0x30;
@@ -1234,6 +1346,7 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            await StreamDataAsync(0, 20 - 11).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
         }
         /// <summary>
         /// To perform a remote operation of the server as an asynchronous operation. (EX: RUN/PAUSE/STOP/CLEAR/RESET...)
@@ -1249,6 +1362,7 @@ namespace dotPLC.Mitsubishi
                 return;
             int errorCode = (ReceveiBuffer[10] << 8) + ReceveiBuffer[9];
             Trouble?.Invoke(this, new TroubleshootingEventArgs(errorCode));
+            await StreamDataAsync(0, 20 - 11).ConfigureAwait(false); //Khi PLC gửi lỗi (20byte)
         }
         #endregion SubAsync Method
     }

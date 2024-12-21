@@ -1,4 +1,5 @@
 ﻿using dotPLC.Initial;
+using dotPLC.Mitsubishi.Exceptions;
 using System;
 using System.Text.RegularExpressions;
 
@@ -34,11 +35,12 @@ namespace dotPLC.Mitsubishi.Types
         /// <param name="label">Label name. (EX: D0, Y2, M10, etc.)</param>
         public Word(string label)
         {
+            if (label == null || label=="")
+                throw new InvalidDeviceLabelNameException("The label name of device is invalid.",nameof(label));
             label = sWhitespace.Replace(label, "").ToUpper();
             string device;
             int num;
-            if (!Ethernet.SettingDevice(label, out device, out num))
-                throw new ArgumentOutOfRangeException("The specified device does not belong to the memory of the PLC");
+            Ethernet.SettingDevice(label, out device, out num);
             _label = label;
             _device = device;
             _index = num;
@@ -50,11 +52,12 @@ namespace dotPLC.Mitsubishi.Types
         /// <param name="value">Signed 16-bit data.</param>
         public Word(string label, short value)
         {
+            if (label == null || label == "")
+                throw new InvalidDeviceLabelNameException("The label name of device is invalid.",nameof(label));
             label = sWhitespace.Replace(label, "").ToUpper();
             string device;
             int num;
-            if (!Ethernet.SettingDevice(label, out device, out num))
-                throw new ArgumentOutOfRangeException("The specified device does not belong to the memory of the PLC");
+            Ethernet.SettingDevice(label, out device, out num);
             _label = label;
             _device = device;
             _index = num;
@@ -67,11 +70,12 @@ namespace dotPLC.Mitsubishi.Types
         /// <param name="value">Unsigned 16-bit data.</param>
         public Word(string label, ushort value)
         {
+            if (label == null || label == "")
+                throw new InvalidDeviceLabelNameException("The label name of device is invalid.",nameof(label));
             label = sWhitespace.Replace(label, "").ToUpper();
             string device;
             int num;
-            if (!Ethernet.SettingDevice(label, out device, out num))
-                throw new ArgumentOutOfRangeException("The specified device does not belong to the memory of the PLC");
+            Ethernet.SettingDevice(label, out device, out num);
             _label = label;
             _device = device;
             _index = num;
@@ -84,8 +88,7 @@ namespace dotPLC.Mitsubishi.Types
         /// <param name="index">index</param>
         protected internal void Create(string device, int index)
         {
-            if (!Ethernet.SettingLabel(device, index, out _label))
-                throw new ArgumentOutOfRangeException("The specified device does not belong to the memory of the PLC");
+            Ethernet.SettingLabel(device, index, out _label);
             _device = device;
             _index = index;
         }
@@ -97,11 +100,12 @@ namespace dotPLC.Mitsubishi.Types
             get => _label;
             set
             {
+                if (value == null || value == "")
+                    throw new InvalidDeviceLabelNameException("The label name of device is invalid.",nameof(Label));
                 string label_temp = sWhitespace.Replace(value, "").ToUpper();
                 string device;
                 int num;
-                if (!Ethernet.SettingDevice(label_temp, out device, out num))
-                    throw new ArgumentOutOfRangeException("The specified device does not belong to the memory of the PLC");
+                Ethernet.SettingDevice(label_temp, out device, out num);
                 _device = device;
                 _index = num;
                 _label = label_temp;
@@ -115,8 +119,7 @@ namespace dotPLC.Mitsubishi.Types
             get => _index;
             set
             {
-                if (!Ethernet.SettingLabel(_device, value, out _label))
-                    throw new ArgumentOutOfRangeException("The specified device does not belong to the memory of the PLC");
+                Ethernet.SettingLabel(_device, value, out _label);
                 _index = value;
             }
         }
@@ -125,11 +128,13 @@ namespace dotPLC.Mitsubishi.Types
         /// </summary>
         protected internal string Device
         {
+
             get => _device;
             set
             {
-                if (!Ethernet.SettingLabel(value, _index, out _label))
-                    throw new ArgumentOutOfRangeException("The specified device does not belong to the memory of the PLC");
+                if (value == null || value == "")
+                    throw new InvalidDeviceLabelNameException("The label name of device is invalid.");
+                Ethernet.SettingLabel(value, _index, out _label);
                 _device = value;
             }
         }

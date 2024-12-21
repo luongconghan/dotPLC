@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net472;net45;net461</TargetFrameworks>
+    <TargetFrameworks>net472;net45;net452;net461</TargetFrameworks>
     <Authors>Luong Cong Han</Authors>
     <Company>Luong Cong Han</Company>
-    <Description>A .NET Library for Mitsubishi Connectivity</Description>
+    <Description>A .NET Library for Mitsubishi Connectivity, Modbus RTU, Modbus TCP.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Copyright>Luong Cong Han 2023</Copyright>
     <PackageProjectUrl>https://github.com/luongconghan/dotplc</PackageProjectUrl>
@@ -14,15 +14,19 @@
     <PackageIconUrl />
     <PackageId>dotPLC</PackageId>
     <Product>dotPLC</Product>
-    <PackageIcon>dotPLC32x32png.png</PackageIcon>
+    <PackageIcon>dotPLC256.png</PackageIcon>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Version>1.1.2</Version>
+    <Version>2.0.2</Version>
     <PackageReadmeFile></PackageReadmeFile>
-    <PackageReleaseNotes>Change SelfTestCheckInterval value.</PackageReleaseNotes>
+    <PackageReleaseNotes>Add Modbus RTU, Modbus TCP/IP  protocol.</PackageReleaseNotes>
+    <ApplicationIcon />
+    <OutputType>Library</OutputType>
+    <StartupObject />
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>E:\dotPLC\dotPLC\dotPLC.xml</DocumentationFile>
+    <DocumentationFile>C:\Users\Dell Latitude 3540\Desktop\dotPLC\dotPLC\dotPLC.xml</DocumentationFile>
     <WarningLevel>3</WarningLevel>
   </PropertyGroup>
 

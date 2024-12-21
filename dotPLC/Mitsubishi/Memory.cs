@@ -11,15 +11,15 @@ namespace dotPLC.Mitsubishi
         /// <summary>
         /// D device memory.
         /// </summary>
-        public byte[] D { get; set; } = new byte[16000];//7999
+        public byte[] D { get; set; } = new byte[16000];//7999 **Nên cộng thêm 2 byte để giá trị D7999 kiểu Word đủ 4 byte/Hoặc D7999 không cho phép hiển thị DWORD, FLOAT ở datagridview...
         /// <summary>
         /// SW device memory.
         /// </summary>
-        public byte[] SW { get; set; } = new byte[65535]; //1ff -sai [7fff=32766]
+        public byte[] SW { get; set; } = new byte[65536]; //1ff -sai [7fff=32766]
         /// <summary>
         /// W device memory.
         /// </summary>
-        public byte[] W { get; set; } = new byte[65535]; //same
+        public byte[] W { get; set; } = new byte[65536]; //same
         /// <summary>
         /// TN device memory.
         /// </summary>
@@ -31,7 +31,7 @@ namespace dotPLC.Mitsubishi
         /// <summary>
         /// R device memory.
         /// </summary>
-        public byte[] R { get; set; } = new byte[65535]; //R32767
+        public byte[] R { get; set; } = new byte[65536]; //R32767
         /// <summary>
         /// Z device memory.
         /// </summary>
@@ -67,35 +67,35 @@ namespace dotPLC.Mitsubishi
         /// <summary>
         /// M device memory.
         /// </summary>
-        public bool[] M { get; set; } = new bool[32767]; //M7679_sai 32767
+        public bool[] M { get; set; } = new bool[32768]; //M7679_sai 32767
         /// <summary>
         /// L device memory.
         /// </summary>
-        public bool[] L { get; set; } = new bool[32767]; //same sai same
+        public bool[] L { get; set; } = new bool[32768]; //same sai same
         /// <summary>
         /// F device memory.
         /// </summary>
-        public bool[] F { get; set; } = new bool[32767]; //f127 sai same
+        public bool[] F { get; set; } = new bool[32768]; //f127 sai same
         /// <summary>
         /// B device memory.
         /// </summary>
-        public bool[] B { get; set; } = new bool[0x7ff]; //ff=255 sai 7fff
+        public bool[] B { get; set; } = new bool[0x8000]; //ff=255 sai 7fff
         /// <summary>
         /// S device memory.
         /// </summary>
-        public bool[] S { get; set; } = new bool[4095]; //S4095
+        public bool[] S { get; set; } = new bool[4096]; //S4095
         /// <summary>
         /// SS device memory.
         /// </summary>
-        public bool[] SS { get; set; } = new bool[1023]; //ss15 sai 1023
+        public bool[] SS { get; set; } = new bool[1024]; //ss15 sai 1023
         /// <summary>
         /// SC device memory.
         /// </summary>
-        public bool[] SC { get; set; } = new bool[1023]; //same sai same
+        public bool[] SC { get; set; } = new bool[1024]; //same sai same
         /// <summary>
         /// TC device memory.
         /// </summary>
-        public bool[] TC { get; set; } = new bool[1023]; //TC511 sai same
+        public bool[] TC { get; set; } = new bool[1024]; //TC511 sai same
         /// <summary>
         /// TS device memory.
         /// </summary>

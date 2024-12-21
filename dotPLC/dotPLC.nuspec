@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>dotPLC</id>
-    <version>1.0.12</version>
+    <version>2.0.6</version>
     <authors>Luong Cong Han</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
@@ -10,27 +10,27 @@
     <icon>dotPLC256.png</icon>
     <projectUrl>https://github.com/luongconghan/dotplc</projectUrl>
     <repository type="git" url="https://github.com/luongconghan/dotplc"/>
-    <description>A .NET Library for Mitsubishi Connectivity</description>
-    <releaseNotes>Edit StreamData method part 2</releaseNotes>
-    <copyright>Luong Cong Han 2023</copyright>
-    <tags>dotPLC, PLC, SLMP, Mitsubishi, GX Simulator3</tags>
+    <description>A .NET Library for Mitsubishi Connectivity, Modbus RTU, Modbus TCP.</description>
+    <releaseNotes>Add Modbus RTU, Modbus TCP/IP Async protocol.</releaseNotes>
+    <copyright>Luong Cong Han 2024</copyright>
+    <tags>dotPLC, PLC, SLMP, Mitsubishi, GX Simulator3, Modbus</tags>
     <dependencies>
       <group targetFramework=".NETFramework4.7.2" />
       <group targetFramework=".NETFramework4.6.1" />
       <group targetFramework=".NETFramework4.5" />
-      <group targetFramework=".NETStandard2.0" />
+      <group targetFramework=".NETFramework4.5.2" />
     </dependencies>
   </metadata>
 
   <files>
-    <file src="E:\SourceCode\dotPLC\dotPLC\bin\Debug\netstandard2.0\dotPLC.dll" target="lib\netstandard2.0\dotPLC.dll" />
-    <file src="E:\SourceCode\dotPLC\dotPLC\bin\Debug\netstandard2.0\dotPLC.xml" target="lib\netstandard2.0\dotPLC.xml" />
-    <file src="E:\SourceCode\dotPLC\dotPLC\bin\Debug\net472\dotPLC.dll" target="lib\net472\dotPLC.dll" />
-    <file src="E:\SourceCode\dotPLC\dotPLC\bin\Debug\net472\dotPLC.xml" target="lib\net472\dotPLC.xml" />
-    <file src="E:\SourceCode\dotPLC\dotPLC\bin\Debug\net461\dotPLC.dll" target="lib\net461\dotPLC.dll" />
-    <file src="E:\SourceCode\dotPLC\dotPLC\bin\Debug\net461\dotPLC.xml" target="lib\net461\dotPLC.xml" />
-    <file src="E:\SourceCode\dotPLC\dotPLC\bin\Debug\net45\dotPLC.dll" target="lib\net45\dotPLC.dll" />
-    <file src="E:\SourceCode\dotPLC\dotPLC\bin\Debug\net45\dotPLC.xml" target="lib\net45\dotPLC.xml" />
-    <file src="E:\SourceCode\dotPLC\dotPLC\dotPLC256.png" />
+    <file src="bin\Debug\net472\dotPLC.dll" target="lib\net472\dotPLC.dll" />
+    <file src="bin\Debug\net472\dotPLC.xml" target="lib\net472\dotPLC.xml" />
+    <file src="bin\Debug\net461\dotPLC.dll" target="lib\net461\dotPLC.dll" />
+    <file src="bin\Debug\net461\dotPLC.xml" target="lib\net461\dotPLC.xml" />
+    <file src="bin\Debug\net45\dotPLC.dll" target="lib\net45\dotPLC.dll" />
+    <file src="bin\Debug\net45\dotPLC.xml" target="lib\net45\dotPLC.xml" />
+    <file src="bin\Debug\net452\dotPLC.dll" target="lib\net452\dotPLC.dll" />
+    <file src="bin\Debug\net452\dotPLC.xml" target="lib\net452\dotPLC.xml" />
+    <file src="dotPLC256.png" />
   </files>
 </package>
