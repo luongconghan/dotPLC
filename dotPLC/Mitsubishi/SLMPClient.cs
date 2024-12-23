@@ -2463,6 +2463,9 @@ namespace dotPLC.Mitsubishi
         /// <returns>The model character string of the server.</returns>
         public  string GetCpuName()
         {
+            // xoá tên cũ đi nếu không nhầm lẫn giữa FX5U-32MT/ES và FX5U-32MT/ESS
+            // do dư ký tự S cuối 
+            Array.Clear(ReceveiBuffer, 11, 17);
             Array.Copy(_getCpuName, SendBuffer, _getCpuName.Length);
             StreamData(_getCpuName.Length, 512);
             string cpuName;
@@ -2475,7 +2478,7 @@ namespace dotPLC.Mitsubishi
             else
             {
                 int num = (ReceveiBuffer[28] << 8) + ReceveiBuffer[27];
-                cpuName = Encoding.ASCII.GetString(ReceveiBuffer, 11, 16);
+                cpuName = Encoding.ASCII.GetString(ReceveiBuffer, 11, 17);
             }
             return cpuName;
         }
