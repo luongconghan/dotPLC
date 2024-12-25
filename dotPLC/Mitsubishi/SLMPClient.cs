@@ -170,7 +170,7 @@ namespace dotPLC.Mitsubishi
                     try
                     {
                         await Task.Delay(50, _cancellationTokenSource.Token).ConfigureAwait(false);
-                        if (_autoReconnect == AutoReconnect.JustDetectDisconnected)
+                        if (_autoReconnect == AutoReconnect.JustDetect)
                         {
                             _breakTimer.Start();
                             break;
@@ -243,7 +243,7 @@ namespace dotPLC.Mitsubishi
                     throw new ConnectionException("Connection was aborted.");
                 }
                 InnerClose();
-                if (_autoReconnect == AutoReconnect.None || _autoReconnect == AutoReconnect.JustDetectDisconnected)
+                if (_autoReconnect == AutoReconnect.None || _autoReconnect == AutoReconnect.JustDetect)
                 {
                     throw new ConnectionException("Connection was aborted.");
                 }
@@ -292,7 +292,7 @@ namespace dotPLC.Mitsubishi
             get => _autoReconnect;
             set
             {
-                if (value == AutoReconnect.JustDetectDisconnected)
+                if (value == AutoReconnect.JustDetect)
                 {
                     if (_isConnectStart && !_breakTimer.Enabled)
                         _breakTimer.Start();
@@ -435,7 +435,7 @@ namespace dotPLC.Mitsubishi
                 _tcpclient = null;
                 _connected = false;
                 LostConnect?.Invoke(this, null);
-                if (_autoReconnect == AutoReconnect.None || isReconnecting || _autoReconnect == AutoReconnect.JustDetectDisconnected)
+                if (_autoReconnect == AutoReconnect.None || isReconnecting || _autoReconnect == AutoReconnect.JustDetect)
                 {
                     Interlocked.Exchange(ref _isSafeMethod, 1);
                     return;
@@ -477,7 +477,7 @@ namespace dotPLC.Mitsubishi
                     throw new ConnectionException("Connection was aborted.");
                 }
                 InnerClose();
-                if (_autoReconnect == AutoReconnect.None || _autoReconnect == AutoReconnect.JustDetectDisconnected)
+                if (_autoReconnect == AutoReconnect.None || _autoReconnect == AutoReconnect.JustDetect)
                 {
                     throw new ConnectionException("Connection was aborted.");
                 }
@@ -768,7 +768,7 @@ namespace dotPLC.Mitsubishi
         private void _reconnectLimitTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             _reconnectLimitTimer.Stop();
-            if (_autoReconnect == AutoReconnect.None || _autoReconnect == AutoReconnect.JustDetectDisconnected)
+            if (_autoReconnect == AutoReconnect.None || _autoReconnect == AutoReconnect.JustDetect)
                 return;
             _cancellationTokenSource.Cancel();
         }

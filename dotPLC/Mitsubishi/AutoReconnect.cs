@@ -16,10 +16,10 @@
         /// <summary>
         /// Enable auto-reconnect to the server.
         /// </summary>
-        Forever,
+        Always,
         /// <summary>
         /// Just enable detect disconnections
         /// </summary>
-        JustDetectDisconnected
+        JustDetect
     }
 }

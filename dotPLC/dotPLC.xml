@@ -633,12 +633,12 @@
             Enable auto-reconnect to the server, with a limit interval for the attempt to reconnect to the server.
             </summary>
         </member>
-        <member name="F:dotPLC.Mitsubishi.AutoReconnect.Forever">
+        <member name="F:dotPLC.Mitsubishi.AutoReconnect.Always">
             <summary>
             Enable auto-reconnect to the server.
             </summary>
         </member>
-        <member name="F:dotPLC.Mitsubishi.AutoReconnect.JustDetectDisconnected">
+        <member name="F:dotPLC.Mitsubishi.AutoReconnect.JustDetect">
             <summary>
             Just enable detect disconnections
             </summary>

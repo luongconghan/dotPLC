@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>dotPLC</id>
-    <version>2.0.6</version>
+    <version>2.0.8</version>
     <authors>Luong Cong Han</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <license type="expression">MIT</license>
@@ -11,7 +11,7 @@
     <projectUrl>https://github.com/luongconghan/dotplc</projectUrl>
     <repository type="git" url="https://github.com/luongconghan/dotplc"/>
     <description>A .NET Library for Mitsubishi Connectivity, Modbus RTU, Modbus TCP.</description>
-    <releaseNotes>Add Modbus RTU, Modbus TCP/IP Async protocol.</releaseNotes>
+    <releaseNotes>Rename for enum AutoReconnect.</releaseNotes>
     <copyright>Luong Cong Han 2024</copyright>
     <tags>dotPLC, PLC, SLMP, Mitsubishi, GX Simulator3, Modbus</tags>
     <dependencies>
